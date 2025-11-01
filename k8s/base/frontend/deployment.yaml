@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: leke1995/globepay-frontend:latest
+        image: nginx:alpine
         ports:
         - containerPort: 80
           name: http
