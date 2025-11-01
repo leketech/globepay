@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+- ../../base
+
+namespace: globepay-prod
+
+patchesStrategicMerge:
+- ./patches/backend-deployment.yaml
+- ./patches/frontend-deployment.yaml
+
+secretGenerator:
+- name: backend-secrets
+  literals:
+  - database-url=postgresql://user:password@rds-endpoint:5432/globepay
+  - redis-url=redis://redis-cluster:6379/0
+  - jwt-secret=super-secret-jwt-key-change-in-production

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: globepay-prod
+  labels:
+    name: globepay-prod
+    environment: production
+    istio-injection: enabled
