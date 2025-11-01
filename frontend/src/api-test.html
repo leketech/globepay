@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testExchangeRates()">Test Exchange Rates</button>
+    <div id="result"></div>
+
+    <script>
+        async function testExchangeRates() {
+            try {
+                const response = await fetch('/api/v1/exchange-rates?from=USD&to=NGN&amount=1000');
+                const data = await response.json();
+                console.log('Exchange rates response:', data);
+                document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

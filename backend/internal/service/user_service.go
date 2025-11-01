@@ -1,0 +1,180 @@
+package service
+
+import (
+	"fmt"
+	"time"
+
+	"globepay/internal/domain"
+	"globepay/internal/repository"
+)
+
+// UserServiceInterface defines the interface for user service
+type UserServiceInterface interface {
+	GetProfile(userID int64) (*domain.User, error)
+	UpdateProfile(userID int64, user *domain.User) error
+	GetVerificationStatus(userID int64) (*domain.UserVerification, error)
+	SubmitVerification(userID int64, verification *domain.UserVerification) error
+	GetAccounts(userID int64) ([]domain.Account, error)
+	CreateAccount(userID int64, account *domain.Account) error
+	GetUserByID(id int64) (*domain.User, error)
+}
+
+// UserService implements UserServiceInterface
+type UserService struct {
+	userRepo    repository.UserRepoInterface
+	accountRepo repository.AccountRepoInterface
+}
+
+// NewUserService creates a new UserService
+func NewUserService(userRepo repository.UserRepoInterface, accountRepo repository.AccountRepoInterface) *UserService {
+	return &UserService{
+		userRepo:    userRepo,
+		accountRepo: accountRepo,
+	}
+}
+
+// GetProfile retrieves a user's profile
+func (s *UserService) GetProfile(userID int64) (*domain.User, error) {
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	return user, nil
+}
+
+// UpdateProfile updates a user's profile
+func (s *UserService) UpdateProfile(userID int64, user *domain.User) error {
+	// Get existing user
+	existingUser, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	// Update fields
+	existingUser.FirstName = user.FirstName
+	existingUser.LastName = user.LastName
+	existingUser.Phone = user.Phone
+	existingUser.Country = user.Country
+	existingUser.Currency = user.Currency
+	existingUser.UpdatedAt = time.Now()
+
+	// Update user
+	if err := s.userRepo.Update(existingUser); err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return nil
+}
+
+// GetVerificationStatus retrieves a user's verification status
+func (s *UserService) GetVerificationStatus(userID int64) (*domain.UserVerification, error) {
+	// In a real implementation, you would retrieve this from the database
+	// For now, we'll return a placeholder
+	verification := &domain.UserVerification{
+		UserID:        userID,
+		EmailVerified: true,
+		PhoneVerified: false,
+		IDVerified:    false,
+		AddressVerified: false,
+		KYCLevel:      1,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+
+	return verification, nil
+}
+
+// SubmitVerification submits user verification documents
+func (s *UserService) SubmitVerification(userID int64, verification *domain.UserVerification) error {
+	// In a real implementation, you would save this to the database
+	// and process the verification documents
+	verification.UserID = userID
+	verification.CreatedAt = time.Now()
+	verification.UpdatedAt = time.Now()
+
+	// Update user verification status
+	// This would involve database operations in a real implementation
+
+	return nil
+}
+
+// GetAccounts retrieves all accounts for a user
+func (s *UserService) GetAccounts(userID int64) ([]domain.Account, error) {
+	accounts, err := s.accountRepo.GetByUserID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get accounts: %w", err)
+	}
+
+	return accounts, nil
+}
+
+// CreateAccount creates a new account for a user
+func (s *UserService) CreateAccount(userID int64, account *domain.Account) error {
+	// Set user ID
+	account.UserID = userID
+
+	// Generate account number
+	account.AccountNumber = s.generateAccountNumber()
+
+	// Set default values
+	account.Balance = 0.0
+	account.Status = string(domain.AccountActive)
+	account.CreatedAt = time.Now()
+	account.UpdatedAt = time.Now()
+
+	// Create account
+	if err := s.accountRepo.Create(account); err != nil {
+		return fmt.Errorf("failed to create account: %w", err)
+	}
+
+	return nil
+}
+
+// GetUserByID retrieves a user by ID
+func (s *UserService) GetUserByID(id int64) (*domain.User, error) {
+	user, err := s.userRepo.GetByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	return user, nil
+}
+
+// generateAccountNumber generates a unique account number
+func (s *UserService) generateAccountNumber() string {
+	// In a real implementation, you would generate a unique account number
+	// based on your business requirements
+	// For now, we'll generate a simple placeholder
+	return fmt.Sprintf("ACC%012d", time.Now().UnixNano()%1000000000000)
+}
+
+// UpdateUserStatus updates a user's status
+func (s *UserService) UpdateUserStatus(userID int64, status string) error {
+	// Get existing user
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	// Update status
+	user.Status = status
+	user.UpdatedAt = time.Now()
+
+	// Update user
+	if err := s.userRepo.Update(user); err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return nil
+}
+
+// GetUserByEmail retrieves a user by email
+func (s *UserService) GetUserByEmail(email string) (*domain.User, error) {
+	user, err := s.userRepo.GetByEmail(email)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	return user, nil
+}

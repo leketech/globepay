@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "sender_id": 1,
+    "receiver_id": 2,
+    "sender_account_id": 1,
+    "receiver_account_id": 3,
+    "amount": 100.00,
+    "currency": "USD",
+    "fee": 1.00,
+    "status": "processed",
+    "reference_number": "TRF000001",
+    "description": "Payment for services"
+  },
+  {
+    "id": 2,
+    "sender_id": 2,
+    "receiver_id": 1,
+    "sender_account_id": 3,
+    "receiver_account_id": 1,
+    "amount": 50.00,
+    "currency": "USD",
+    "fee": 0.50,
+    "status": "processed",
+    "reference_number": "TRF000002",
+    "description": "Refund"
+  },
+  {
+    "id": 3,
+    "sender_id": 1,
+    "receiver_id": 3,
+    "sender_account_id": 1,
+    "receiver_account_id": 4,
+    "amount": 200.00,
+    "currency": "USD",
+    "fee": 2.00,
+    "status": "pending",
+    "reference_number": "TRF000003",
+    "description": "International transfer"
+  }
+]

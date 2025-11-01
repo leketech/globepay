@@ -1,0 +1,329 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main, develop, staging]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: globepay-backend
+  GO_VERSION: '1.21'
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: globepay_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: backend/go.sum
+      
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      
+      - name: Install dependencies
+        working-directory: ./backend
+        run: go mod download
+      
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          working-directory: ./backend
+      
+      - name: Run tests
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/globepay_test?sslmode=disable
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./backend/coverage.out
+          flags: backend
+      
+      - name: Run security scan
+        uses: securego/gosec@master
+        with:
+          args: ./backend/...
+  
+  build:
+    name: Build and Push
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=branch-
+            type=semver,pattern=version
+            type=semver,pattern=major.minor
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ github.sha }}
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+      
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.meta.outputs.tags }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  deploy-dev:
+    name: Deploy to Dev
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment: dev
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name globepay-dev-eks --region ${{ env.AWS_REGION }}
+      
+      - name: Deploy to ArgoCD
+        run: |
+          # Trigger ArgoCD sync
+          kubectl patch application globepay-backend-dev \
+            -n argocd \
+            --type merge \
+            -p '{"spec":{"source":{"targetRevision":"${{ github.sha }}"}}}'
+          
+          kubectl wait --for=condition=Synced \
+            application/globepay-backend-dev \
+            -n argocd \
+            --timeout=10m
+      
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/backend -n globepay-dev --timeout=10m
+      
+      - name: Run smoke tests
+        run: |
+          # Wait for service to be ready
+          kubectl wait --for=condition=ready pod -l app=backend -n globepay-dev --timeout=5m
+          
+          # Get service URL
+          SERVICE_URL=$(kubectl get svc backend -n globepay-dev -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          
+          # Run health check
+          curl -f http://${SERVICE_URL}/health || exit 1
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name globepay-staging-eks --region ${{ env.AWS_REGION }}
+      
+      - name: Deploy to ArgoCD
+        run: |
+          kubectl patch application globepay-backend-staging \
+            -n argocd \
+            --type merge \
+            -p '{"spec":{"source":{"targetRevision":"${{ github.sha }}"}}}'
+          
+          kubectl wait --for=condition=Synced \
+            application/globepay-backend-staging \
+            -n argocd \
+            --timeout=15m
+      
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/backend -n globepay-staging --timeout=15m
+      
+      - name: Run integration tests
+        run: |
+          # Run comprehensive integration tests
+          cd backend/test/integration
+          go test -v ./... -tags=integration
+
+  deploy-prod:
+    name: Deploy to Production
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
+      
+      - name: Create backup before deployment
+        run: |
+          # Trigger database backup
+          aws rds create-db-snapshot \
+            --db-instance-identifier globepay-prod-db \
+            --db-snapshot-identifier pre-deploy-$(date +%Y%m%d-%H%M%S)
+      
+      - name: Deploy to ArgoCD (Canary)
+        run: |
+          # Deploy with canary strategy
+          kubectl patch application globepay-backend-prod \
+            -n argocd \
+            --type merge \
+            -p '{"spec":{"source":{"targetRevision":"${{ github.sha }}"}}}'
+          
+          kubectl wait --for=condition=Synced \
+            application/globepay-backend-prod \
+            -n argocd \
+            --timeout=20m
+      
+      - name: Monitor canary deployment
+        run: |
+          # Wait for canary analysis
+          kubectl wait --for=condition=Progressing \
+            rollout/backend \
+            -n globepay-prod \
+            --timeout=10m
+          
+          # Check analysis status
+          kubectl argo rollouts get rollout backend -n globepay-prod -w
+      
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/backend -n globepay-prod --timeout=20m
+      
+      - name: Run production smoke tests
+        run: |
+          SERVICE_URL="${{ secrets.PROD_API_URL }}"
+          
+          # Health check
+          curl -f ${SERVICE_URL}/health || exit 1
+          
+          # Metrics check
+          curl -f ${SERVICE_URL}/metrics || exit 1
+      
+      - name: Notify deployment
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Production Deployment: ${{ job.status }}
+            Environment: Production
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}

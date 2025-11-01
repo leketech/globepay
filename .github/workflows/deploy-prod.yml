@@ -1,0 +1,42 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main, staging ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Set up Kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+
+    - name: Deploy to production
+      run: |
+        kubectl apply -k k8s/overlays/prod
+
+    - name: Verify deployment
+      run: |
+        kubectl rollout status deployment/backend -n globepay-prod
+        kubectl rollout status deployment/frontend -n globepay-prod
+
+    - name: Notify on success
+      if: success()
+      run: |
+        echo "Deployment to production successful"
+
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "Deployment to production failed"

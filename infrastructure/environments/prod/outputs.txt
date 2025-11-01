@@ -1,0 +1,36 @@
+cloudfront_distribution_id = "E3LTMYLJK2CCQG"
+cloudfront_domain_name = "d2aatylhjmfcoi.cloudfront.net"
+database_subnet_ids = [
+  "subnet-0f9fd5eebefcf7a54",
+  "subnet-0d6be9cdc98d8b23a",
+  "subnet-094b4320347619ac2",
+]
+eks_cluster_certificate_authority_data = <sensitive>
+eks_cluster_endpoint = <sensitive>
+eks_cluster_name = "globepay-prod-eks"
+kms_key_arns = <sensitive>
+private_subnet_ids = [
+  "subnet-058b453f8a38b8140",
+  "subnet-01e4f4b7869f3f6be",
+  "subnet-06446626525b5e449",
+]
+public_subnet_ids = [
+  "subnet-00beb23826d0e7109",
+  "subnet-0cfe3e4e774348b78",
+  "subnet-04586d76625d11c6b",
+]
+rds_database_name = "globepay_prod"
+rds_endpoint = <sensitive>
+s3_bucket_arns = {
+  "assets" = "arn:aws:s3:::globepay-prod-assets"
+  "backups" = "arn:aws:s3:::globepay-prod-backups"
+  "documents" = "arn:aws:s3:::globepay-prod-documents"
+  "logs" = "arn:aws:s3:::globepay-prod-logs"
+}
+s3_bucket_names = {
+  "assets" = "globepay-prod-assets"
+  "backups" = "globepay-prod-backups"
+  "documents" = "globepay-prod-documents"
+  "logs" = "globepay-prod-logs"
+}
+vpc_id = "vpc-034b774adcf8ae485"

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Currency Test</title>
+</head>
+<body>
+    <h1>Currency API Test</h1>
+    <button onclick="testCurrencyAPI()">Test Currency API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testCurrencyAPI() {
+            try {
+                const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                const data = await response.json();
+                console.log('Currency API response:', data);
+                document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

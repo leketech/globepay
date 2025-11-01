@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "currency": "USD",
+    "balance": 1000.00,
+    "account_number": "ACC001USD",
+    "account_type": "checking",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "user_id": 1,
+    "currency": "EUR",
+    "balance": 500.00,
+    "account_number": "ACC001EUR",
+    "account_type": "savings",
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "user_id": 2,
+    "currency": "USD",
+    "balance": 2500.75,
+    "account_number": "ACC002USD",
+    "account_type": "checking",
+    "status": "active"
+  },
+  {
+    "id": 4,
+    "user_id": 3,
+    "currency": "GBP",
+    "balance": 1500.50,
+    "account_number": "ACC003GBP",
+    "account_type": "checking",
+    "status": "active"
+  }
+]

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exchange Rate Test</title>
+</head>
+<body>
+    <h1>Exchange Rate API Test</h1>
+    <button onclick="testExchangeRate()">Test USD to NGN</button>
+    <div id="result"></div>
+
+    <script>
+        async function testExchangeRate() {
+            const url = 'https://api.exchangerate.host/convert?from=USD&to=NGN&amount=1&access_key=92ebf3c59aa459c4ef33ff23bec1b391';
+            console.log('Fetching:', url);
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log('Response:', data);
+                document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
