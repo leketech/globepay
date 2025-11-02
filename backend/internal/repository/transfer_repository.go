@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
@@ -29,7 +30,7 @@ func (r *TransferRepo) Create(transfer *model.Transfer) error {
 	transfer.CreatedAt = now
 	transfer.UpdatedAt = now
 
-	return r.db.QueryRow(query, transfer.UserID, transfer.RecipientName, transfer.RecipientEmail, transfer.RecipientCountry, transfer.RecipientBankName, transfer.RecipientAccountNumber, transfer.RecipientSwiftCode, transfer.SourceCurrency, transfer.DestCurrency, transfer.SourceAmount, transfer.DestAmount, transfer.ExchangeRate, transfer.FeeAmount, transfer.Purpose, transfer.Status, transfer.ReferenceNumber, transfer.EstimatedArrival, transfer.CreatedAt, transfer.UpdatedAt, transfer.ProcessedAt).Scan(&transfer.ID)
+	return r.db.QueryRowContext(context.Background(), query, transfer.UserID, transfer.RecipientName, transfer.RecipientEmail, transfer.RecipientCountry, transfer.RecipientBankName, transfer.RecipientAccountNumber, transfer.RecipientSwiftCode, transfer.SourceCurrency, transfer.DestCurrency, transfer.SourceAmount, transfer.DestAmount, transfer.ExchangeRate, transfer.FeeAmount, transfer.Purpose, transfer.Status, transfer.ReferenceNumber, transfer.EstimatedArrival, transfer.CreatedAt, transfer.UpdatedAt, transfer.ProcessedAt).Scan(&transfer.ID)
 }
 
 // GetByID retrieves a transfer by ID
@@ -41,7 +42,7 @@ func (r *TransferRepo) GetByID(id string) (*model.Transfer, error) {
 	`
 
 	transfer := &model.Transfer{}
-	err := r.db.QueryRow(query, id).Scan(
+	err := r.db.QueryRowContext(context.Background(), query, id).Scan(
 		&transfer.ID, &transfer.UserID, &transfer.RecipientName, &transfer.RecipientEmail, &transfer.RecipientCountry, &transfer.RecipientBankName, &transfer.RecipientAccountNumber, &transfer.RecipientSwiftCode, &transfer.SourceCurrency, &transfer.DestCurrency, &transfer.SourceAmount, &transfer.DestAmount, &transfer.ExchangeRate, &transfer.FeeAmount, &transfer.Purpose, &transfer.Status, &transfer.ReferenceNumber, &transfer.EstimatedArrival, &transfer.CreatedAt, &transfer.UpdatedAt, &transfer.ProcessedAt,
 	)
 	if err != nil {
@@ -55,7 +56,7 @@ func (r *TransferRepo) GetByID(id string) (*model.Transfer, error) {
 }
 
 // GetByUser retrieves all transfers for a user (as sender or receiver)
-func (r *TransferRepo) GetByUser(ctx interface{}, userID string, limit, offset int) ([]*model.Transfer, error) {
+func (r *TransferRepo) GetByUser(ctx context.Context, userID string, limit, offset int) ([]*model.Transfer, error) {
 	query := `
 		SELECT id, user_id, recipient_name, recipient_email, recipient_country, recipient_bank_name, recipient_account_number, recipient_swift_code, source_currency, destination_currency, source_amount, destination_amount, exchange_rate, fee_amount, purpose, status, reference_number, estimated_arrival, created_at, updated_at, processed_at
 		FROM transfers
@@ -64,7 +65,7 @@ func (r *TransferRepo) GetByUser(ctx interface{}, userID string, limit, offset i
 		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(query, userID, limit, offset)
+	rows, err := r.db.QueryContext(ctx, query, userID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +99,7 @@ func (r *TransferRepo) Update(transfer *model.Transfer) error {
 	`
 
 	transfer.UpdatedAt = time.Now()
-	result, err := r.db.Exec(query, transfer.UserID, transfer.RecipientName, transfer.RecipientEmail, transfer.RecipientCountry, transfer.RecipientBankName, transfer.RecipientAccountNumber, transfer.RecipientSwiftCode, transfer.SourceCurrency, transfer.DestCurrency, transfer.SourceAmount, transfer.DestAmount, transfer.ExchangeRate, transfer.FeeAmount, transfer.Purpose, transfer.Status, transfer.ReferenceNumber, transfer.EstimatedArrival, transfer.UpdatedAt, transfer.ProcessedAt, transfer.ID)
+	result, err := r.db.ExecContext(context.Background(), query, transfer.UserID, transfer.RecipientName, transfer.RecipientEmail, transfer.RecipientCountry, transfer.RecipientBankName, transfer.RecipientAccountNumber, transfer.RecipientSwiftCode, transfer.SourceCurrency, transfer.DestCurrency, transfer.SourceAmount, transfer.DestAmount, transfer.ExchangeRate, transfer.FeeAmount, transfer.Purpose, transfer.Status, transfer.ReferenceNumber, transfer.EstimatedArrival, transfer.UpdatedAt, transfer.ProcessedAt, transfer.ID)
 	if err != nil {
 		return err
 	}
@@ -119,7 +120,7 @@ func (r *TransferRepo) Update(transfer *model.Transfer) error {
 func (r *TransferRepo) Delete(id string) error {
 	query := `DELETE FROM transfers WHERE id = $1`
 
-	result, err := r.db.Exec(query, id)
+	result, err := r.db.ExecContext(context.Background(), query, id)
 	if err != nil {
 		return err
 	}
@@ -144,7 +145,7 @@ func (r *TransferRepo) GetAll() ([]model.Transfer, error) {
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query)
+	rows, err := r.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +179,7 @@ func (r *TransferRepo) GetByStatus(status string) ([]model.Transfer, error) {
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query, status)
+	rows, err := r.db.QueryContext(context.Background(), query, status)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +213,7 @@ func (r *TransferRepo) GetByReferenceNumber(referenceNumber string) (*model.Tran
 	`
 
 	transfer := &model.Transfer{}
-	err := r.db.QueryRow(query, referenceNumber).Scan(
+	err := r.db.QueryRowContext(context.Background(), query, referenceNumber).Scan(
 		&transfer.ID, &transfer.UserID, &transfer.RecipientName, &transfer.RecipientEmail, &transfer.RecipientCountry, &transfer.RecipientBankName, &transfer.RecipientAccountNumber, &transfer.RecipientSwiftCode, &transfer.SourceCurrency, &transfer.DestCurrency, &transfer.SourceAmount, &transfer.DestAmount, &transfer.ExchangeRate, &transfer.FeeAmount, &transfer.Purpose, &transfer.Status, &transfer.ReferenceNumber, &transfer.EstimatedArrival, &transfer.CreatedAt, &transfer.UpdatedAt, &transfer.ProcessedAt,
 	)
 	if err != nil {
@@ -226,7 +227,7 @@ func (r *TransferRepo) GetByReferenceNumber(referenceNumber string) (*model.Tran
 }
 
 // GetByNameAndUser retrieves a beneficiary by name and user
-func (r *TransferRepo) GetByNameAndUser(ctx interface{}, name, userID string) (*model.Beneficiary, error) {
+func (r *TransferRepo) GetByNameAndUser(ctx context.Context, name, userID string) (*model.Beneficiary, error) {
 	query := `
 		SELECT id, user_id, name, account_no, bank_name, bank_address, country, currency, swift_code, iban, created_at, updated_at
 		FROM beneficiaries
@@ -234,7 +235,7 @@ func (r *TransferRepo) GetByNameAndUser(ctx interface{}, name, userID string) (*
 	`
 
 	beneficiary := &model.Beneficiary{}
-	err := r.db.QueryRow(query, name, userID).Scan(
+	err := r.db.QueryRowContext(ctx, query, name, userID).Scan(
 		&beneficiary.ID, &beneficiary.UserID, &beneficiary.Name, &beneficiary.AccountNo, &beneficiary.BankName, &beneficiary.BankAddress, &beneficiary.Country, &beneficiary.Currency, &beneficiary.SwiftCode, &beneficiary.Iban, &beneficiary.CreatedAt, &beneficiary.UpdatedAt,
 	)
 	if err != nil {

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
@@ -29,7 +30,7 @@ func (r *TransactionRepo) Create(transaction *model.Transaction) error {
 	transaction.CreatedAt = now
 	transaction.UpdatedAt = now
 
-	return r.db.QueryRow(query, transaction.ID, transaction.UserID, transaction.Type, transaction.Status, transaction.Amount, transaction.Currency, transaction.SourceAccountID, transaction.DestAccountID, transaction.Fee, transaction.ExchangeRate, transaction.Description, transaction.Reference, transaction.ProcessedAt, transaction.FailureReason, transaction.CreatedAt, transaction.UpdatedAt).Scan(&transaction.ID)
+	return r.db.QueryRowContext(context.Background(), query, transaction.ID, transaction.UserID, transaction.Type, transaction.Status, transaction.Amount, transaction.Currency, transaction.SourceAccountID, transaction.DestAccountID, transaction.Fee, transaction.ExchangeRate, transaction.Description, transaction.Reference, transaction.ProcessedAt, transaction.FailureReason, transaction.CreatedAt, transaction.UpdatedAt).Scan(&transaction.ID)
 }
 
 // GetByID retrieves a transaction by ID
@@ -41,7 +42,7 @@ func (r *TransactionRepo) GetByID(id string) (*model.Transaction, error) {
 	`
 
 	transaction := &model.Transaction{}
-	err := r.db.QueryRow(query, id).Scan(
+	err := r.db.QueryRowContext(context.Background(), query, id).Scan(
 		&transaction.ID, &transaction.UserID, &transaction.Type, &transaction.Status,
 		&transaction.Amount, &transaction.Currency, &transaction.SourceAccountID, &transaction.DestAccountID,
 		&transaction.Fee, &transaction.ExchangeRate, &transaction.Description, &transaction.Reference,
@@ -59,7 +60,7 @@ func (r *TransactionRepo) GetByID(id string) (*model.Transaction, error) {
 }
 
 // GetByUser retrieves all transactions for a user
-func (r *TransactionRepo) GetByUser(ctx interface{}, userID string, limit, offset int) ([]*model.Transaction, error) {
+func (r *TransactionRepo) GetByUser(ctx context.Context, userID string, limit, offset int) ([]*model.Transaction, error) {
 	query := `
 		SELECT id, user_id, type, status, amount, currency, source_account_id, dest_account_id, fee, exchange_rate, description, reference, processed_at, failure_reason, created_at, updated_at
 		FROM transactions
@@ -68,7 +69,7 @@ func (r *TransactionRepo) GetByUser(ctx interface{}, userID string, limit, offse
 		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(query, userID, limit, offset)
+	rows, err := r.db.QueryContext(ctx, query, userID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +107,7 @@ func (r *TransactionRepo) Update(transaction *model.Transaction) error {
 	`
 
 	transaction.UpdatedAt = time.Now()
-	result, err := r.db.Exec(query, transaction.UserID, transaction.Type, transaction.Status, transaction.Amount, transaction.Currency, transaction.SourceAccountID, transaction.DestAccountID, transaction.Fee, transaction.ExchangeRate, transaction.Description, transaction.Reference, transaction.ProcessedAt, transaction.FailureReason, transaction.UpdatedAt, transaction.ID)
+	result, err := r.db.ExecContext(context.Background(), query, transaction.UserID, transaction.Type, transaction.Status, transaction.Amount, transaction.Currency, transaction.SourceAccountID, transaction.DestAccountID, transaction.Fee, transaction.ExchangeRate, transaction.Description, transaction.Reference, transaction.ProcessedAt, transaction.FailureReason, transaction.UpdatedAt, transaction.ID)
 	if err != nil {
 		return err
 	}
@@ -127,7 +128,7 @@ func (r *TransactionRepo) Update(transaction *model.Transaction) error {
 func (r *TransactionRepo) Delete(id string) error {
 	query := `DELETE FROM transactions WHERE id = $1`
 
-	result, err := r.db.Exec(query, id)
+	result, err := r.db.ExecContext(context.Background(), query, id)
 	if err != nil {
 		return err
 	}
@@ -152,7 +153,7 @@ func (r *TransactionRepo) GetAll() ([]model.Transaction, error) {
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query)
+	rows, err := r.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +191,7 @@ func (r *TransactionRepo) GetByStatus(status string) ([]model.Transaction, error
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query, status)
+	rows, err := r.db.QueryContext(context.Background(), query, status)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +221,7 @@ func (r *TransactionRepo) GetByStatus(status string) ([]model.Transaction, error
 }
 
 // GetByAccount retrieves all transactions for an account
-func (r *TransactionRepo) GetByAccount(ctx interface{}, accountID string, limit, offset int) ([]*model.Transaction, error) {
+func (r *TransactionRepo) GetByAccount(ctx context.Context, accountID string, limit, offset int) ([]*model.Transaction, error) {
 	query := `
 		SELECT id, user_id, type, status, amount, currency, source_account_id, dest_account_id, fee, exchange_rate, description, reference, processed_at, failure_reason, created_at, updated_at
 		FROM transactions
@@ -229,7 +230,7 @@ func (r *TransactionRepo) GetByAccount(ctx interface{}, accountID string, limit,
 		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(query, accountID, limit, offset)
+	rows, err := r.db.QueryContext(ctx, query, accountID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +260,7 @@ func (r *TransactionRepo) GetByAccount(ctx interface{}, accountID string, limit,
 }
 
 // GetByTransfer retrieves all transactions for a transfer
-func (r *TransactionRepo) GetByTransfer(ctx interface{}, transferID string) ([]*model.Transaction, error) {
+func (r *TransactionRepo) GetByTransfer(ctx context.Context, transferID string) ([]*model.Transaction, error) {
 	query := `
 		SELECT id, user_id, type, status, amount, currency, source_account_id, dest_account_id, fee, exchange_rate, description, reference, processed_at, failure_reason, created_at, updated_at
 		FROM transactions
@@ -267,7 +268,7 @@ func (r *TransactionRepo) GetByTransfer(ctx interface{}, transferID string) ([]*
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query, transferID)
+	rows, err := r.db.QueryContext(ctx, query, transferID)
 	if err != nil {
 		return nil, err
 	}

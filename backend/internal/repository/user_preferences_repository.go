@@ -7,18 +7,18 @@ import (
 	"globepay/internal/domain/model"
 )
 
-// UserPreferencesRepository handles database operations for user preferences
-type UserPreferencesRepository struct {
+// UserPreferencesRepo implements UserPreferencesRepository
+type UserPreferencesRepo struct {
 	db *sql.DB
 }
 
 // NewUserPreferencesRepository creates a new user preferences repository
-func NewUserPreferencesRepository(db *sql.DB) *UserPreferencesRepository {
-	return &UserPreferencesRepository{db: db}
+func NewUserPreferencesRepository(db *sql.DB) UserPreferencesRepository {
+	return &UserPreferencesRepo{db: db}
 }
 
 // GetUserPreferences retrieves user preferences by user ID
-func (r *UserPreferencesRepository) GetUserPreferences(ctx context.Context, userID string) (*model.UserPreferences, error) {
+func (r *UserPreferencesRepo) GetUserPreferences(ctx context.Context, userID string) (*model.UserPreferences, error) {
 	query := `
 		SELECT id, user_id, email_notifications, push_notifications, sms_notifications,
 		       transaction_alerts, security_alerts, marketing_emails, two_factor_enabled,
@@ -53,7 +53,7 @@ func (r *UserPreferencesRepository) GetUserPreferences(ctx context.Context, user
 }
 
 // CreateUserPreferences creates new user preferences
-func (r *UserPreferencesRepository) CreateUserPreferences(ctx context.Context, preferences *model.UserPreferences) error {
+func (r *UserPreferencesRepo) CreateUserPreferences(ctx context.Context, preferences *model.UserPreferences) error {
 	query := `
 		INSERT INTO user_preferences (
 			id, user_id, email_notifications, push_notifications, sms_notifications,
@@ -75,7 +75,7 @@ func (r *UserPreferencesRepository) CreateUserPreferences(ctx context.Context, p
 }
 
 // UpdateUserPreferences updates existing user preferences
-func (r *UserPreferencesRepository) UpdateUserPreferences(ctx context.Context, preferences *model.UserPreferences) error {
+func (r *UserPreferencesRepo) UpdateUserPreferences(ctx context.Context, preferences *model.UserPreferences) error {
 	query := `
 		UPDATE user_preferences
 		SET email_notifications = $1, push_notifications = $2, sms_notifications = $3,

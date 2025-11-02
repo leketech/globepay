@@ -1,0 +1,144 @@
+{
+  "cloudfront_distribution_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "E3LTMYLJK2CCQG"
+  },
+  "cloudfront_domain_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "d2aatylhjmfcoi.cloudfront.net"
+  },
+  "database_subnet_ids": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string",
+        "string",
+        "string"
+      ]
+    ],
+    "value": [
+      "subnet-0f9fd5eebefcf7a54",
+      "subnet-0d6be9cdc98d8b23a",
+      "subnet-094b4320347619ac2"
+    ]
+  },
+  "eks_cluster_certificate_authority_data": {
+    "sensitive": true,
+    "type": "string",
+    "value": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJTUNKM3F3QjZMSTB3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRFeE1ERXhNakl6TlRCYUZ3MHpOVEV3TXpBeE1qSTROVEJhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUUN5ZlRLazlqM0FzSHVKd2JBK3grSFVOQnJ5ZDY4M21sNTMrc0JGaXA4b0I0VG9OUXY2L09WMGxjcTcKVVpQdzFUaTBaSkdKY0Mva1ltWHV0endRR0txVzBqbkR1UlJQRVFBSURhdEVOWlNzQyt3eUEwVjA2S0lGVXBiNQpIdGk1WkREMjRhZ3R2aWRzQ0taalFPbTQzdFBXSUVjeWU1bUduWTVkdXdOakxrczc1RElGTGY4WlUyK0pZTWFoCmp5UHdMelFtRmxYMDgwVWJPeUd4WHA0N1kwQlBlT3VxcVRBRGF6WGhOT2ZnaGs5U3d2YmpESUUvRXk3VFg3ZS8KUkdHVnhCMWdCTTRjSzE3QStQN0xBVE55RURKN3BYZnJKWE1tbTg4a2krdXh6L2lZMVdPcUIycU1OM1JsR21ZcApWYnBlcjR5c3lNd0RJRFUzK3ZoR3VrZzNFeTFiQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJTQ2REMFQzZkY0amFLbk4xcGF6a1J2bTlMdTZEQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQXE3T0pQc0dadgp3ZHBPT1ptblZ0SkEzWFdjSENsK0wxamp4TzZraEoydzBUQm5KcDUzME1TWC9MeE85ci9od1lDQW5URmY0WU9vCnB5aUJQZUtzQndhSVBWRXI4WHAyUm9qZ3p6RFNZMHVkc2xRYzBJRGdEZEk1cGtRT1NEcUZKMzJoODB2ZDk2eEoKSzI4R0hXZ3h0YTZrTURFUHNjM1BXZFI3SnVubmRFL216a2JCVWFnV3FwamJMNkNueG5pYjRmZGYzT1BTLzk1dwovaEUyQUYwK05haVJ3Y2RmcGM0RjJNV0hpbE5NQkZhQXJickQ3bWoyRFBMOVJsaEhoMmtJVEhlL1VvZEhIUkd2CmhxWitiTXhCL0cxMXdCNWNPRUY2eDZ4WVliajFERWZPWHpmdkNjVzgrK3dnYUlEbnJueFdDNTVZeC9Pa1pYeWoKYmdwR2M5VjVNeDV1Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+  },
+  "eks_cluster_endpoint": {
+    "sensitive": true,
+    "type": "string",
+    "value": "https://0EACB1B9E489146A3D384ACBD074301C.gr7.us-east-1.eks.amazonaws.com"
+  },
+  "eks_cluster_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "globepay-prod-eks"
+  },
+  "kms_key_arns": {
+    "sensitive": true,
+    "type": [
+      "object",
+      {
+        "eks": "string",
+        "elasticache": "string",
+        "rds": "string",
+        "s3": "string"
+      }
+    ],
+    "value": {
+      "eks": "arn:aws:kms:us-east-1:907849381252:key/2ab585d3-1a56-4624-bca1-8d4aa36425e8",
+      "elasticache": "arn:aws:kms:us-east-1:907849381252:key/37031e76-6754-4496-b74e-b09543cb6e14",
+      "rds": "arn:aws:kms:us-east-1:907849381252:key/28d8d260-42a6-4c9e-8565-e796363b0b8c",
+      "s3": "arn:aws:kms:us-east-1:907849381252:key/47c2aa08-f2f2-4214-91e0-ab81e17d633c"
+    }
+  },
+  "private_subnet_ids": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string",
+        "string",
+        "string"
+      ]
+    ],
+    "value": [
+      "subnet-058b453f8a38b8140",
+      "subnet-01e4f4b7869f3f6be",
+      "subnet-06446626525b5e449"
+    ]
+  },
+  "public_subnet_ids": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string",
+        "string",
+        "string"
+      ]
+    ],
+    "value": [
+      "subnet-00beb23826d0e7109",
+      "subnet-0cfe3e4e774348b78",
+      "subnet-04586d76625d11c6b"
+    ]
+  },
+  "rds_database_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "globepay_prod"
+  },
+  "rds_endpoint": {
+    "sensitive": true,
+    "type": "string",
+    "value": "globepay-prod-db-2.ci9a6emem5ba.us-east-1.rds.amazonaws.com:5432"
+  },
+  "s3_bucket_arns": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "assets": "string",
+        "backups": "string",
+        "documents": "string",
+        "logs": "string"
+      }
+    ],
+    "value": {
+      "assets": "arn:aws:s3:::globepay-prod-assets",
+      "backups": "arn:aws:s3:::globepay-prod-backups",
+      "documents": "arn:aws:s3:::globepay-prod-documents",
+      "logs": "arn:aws:s3:::globepay-prod-logs"
+    }
+  },
+  "s3_bucket_names": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "assets": "string",
+        "backups": "string",
+        "documents": "string",
+        "logs": "string"
+      }
+    ],
+    "value": {
+      "assets": "globepay-prod-assets",
+      "backups": "globepay-prod-backups",
+      "documents": "globepay-prod-documents",
+      "logs": "globepay-prod-logs"
+    }
+  },
+  "vpc_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "vpc-034b774adcf8ae485"
+  }
+}

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 
 	"globepay/internal/domain/model"
@@ -17,14 +18,14 @@ func NewCurrencyRepository(db *sql.DB) CurrencyRepository {
 }
 
 // GetAll retrieves all currencies from the database
-func (r *CurrencyRepo) GetAll(ctx interface{}) ([]*model.Currency, error) {
+func (r *CurrencyRepo) GetAll(ctx context.Context) ([]*model.Currency, error) {
 	query := `
 		SELECT code, name, symbol, created_at, updated_at
 		FROM currencies
 		ORDER BY code
 	`
 
-	rows, err := r.db.Query(query)
+	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +51,7 @@ func (r *CurrencyRepo) GetAll(ctx interface{}) ([]*model.Currency, error) {
 }
 
 // GetByCode retrieves a currency by code
-func (r *CurrencyRepo) GetByCode(ctx interface{}, code string) (*model.Currency, error) {
+func (r *CurrencyRepo) GetByCode(ctx context.Context, code string) (*model.Currency, error) {
 	query := `
 		SELECT code, name, symbol, created_at, updated_at
 		FROM currencies
@@ -58,7 +59,7 @@ func (r *CurrencyRepo) GetByCode(ctx interface{}, code string) (*model.Currency,
 	`
 
 	currency := &model.Currency{}
-	err := r.db.QueryRow(query, code).Scan(
+	err := r.db.QueryRowContext(ctx, query, code).Scan(
 		&currency.Code, &currency.Name, &currency.Symbol, &currency.CreatedAt, &currency.UpdatedAt,
 	)
 	if err != nil {

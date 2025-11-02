@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"globepay/internal/domain/model"
+	"time"
 )
 
 // UserRepository defines the interface for user repository
@@ -80,7 +81,7 @@ type MoneyRequestRepository interface {
 	GetByID(ctx context.Context, id string) (*model.MoneyRequest, error)
 	GetByRequester(ctx context.Context, requesterID string) ([]*model.MoneyRequest, error)
 	GetByRecipient(ctx context.Context, recipientID string) ([]*model.MoneyRequest, error)
-	UpdateStatus(ctx context.Context, id, status string, paidAt *string) error
+	UpdateStatus(ctx context.Context, id, status string, paidAt *time.Time) error
 	UpdatePaymentLink(ctx context.Context, id, paymentLink string) error
 }
 

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"time"
 
 	"globepay/internal/domain/service"
 	"globepay/internal/utils"
@@ -77,56 +76,24 @@ func Register(c *gin.Context, serviceFactory *service.ServiceFactory) {
 
 	authService := serviceFactory.GetAuthService()
 	
-	// If additional details are provided, use the detailed registration
-	if req.PhoneNumber != "" || req.DateOfBirth != "" || req.Country != "" {
-		var dateOfBirth time.Time
-		if req.DateOfBirth != "" {
-			// Parse date of birth
-			parsedDate, err := time.Parse("2006-01-02", req.DateOfBirth)
-			if err != nil {
-				utils.BadRequest(c, "VALIDATION_ERROR", "Invalid date of birth format. Use YYYY-MM-DD")
-				return
-			}
-			dateOfBirth = parsedDate
-		}
-		
-		resp, err := authService.RegisterWithDetails(c.Request.Context(), req.Email, req.Password, req.FirstName, req.LastName, req.PhoneNumber, req.Country, dateOfBirth)
-		if err != nil {
-			// Check if it's a conflict error (user already exists)
-			if _, ok := err.(*service.ConflictError); ok {
-				utils.BadRequest(c, "USER_EXISTS", "User with this email already exists")
-				return
-			}
-			// Check if it's a validation error
-			if _, ok := err.(*service.ValidationError); ok {
-				utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
-				return
-			}
-			utils.InternalServerError(c, "REGISTRATION_FAILED", "Failed to register user")
+	// Use basic registration regardless of additional details
+	resp, err := authService.Register(c.Request.Context(), req.Email, req.Password, req.FirstName, req.LastName)
+	if err != nil {
+		// Check if it's a conflict error (user already exists)
+		if _, ok := err.(*service.ConflictError); ok {
+			utils.BadRequest(c, "USER_EXISTS", "User with this email already exists")
 			return
 		}
-
-		c.JSON(http.StatusCreated, resp)
-	} else {
-		// Use basic registration
-		resp, err := authService.Register(c.Request.Context(), req.Email, req.Password, req.FirstName, req.LastName)
-		if err != nil {
-			// Check if it's a conflict error (user already exists)
-			if _, ok := err.(*service.ConflictError); ok {
-				utils.BadRequest(c, "USER_EXISTS", "User with this email already exists")
-				return
-			}
-			// Check if it's a validation error
-			if _, ok := err.(*service.ValidationError); ok {
-				utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
-				return
-			}
-			utils.InternalServerError(c, "REGISTRATION_FAILED", "Failed to register user")
+		// Check if it's a validation error
+		if _, ok := err.(*service.ValidationError); ok {
+			utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
 			return
 		}
-
-		c.JSON(http.StatusCreated, resp)
+		utils.InternalServerError(c, "REGISTRATION_FAILED", "Failed to register user")
+		return
 	}
+
+	c.JSON(http.StatusCreated, resp)
 }
 
 // RefreshToken handles token refresh

@@ -2,8 +2,10 @@ package handler
 
 import (
 	"fmt"
+	"globepay/internal/domain/model"
 	"globepay/internal/domain/service"
 	"globepay/internal/infrastructure/metrics"
+	"globepay/internal/utils"
 	"net/http"
 	"time"
 
@@ -85,14 +87,18 @@ func (h *WalletHandler) AddMoney(c *gin.Context) {
 	
 	// Record transaction (simplified)
 	transactionService := h.serviceFactory.GetTransactionService()
-	_, err = transactionService.CreateTransaction(
-		c.Request.Context(),
-		account.ID,
-		"credit",
-		req.Amount,
-		"USD",
-		fmt.Sprintf("Added money via %s", req.PaymentMethod),
-	)
+	
+	// Create a transaction object
+	transaction := &model.Transaction{
+		AccountID: account.ID,
+		Type:      "credit",
+		Amount:    req.Amount,
+		Currency:  "USD",
+		ReferenceNumber: fmt.Sprintf("ADD-MONEY-%s", utils.GenerateUUID()[:8]),
+		Description: fmt.Sprintf("Added money via %s", req.PaymentMethod),
+	}
+	
+	err = transactionService.CreateTransaction(c.Request.Context(), transaction)
 	if err != nil {
 		// Log error but don't fail the request
 		fmt.Printf("Failed to record transaction: %v\n", err)

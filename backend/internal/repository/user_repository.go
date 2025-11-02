@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -50,14 +51,14 @@ func (r *UserRepo) Create(user *model.User) error {
 		countryCode = &user.Country
 	}
 
-	return r.db.QueryRow(query, user.ID, user.Email, user.PasswordHash, user.FirstName, user.LastName, user.PhoneNumber, dateOfBirth, countryCode, user.KYCStatus, user.AccountStatus, user.CreatedAt, user.UpdatedAt).Scan(&user.ID)
+	return r.db.QueryRowContext(context.Background(), query, user.ID, user.Email, user.PasswordHash, user.FirstName, user.LastName, user.PhoneNumber, dateOfBirth, countryCode, user.KYCStatus, user.AccountStatus, user.CreatedAt, user.UpdatedAt).Scan(&user.ID)
 }
 
 // emailExists checks if a user with the given email already exists
 func (r *UserRepo) emailExists(email string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)`
 	var exists bool
-	err := r.db.QueryRow(query, email).Scan(&exists)
+	err := r.db.QueryRowContext(context.Background(), query, email).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
@@ -76,7 +77,7 @@ func (r *UserRepo) GetByID(id string) (*model.User, error) {
 	var dateOfBirth *time.Time
 	var countryCode *string
 	
-	err := r.db.QueryRow(query, id).Scan(
+	err := r.db.QueryRowContext(context.Background(), query, id).Scan(
 		&user.ID, &user.Email, &user.PasswordHash, &user.FirstName, &user.LastName,
 		&user.PhoneNumber, &dateOfBirth, &countryCode, &user.KYCStatus, &user.AccountStatus, &user.CreatedAt, &user.UpdatedAt,
 	)
@@ -111,7 +112,7 @@ func (r *UserRepo) GetByEmail(email string) (*model.User, error) {
 	var dateOfBirth *time.Time
 	var countryCode *string
 	
-	err := r.db.QueryRow(query, email).Scan(
+	err := r.db.QueryRowContext(context.Background(), query, email).Scan(
 		&user.ID, &user.Email, &user.PasswordHash, &user.FirstName, &user.LastName,
 		&user.PhoneNumber, &dateOfBirth, &countryCode, &user.KYCStatus, &user.AccountStatus, &user.CreatedAt, &user.UpdatedAt,
 	)
@@ -155,7 +156,7 @@ func (r *UserRepo) Update(user *model.User) error {
 		countryCode = &user.Country
 	}
 
-	result, err := r.db.Exec(query, user.Email, user.PasswordHash, user.FirstName, user.LastName, user.PhoneNumber, dateOfBirth, countryCode, user.KYCStatus, user.AccountStatus, user.UpdatedAt, user.ID)
+	result, err := r.db.ExecContext(context.Background(), query, user.Email, user.PasswordHash, user.FirstName, user.LastName, user.PhoneNumber, dateOfBirth, countryCode, user.KYCStatus, user.AccountStatus, user.UpdatedAt, user.ID)
 	if err != nil {
 		return err
 	}
@@ -176,7 +177,7 @@ func (r *UserRepo) Update(user *model.User) error {
 func (r *UserRepo) Delete(id string) error {
 	query := `DELETE FROM users WHERE id = $1`
 
-	result, err := r.db.Exec(query, id)
+	result, err := r.db.ExecContext(context.Background(), query, id)
 	if err != nil {
 		return err
 	}
@@ -201,7 +202,7 @@ func (r *UserRepo) GetAll() ([]model.User, error) {
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query)
+	rows, err := r.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +242,7 @@ func (r *UserRepo) GetAll() ([]model.User, error) {
 }
 
 // GetByUserAndCurrency retrieves an account by user ID and currency
-func (r *UserRepo) GetByUserAndCurrency(ctx interface{}, userID, currency string) (*model.Account, error) {
+func (r *UserRepo) GetByUserAndCurrency(ctx context.Context, userID, currency string) (*model.Account, error) {
 	query := `
 		SELECT id, user_id, account_number, account_type, currency, balance, status, created_at, updated_at
 		FROM accounts
@@ -249,7 +250,7 @@ func (r *UserRepo) GetByUserAndCurrency(ctx interface{}, userID, currency string
 	`
 
 	account := &model.Account{}
-	err := r.db.QueryRow(query, userID, currency).Scan(
+	err := r.db.QueryRowContext(ctx, query, userID, currency).Scan(
 		&account.ID, &account.UserID, &account.AccountNumber, &account.AccountType,
 		&account.Currency, &account.Balance, &account.Status, &account.CreatedAt, &account.UpdatedAt,
 	)

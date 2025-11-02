@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
@@ -29,7 +30,7 @@ func (r *AccountRepo) Create(account *model.Account) error {
 	account.CreatedAt = now
 	account.UpdatedAt = now
 
-	return r.db.QueryRow(query, account.UserID, account.AccountNumber, account.AccountType, account.Currency, account.Balance, account.Status, account.CreatedAt, account.UpdatedAt).Scan(&account.ID)
+	return r.db.QueryRowContext(context.Background(), query, account.UserID, account.AccountNumber, account.AccountType, account.Currency, account.Balance, account.Status, account.CreatedAt, account.UpdatedAt).Scan(&account.ID)
 }
 
 // GetByID retrieves an account by ID
@@ -41,7 +42,7 @@ func (r *AccountRepo) GetByID(id string) (*model.Account, error) {
 	`
 
 	account := &model.Account{}
-	err := r.db.QueryRow(query, id).Scan(
+	err := r.db.QueryRowContext(context.Background(), query, id).Scan(
 		&account.ID, &account.UserID, &account.AccountNumber, &account.AccountType,
 		&account.Currency, &account.Balance, &account.Status, &account.CreatedAt, &account.UpdatedAt,
 	)
@@ -56,7 +57,7 @@ func (r *AccountRepo) GetByID(id string) (*model.Account, error) {
 }
 
 // GetByUser retrieves all accounts for a user
-func (r *AccountRepo) GetByUser(ctx interface{}, userID string) ([]*model.Account, error) {
+func (r *AccountRepo) GetByUser(ctx context.Context, userID string) ([]*model.Account, error) {
 	query := `
 		SELECT id, user_id, account_number, account_type, currency, balance, status, created_at, updated_at
 		FROM accounts
@@ -64,7 +65,7 @@ func (r *AccountRepo) GetByUser(ctx interface{}, userID string) ([]*model.Accoun
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query, userID)
+	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +92,7 @@ func (r *AccountRepo) GetByUser(ctx interface{}, userID string) ([]*model.Accoun
 }
 
 // GetByNumber retrieves an account by account number
-func (r *AccountRepo) GetByNumber(ctx interface{}, accountNumber string) (*model.Account, error) {
+func (r *AccountRepo) GetByNumber(ctx context.Context, accountNumber string) (*model.Account, error) {
 	query := `
 		SELECT id, user_id, account_number, account_type, currency, balance, status, created_at, updated_at
 		FROM accounts
@@ -99,7 +100,7 @@ func (r *AccountRepo) GetByNumber(ctx interface{}, accountNumber string) (*model
 	`
 
 	account := &model.Account{}
-	err := r.db.QueryRow(query, accountNumber).Scan(
+	err := r.db.QueryRowContext(ctx, query, accountNumber).Scan(
 		&account.ID, &account.UserID, &account.AccountNumber, &account.AccountType,
 		&account.Currency, &account.Balance, &account.Status, &account.CreatedAt, &account.UpdatedAt,
 	)
@@ -122,7 +123,7 @@ func (r *AccountRepo) Update(account *model.Account) error {
 	`
 
 	account.UpdatedAt = time.Now()
-	result, err := r.db.Exec(query, account.UserID, account.AccountNumber, account.AccountType, account.Currency, account.Balance, account.Status, account.UpdatedAt, account.ID)
+	result, err := r.db.ExecContext(context.Background(), query, account.UserID, account.AccountNumber, account.AccountType, account.Currency, account.Balance, account.Status, account.UpdatedAt, account.ID)
 	if err != nil {
 		return err
 	}
@@ -143,7 +144,7 @@ func (r *AccountRepo) Update(account *model.Account) error {
 func (r *AccountRepo) Delete(id string) error {
 	query := `DELETE FROM accounts WHERE id = $1`
 
-	result, err := r.db.Exec(query, id)
+	result, err := r.db.ExecContext(context.Background(), query, id)
 	if err != nil {
 		return err
 	}
@@ -168,7 +169,7 @@ func (r *AccountRepo) GetAll() ([]model.Account, error) {
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query)
+	rows, err := r.db.QueryContext(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +204,7 @@ func (r *AccountRepo) GetByStatus(status string) ([]model.Account, error) {
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query, status)
+	rows, err := r.db.QueryContext(context.Background(), query, status)
 	if err != nil {
 		return nil, err
 	}
@@ -230,14 +231,14 @@ func (r *AccountRepo) GetByStatus(status string) ([]model.Account, error) {
 }
 
 // UpdateBalance updates the balance of an account
-func (r *AccountRepo) UpdateBalance(ctx interface{}, accountID string, newBalance float64) error {
+func (r *AccountRepo) UpdateBalance(ctx context.Context, accountID string, newBalance float64) error {
 	query := `
 		UPDATE accounts
 		SET balance = $1, updated_at = $2
 		WHERE id = $3
 	`
 
-	result, err := r.db.Exec(query, newBalance, time.Now(), accountID)
+	result, err := r.db.ExecContext(ctx, query, newBalance, time.Now(), accountID)
 	if err != nil {
 		return err
 	}
@@ -255,7 +256,7 @@ func (r *AccountRepo) UpdateBalance(ctx interface{}, accountID string, newBalanc
 }
 
 // GetByUserAndCurrency retrieves an account by user ID and currency
-func (r *AccountRepo) GetByUserAndCurrency(ctx interface{}, userID, currency string) (*model.Account, error) {
+func (r *AccountRepo) GetByUserAndCurrency(ctx context.Context, userID, currency string) (*model.Account, error) {
 	query := `
 		SELECT id, user_id, account_number, account_type, currency, balance, status, created_at, updated_at
 		FROM accounts
@@ -263,7 +264,7 @@ func (r *AccountRepo) GetByUserAndCurrency(ctx interface{}, userID, currency str
 	`
 
 	account := &model.Account{}
-	err := r.db.QueryRow(query, userID, currency).Scan(
+	err := r.db.QueryRowContext(ctx, query, userID, currency).Scan(
 		&account.ID, &account.UserID, &account.AccountNumber, &account.AccountType,
 		&account.Currency, &account.Balance, &account.Status, &account.CreatedAt, &account.UpdatedAt,
 	)

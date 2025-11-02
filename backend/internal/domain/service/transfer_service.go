@@ -193,12 +193,3 @@ func calculateFee(amount float64) float64 {
 	// Round to 2 decimal places
 	return math.Round(fee*100) / 100
 }
-
-// Custom error types
-type InsufficientFundsError struct {
-	Message string
-}
-
-func (e *InsufficientFundsError) Error() string {
-	return e.Message
-}

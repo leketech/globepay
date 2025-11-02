@@ -8,18 +8,18 @@ import (
 	"time"
 )
 
-// MoneyRequestRepository handles database operations for money requests
-type MoneyRequestRepository struct {
+// MoneyRequestRepo implements MoneyRequestRepository
+type MoneyRequestRepo struct {
 	db *sql.DB
 }
 
 // NewMoneyRequestRepository creates a new money request repository
-func NewMoneyRequestRepository(db *sql.DB) *MoneyRequestRepository {
-	return &MoneyRequestRepository{db: db}
+func NewMoneyRequestRepository(db *sql.DB) MoneyRequestRepository {
+	return &MoneyRequestRepo{db: db}
 }
 
 // Create inserts a new money request into the database
-func (r *MoneyRequestRepository) Create(ctx context.Context, request *model.MoneyRequest) error {
+func (r *MoneyRequestRepo) Create(ctx context.Context, request *model.MoneyRequest) error {
 	query := `
 		INSERT INTO money_requests (
 			id, requester_id, recipient_id, amount, currency, description, 
@@ -42,7 +42,7 @@ func (r *MoneyRequestRepository) Create(ctx context.Context, request *model.Mone
 }
 
 // GetByID retrieves a money request by its ID
-func (r *MoneyRequestRepository) GetByID(ctx context.Context, id string) (*model.MoneyRequest, error) {
+func (r *MoneyRequestRepo) GetByID(ctx context.Context, id string) (*model.MoneyRequest, error) {
 	query := `
 		SELECT id, requester_id, recipient_id, amount, currency, description,
 		       status, payment_link, expires_at, created_at, updated_at, paid_at
@@ -65,7 +65,7 @@ func (r *MoneyRequestRepository) GetByID(ctx context.Context, id string) (*model
 }
 
 // GetByRequester retrieves all money requests made by a user
-func (r *MoneyRequestRepository) GetByRequester(ctx context.Context, requesterID string) ([]*model.MoneyRequest, error) {
+func (r *MoneyRequestRepo) GetByRequester(ctx context.Context, requesterID string) ([]*model.MoneyRequest, error) {
 	query := `
 		SELECT id, requester_id, recipient_id, amount, currency, description,
 		       status, payment_link, expires_at, created_at, updated_at, paid_at
@@ -98,7 +98,7 @@ func (r *MoneyRequestRepository) GetByRequester(ctx context.Context, requesterID
 }
 
 // GetByRecipient retrieves all money requests for a recipient
-func (r *MoneyRequestRepository) GetByRecipient(ctx context.Context, recipientID string) ([]*model.MoneyRequest, error) {
+func (r *MoneyRequestRepo) GetByRecipient(ctx context.Context, recipientID string) ([]*model.MoneyRequest, error) {
 	query := `
 		SELECT id, requester_id, recipient_id, amount, currency, description,
 		       status, payment_link, expires_at, created_at, updated_at, paid_at
@@ -131,7 +131,7 @@ func (r *MoneyRequestRepository) GetByRecipient(ctx context.Context, recipientID
 }
 
 // UpdateStatus updates the status of a money request
-func (r *MoneyRequestRepository) UpdateStatus(ctx context.Context, id, status string, paidAt *time.Time) error {
+func (r *MoneyRequestRepo) UpdateStatus(ctx context.Context, id, status string, paidAt *time.Time) error {
 	query := `
 		UPDATE money_requests
 		SET status = $1, paid_at = $2, updated_at = $3
@@ -143,7 +143,7 @@ func (r *MoneyRequestRepository) UpdateStatus(ctx context.Context, id, status st
 }
 
 // UpdatePaymentLink updates the payment link for a money request
-func (r *MoneyRequestRepository) UpdatePaymentLink(ctx context.Context, id, paymentLink string) error {
+func (r *MoneyRequestRepo) UpdatePaymentLink(ctx context.Context, id, paymentLink string) error {
 	query := `
 		UPDATE money_requests
 		SET payment_link = $1, updated_at = $2

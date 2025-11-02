@@ -10,14 +10,14 @@ import (
 
 // MoneyRequestService handles business logic for money requests
 type MoneyRequestService struct {
-	moneyRequestRepo *repository.MoneyRequestRepository
-	accountRepo      *repository.AccountRepository
+	moneyRequestRepo repository.MoneyRequestRepository
+	accountRepo      repository.AccountRepository
 }
 
 // NewMoneyRequestService creates a new money request service
 func NewMoneyRequestService(
-	moneyRequestRepo *repository.MoneyRequestRepository,
-	accountRepo *repository.AccountRepository,
+	moneyRequestRepo repository.MoneyRequestRepository,
+	accountRepo repository.AccountRepository,
 ) *MoneyRequestService {
 	return &MoneyRequestService{
 		moneyRequestRepo: moneyRequestRepo,
@@ -99,7 +99,7 @@ func (s *MoneyRequestService) PayRequest(
 	}
 	
 	// Get payer's account
-	payerAccount, err := s.accountRepo.GetByUserIDAndCurrency(ctx, payerID, request.Currency)
+	payerAccount, err := s.accountRepo.GetByUserAndCurrency(ctx, payerID, request.Currency)
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func (s *MoneyRequestService) PayRequest(
 	}
 	
 	// Get requester's account
-	requesterAccount, err := s.accountRepo.GetByUserIDAndCurrency(ctx, request.RequesterID, request.Currency)
+	requesterAccount, err := s.accountRepo.GetByUserAndCurrency(ctx, request.RequesterID, request.Currency)
 	if err != nil {
 		return err
 	}

@@ -26,10 +26,16 @@ func NewAuthService(userService *UserService, jwtSecret string, jwtExpire time.D
 
 // Login authenticates a user and returns JWT tokens
 func (s *AuthService) Login(ctx context.Context, email, password string) (*LoginResponse, error) {
-	// Authenticate user
-	user, err := s.userService.AuthenticateUser(ctx, email, password)
+	// Get user by email
+	user, err := s.userService.GetUserByEmail(ctx, email)
 	if err != nil {
-		return nil, err
+		return nil, &AuthenticationError{Message: "Invalid email or password"}
+	}
+	
+	// Verify password
+	match, err := utils.CheckPassword(password, user.PasswordHash)
+	if err != nil || !match {
+		return nil, &AuthenticationError{Message: "Invalid email or password"}
 	}
 	
 	// Generate access token
@@ -53,35 +59,24 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 
 // Register creates a new user and returns JWT tokens
 func (s *AuthService) Register(ctx context.Context, email, password, firstName, lastName string) (*LoginResponse, error) {
+	// Hash password
+	hashedPassword, err := utils.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+	
+	// Create user model
+	user := &model.User{
+		Email:        email,
+		PasswordHash: hashedPassword,
+		FirstName:    firstName,
+		LastName:     lastName,
+		AccountStatus: "active",
+		KYCStatus:    "pending",
+	}
+	
 	// Create user
-	user, err := s.userService.CreateUser(ctx, email, password, firstName, lastName)
-	if err != nil {
-		return nil, err
-	}
-	
-	// Generate access token
-	accessToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, s.jwtExpire)
-	if err != nil {
-		return nil, err
-	}
-	
-	// Generate refresh token
-	refreshToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, 7*24*time.Hour)
-	if err != nil {
-		return nil, err
-	}
-	
-	return &LoginResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		User:         user,
-	}, nil
-}
-
-// RegisterWithDetails creates a new user with additional details and returns JWT tokens
-func (s *AuthService) RegisterWithDetails(ctx context.Context, email, password, firstName, lastName, phoneNumber, country string, dateOfBirth time.Time) (*LoginResponse, error) {
-	// Create user with details
-	user, err := s.userService.CreateUserWithDetails(ctx, email, password, firstName, lastName, phoneNumber, country, dateOfBirth)
+	err = s.userService.CreateUser(ctx, user)
 	if err != nil {
 		return nil, err
 	}

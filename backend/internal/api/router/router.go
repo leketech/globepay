@@ -69,7 +69,7 @@ func SetupRoutes(r *gin.Engine, serviceFactory *service.ServiceFactory, metrics 
 	
 	// Transfer routes (protected by authentication)
 	transferGroup := r.Group("/api/v1/transfers")
-	transferGroup.Use(middleware.AuthMiddleware(serviceFactory.config.JWTSecret))
+	transferGroup.Use(middleware.AuthMiddleware(serviceFactory.GetJWTSecret()))
 	{
 		transferGroup.GET("", func(c *gin.Context) {
 			fmt.Println("Handling /api/v1/transfers request")
@@ -190,7 +190,7 @@ func SetupRoutes(r *gin.Engine, serviceFactory *service.ServiceFactory, metrics 
 	
 	// Wallet routes (protected by authentication)
 	wallet := r.Group("/api/v1/wallet")
-	wallet.Use(middleware.AuthMiddleware(serviceFactory.config.JWTSecret))
+	wallet.Use(middleware.AuthMiddleware(serviceFactory.GetJWTSecret()))
 	{
 		walletHandler := handler.NewWalletHandler(serviceFactory, metrics)
 		
@@ -209,7 +209,7 @@ func SetupRoutes(r *gin.Engine, serviceFactory *service.ServiceFactory, metrics 
 	
 	// User routes (protected by authentication)
 	user := r.Group("/api/v1/user")
-	user.Use(middleware.AuthMiddleware(serviceFactory.config.JWTSecret))
+	user.Use(middleware.AuthMiddleware(serviceFactory.GetJWTSecret()))
 	{
 		user.GET("/profile", func(c *gin.Context) {
 			fmt.Println("Handling /api/v1/user/profile request")

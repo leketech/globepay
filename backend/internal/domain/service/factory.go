@@ -139,6 +139,11 @@ func (f *ServiceFactory) GetConfigService() *ConfigService {
 	return NewConfigService(f.config)
 }
 
+// GetJWTSecret returns the JWT secret from the configuration
+func (f *ServiceFactory) GetJWTSecret() string {
+	return f.config.JWTSecret
+}
+
 // GetMoneyRequestService returns the money request service
 func (f *ServiceFactory) GetMoneyRequestService() *MoneyRequestService {
 	if f.moneyRequestService == nil {

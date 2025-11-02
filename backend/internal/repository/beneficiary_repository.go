@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
@@ -29,7 +30,7 @@ func (r *BeneficiaryRepo) Create(beneficiary *model.Beneficiary) error {
 	beneficiary.CreatedAt = now
 	beneficiary.UpdatedAt = now
 
-	return r.db.QueryRow(query, beneficiary.ID, beneficiary.UserID, beneficiary.Name, beneficiary.AccountNo, beneficiary.BankName, beneficiary.BankAddress, beneficiary.Country, beneficiary.Currency, beneficiary.SwiftCode, beneficiary.Iban, beneficiary.CreatedAt, beneficiary.UpdatedAt).Scan(&beneficiary.ID)
+	return r.db.QueryRowContext(context.Background(), query, beneficiary.ID, beneficiary.UserID, beneficiary.Name, beneficiary.AccountNo, beneficiary.BankName, beneficiary.BankAddress, beneficiary.Country, beneficiary.Currency, beneficiary.SwiftCode, beneficiary.Iban, beneficiary.CreatedAt, beneficiary.UpdatedAt).Scan(&beneficiary.ID)
 }
 
 // GetByID retrieves a beneficiary by ID
@@ -41,7 +42,7 @@ func (r *BeneficiaryRepo) GetByID(id string) (*model.Beneficiary, error) {
 	`
 
 	beneficiary := &model.Beneficiary{}
-	err := r.db.QueryRow(query, id).Scan(
+	err := r.db.QueryRowContext(context.Background(), query, id).Scan(
 		&beneficiary.ID, &beneficiary.UserID, &beneficiary.Name, &beneficiary.AccountNo, &beneficiary.BankName, &beneficiary.BankAddress, &beneficiary.Country, &beneficiary.Currency, &beneficiary.SwiftCode, &beneficiary.Iban, &beneficiary.CreatedAt, &beneficiary.UpdatedAt,
 	)
 	if err != nil {
@@ -55,7 +56,7 @@ func (r *BeneficiaryRepo) GetByID(id string) (*model.Beneficiary, error) {
 }
 
 // GetByUser retrieves beneficiaries for a user
-func (r *BeneficiaryRepo) GetByUser(ctx interface{}, userID string) ([]*model.Beneficiary, error) {
+func (r *BeneficiaryRepo) GetByUser(ctx context.Context, userID string) ([]*model.Beneficiary, error) {
 	query := `
 		SELECT id, user_id, name, account_no, bank_name, bank_address, country, currency, swift_code, iban, created_at, updated_at
 		FROM beneficiaries
@@ -63,7 +64,7 @@ func (r *BeneficiaryRepo) GetByUser(ctx interface{}, userID string) ([]*model.Be
 		ORDER BY created_at DESC
 	`
 
-	rows, err := r.db.Query(query, userID)
+	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (r *BeneficiaryRepo) GetByUser(ctx interface{}, userID string) ([]*model.Be
 }
 
 // GetByNameAndUser retrieves a beneficiary by name and user
-func (r *BeneficiaryRepo) GetByNameAndUser(ctx interface{}, name, userID string) (*model.Beneficiary, error) {
+func (r *BeneficiaryRepo) GetByNameAndUser(ctx context.Context, name, userID string) (*model.Beneficiary, error) {
 	query := `
 		SELECT id, user_id, name, account_no, bank_name, bank_address, country, currency, swift_code, iban, created_at, updated_at
 		FROM beneficiaries
@@ -97,7 +98,7 @@ func (r *BeneficiaryRepo) GetByNameAndUser(ctx interface{}, name, userID string)
 	`
 
 	beneficiary := &model.Beneficiary{}
-	err := r.db.QueryRow(query, name, userID).Scan(
+	err := r.db.QueryRowContext(ctx, query, name, userID).Scan(
 		&beneficiary.ID, &beneficiary.UserID, &beneficiary.Name, &beneficiary.AccountNo, &beneficiary.BankName, &beneficiary.BankAddress, &beneficiary.Country, &beneficiary.Currency, &beneficiary.SwiftCode, &beneficiary.Iban, &beneficiary.CreatedAt, &beneficiary.UpdatedAt,
 	)
 	if err != nil {
@@ -119,7 +120,7 @@ func (r *BeneficiaryRepo) Update(beneficiary *model.Beneficiary) error {
 	`
 
 	beneficiary.UpdatedAt = time.Now()
-	result, err := r.db.Exec(query, beneficiary.Name, beneficiary.AccountNo, beneficiary.BankName, beneficiary.BankAddress, beneficiary.Country, beneficiary.Currency, beneficiary.SwiftCode, beneficiary.Iban, beneficiary.UpdatedAt, beneficiary.ID)
+	result, err := r.db.ExecContext(context.Background(), query, beneficiary.Name, beneficiary.AccountNo, beneficiary.BankName, beneficiary.BankAddress, beneficiary.Country, beneficiary.Currency, beneficiary.SwiftCode, beneficiary.Iban, beneficiary.UpdatedAt, beneficiary.ID)
 	if err != nil {
 		return err
 	}
@@ -140,7 +141,7 @@ func (r *BeneficiaryRepo) Update(beneficiary *model.Beneficiary) error {
 func (r *BeneficiaryRepo) Delete(id string) error {
 	query := `DELETE FROM beneficiaries WHERE id = $1`
 
-	result, err := r.db.Exec(query, id)
+	result, err := r.db.ExecContext(context.Background(), query, id)
 	if err != nil {
 		return err
 	}

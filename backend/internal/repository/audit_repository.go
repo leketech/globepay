@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 
@@ -18,7 +19,7 @@ func NewAuditRepository(db *sql.DB) AuditRepository {
 }
 
 // Create inserts a new audit log into the database
-func (r *AuditRepo) Create(ctx interface{}, auditLog *model.AuditLog) error {
+func (r *AuditRepo) Create(ctx context.Context, auditLog *model.AuditLog) error {
 	query := `
 		INSERT INTO audit_logs (id, user_id, action, table_name, record_id, old_values, new_values, ip_address, user_agent, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -43,11 +44,11 @@ func (r *AuditRepo) Create(ctx interface{}, auditLog *model.AuditLog) error {
 		}
 	}
 
-	return r.db.QueryRow(query, auditLog.ID, auditLog.UserID, auditLog.Action, auditLog.TableName, auditLog.RecordID, oldValuesJSON, newValuesJSON, auditLog.IPAddress, auditLog.UserAgent, auditLog.CreatedAt).Scan(&auditLog.ID)
+	return r.db.QueryRowContext(ctx, query, auditLog.ID, auditLog.UserID, auditLog.Action, auditLog.TableName, auditLog.RecordID, oldValuesJSON, newValuesJSON, auditLog.IPAddress, auditLog.UserAgent, auditLog.CreatedAt).Scan(&auditLog.ID)
 }
 
 // GetByUser retrieves audit logs for a user
-func (r *AuditRepo) GetByUser(ctx interface{}, userID string, limit, offset int) ([]*model.AuditLog, error) {
+func (r *AuditRepo) GetByUser(ctx context.Context, userID string, limit, offset int) ([]*model.AuditLog, error) {
 	query := `
 		SELECT id, user_id, action, table_name, record_id, old_values, new_values, ip_address, user_agent, created_at
 		FROM audit_logs
@@ -56,7 +57,7 @@ func (r *AuditRepo) GetByUser(ctx interface{}, userID string, limit, offset int)
 		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(query, userID, limit, offset)
+	rows, err := r.db.QueryContext(ctx, query, userID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +99,7 @@ func (r *AuditRepo) GetByUser(ctx interface{}, userID string, limit, offset int)
 }
 
 // GetByAction retrieves audit logs for a specific action
-func (r *AuditRepo) GetByAction(ctx interface{}, action string, limit, offset int) ([]*model.AuditLog, error) {
+func (r *AuditRepo) GetByAction(ctx context.Context, action string, limit, offset int) ([]*model.AuditLog, error) {
 	query := `
 		SELECT id, user_id, action, table_name, record_id, old_values, new_values, ip_address, user_agent, created_at
 		FROM audit_logs
@@ -107,7 +108,7 @@ func (r *AuditRepo) GetByAction(ctx interface{}, action string, limit, offset in
 		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(query, action, limit, offset)
+	rows, err := r.db.QueryContext(ctx, query, action, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +150,7 @@ func (r *AuditRepo) GetByAction(ctx interface{}, action string, limit, offset in
 }
 
 // GetByTable retrieves audit logs for a specific table
-func (r *AuditRepo) GetByTable(ctx interface{}, tableName string, limit, offset int) ([]*model.AuditLog, error) {
+func (r *AuditRepo) GetByTable(ctx context.Context, tableName string, limit, offset int) ([]*model.AuditLog, error) {
 	query := `
 		SELECT id, user_id, action, table_name, record_id, old_values, new_values, ip_address, user_agent, created_at
 		FROM audit_logs
@@ -158,7 +159,7 @@ func (r *AuditRepo) GetByTable(ctx interface{}, tableName string, limit, offset 
 		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(query, tableName, limit, offset)
+	rows, err := r.db.QueryContext(ctx, query, tableName, limit, offset)
 	if err != nil {
 		return nil, err
 	}

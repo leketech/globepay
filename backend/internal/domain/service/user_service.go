@@ -71,37 +71,3 @@ func (s *UserService) UpdateUserPreferences(ctx context.Context, preferences *mo
 	}
 	return s.userPreferencesRepo.UpdateUserPreferences(ctx, preferences)
 }
-
-// Custom error types
-type ValidationError struct {
-	Field   string
-	Message string
-}
-
-func (e *ValidationError) Error() string {
-	return e.Message
-}
-
-type ConflictError struct {
-	Message string
-}
-
-func (e *ConflictError) Error() string {
-	return e.Message
-}
-
-type AuthenticationError struct {
-	Message string
-}
-
-func (e *AuthenticationError) Error() string {
-	return e.Message
-}
-
-type NotFoundError struct {
-	Message string
-}
-
-func (e *NotFoundError) Error() string {
-	return e.Message
-}

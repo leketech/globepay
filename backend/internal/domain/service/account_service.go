@@ -106,12 +106,3 @@ func generateAccountNumber() string {
 	// following banking standards
 	return fmt.Sprintf("ACC%s", utils.GenerateUUID()[:12])
 }
-
-// Custom error types
-type NotFoundError struct {
-	Message string
-}
-
-func (e *NotFoundError) Error() string {
-	return e.Message
-}

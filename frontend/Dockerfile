@@ -20,10 +20,8 @@ ARG VITE_ENVIRONMENT
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_ENVIRONMENT=$VITE_ENVIRONMENT
 
-# Install @tailwindcss/postcss package explicitly
-RUN npm install @tailwindcss/postcss --save-dev
-
 # Build application
+# Removed explicit @tailwindcss/postcss installation to avoid conflicts
 RUN npm run build
 
 # Production stage

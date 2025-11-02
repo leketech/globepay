@@ -1,5 +1,5 @@
 # Multi-stage build for production
-FROM golang:1.25-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates tzdata
@@ -12,6 +12,9 @@ RUN go mod download
 
 # Copy source code
 COPY . .
+
+# Tidy go modules
+RUN go mod tidy
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
