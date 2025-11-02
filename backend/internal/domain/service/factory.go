@@ -144,6 +144,11 @@ func (f *ServiceFactory) GetJWTSecret() string {
 	return f.config.JWTSecret
 }
 
+// GetConfig returns the application configuration
+func (f *ServiceFactory) GetConfig() *config.Config {
+	return f.config
+}
+
 // GetMoneyRequestService returns the money request service
 func (f *ServiceFactory) GetMoneyRequestService() *MoneyRequestService {
 	if f.moneyRequestService == nil {
