@@ -13,6 +13,6 @@ patchesStrategicMerge:
 secretGenerator:
 - name: backend-secrets
   literals:
-  - database-url=postgresql://user:password@rds-endpoint:5432/globepay
+  - database-url=postgresql://globepay:your-secure-password-here@globepay-prod-db-2.ci9a6emem5ba.us-east-1.rds.amazonaws.com:5432/globepay_prod
   - redis-url=redis://redis-cluster:6379/0
   - jwt-secret=super-secret-jwt-key-change-in-production
