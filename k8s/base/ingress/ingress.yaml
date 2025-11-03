@@ -4,9 +4,9 @@ metadata:
   name: globepay-ingress
   namespace: globepay-prod
   annotations:
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
+  ingressClassName: nginx
   rules:
   - host: globepay.com
     http:
