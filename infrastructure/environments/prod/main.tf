@@ -157,7 +157,7 @@ module "rds" {
   
   # Database configuration
   engine                    = "postgres"
-  engine_version            = "15.7"
+  engine_version            = "15.12"
   instance_class            = "db.t4g.medium"
   allocated_storage         = 500
   max_allocated_storage     = 2000
