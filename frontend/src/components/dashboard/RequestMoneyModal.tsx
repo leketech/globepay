@@ -26,14 +26,6 @@ const RequestMoneyModal: React.FC<RequestMoneyModalProps> = ({ isOpen, onClose, 
     onClose();
   };
 
-  const generatePaymentLink = () => {
-    // In a real app, this would call an API to generate a payment link
-    const amountValue = parseFloat(amount) || 0;
-    const link = `${window.location.origin}/pay?amount=${amountValue}&recipient=${encodeURIComponent(recipient || 'Anonymous')}`;
-    navigator.clipboard.writeText(link);
-    alert('Payment link copied to clipboard!');
-  };
-
   if (!isOpen) return null;
 
   return (

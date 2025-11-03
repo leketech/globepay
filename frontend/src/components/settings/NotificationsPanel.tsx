@@ -12,8 +12,6 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
   const [transactionAlerts, setTransactionAlerts] = useState(true);
   const [securityAlerts, setSecurityAlerts] = useState(true);
   const [marketingEmails, setMarketingEmails] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [preferencesId, setPreferencesId] = useState('');
 
   // Load saved preferences from backend on component mount
   useEffect(() => {
@@ -28,7 +26,6 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
           setTransactionAlerts(preferences.transaction_alerts);
           setSecurityAlerts(preferences.security_alerts);
           setMarketingEmails(preferences.marketing_emails);
-          setPreferencesId(preferences.id);
         }
       } catch (error) {
         console.error('Failed to load preferences:', error);
@@ -42,8 +39,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
     try {
       const token = localStorage.getItem('token') || '';
       if (token) {
-        const preferences = await userPreferencesService.updateUserPreferences(token, updates);
-        setPreferencesId(preferences.id);
+        await userPreferencesService.updateUserPreferences(token, updates);
       }
     } catch (error) {
       console.error('Failed to save preferences:', error);

@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { transferService } from '../services/transfer.service';
-import { useAuth } from '../hooks/useAuth';
 
 const History: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [transfers, setTransfers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

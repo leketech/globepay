@@ -1,21 +1,8 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store';
-import { logout } from '../../store/authSlice';
-import type { AppDispatch } from '../../store';
+import { Link } from 'react-router-dom';
 import { HeaderProfile } from './HeaderProfile';
 
 export const Header: React.FC = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.auth);
-
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
-  };
-
   return (
     <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-10 py-3 bg-white dark:bg-[#182832]">
       <div className="flex items-center gap-4 text-primary">

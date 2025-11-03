@@ -109,11 +109,11 @@ func SetupRoutes(r *gin.Engine, serviceFactory *service.ServiceFactory, metrics 
 		// Transfer routes
 		protected.GET("/transfers", func(c *gin.Context) {
 			fmt.Println("Handling /api/v1/transfers request")
-			handler.GetUserTransfers(c, serviceFactory)
+			handler.GetTransfers(c, serviceFactory)
 		})
 		protected.GET("/transfers/:id", func(c *gin.Context) {
 			fmt.Println("Handling /api/v1/transfers/:id request")
-			handler.GetTransferByID(c, serviceFactory)
+			handler.GetTransfer(c, serviceFactory)
 		})
 		protected.POST("/transfers", func(c *gin.Context) {
 			fmt.Println("Handling /api/v1/transfers create request")
@@ -133,17 +133,17 @@ func SetupRoutes(r *gin.Engine, serviceFactory *service.ServiceFactory, metrics 
 		// Transaction routes
 		protected.GET("/transactions", func(c *gin.Context) {
 			fmt.Println("Handling /api/v1/transactions request")
-			handler.GetUserTransactions(c, serviceFactory)
+			handler.GetTransactions(c, serviceFactory)
 		})
 		protected.GET("/transactions/:id", func(c *gin.Context) {
 			fmt.Println("Handling /api/v1/transactions/:id request")
-			handler.GetTransactionByID(c, serviceFactory)
+			handler.GetTransaction(c, serviceFactory)
 		})
 
 		// Beneficiary routes
 		protected.GET("/beneficiaries", func(c *gin.Context) {
 			fmt.Println("Handling /api/v1/beneficiaries request")
-			handler.GetUserBeneficiaries(c, serviceFactory)
+			handler.GetBeneficiaries(c, serviceFactory)
 		})
 		protected.POST("/beneficiaries", func(c *gin.Context) {
 			fmt.Println("Handling /api/v1/beneficiaries create request")

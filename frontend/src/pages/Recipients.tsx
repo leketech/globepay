@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import RecipientForm from '../components/recipient/RecipientForm';
 
 interface Recipient {
@@ -17,7 +16,6 @@ interface Recipient {
 }
 
 const Recipients: React.FC = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRecipient, setSelectedRecipient] = useState<number | null>(1);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -50,19 +48,6 @@ const Recipients: React.FC = () => {
       accountDetails: '•••• 5678'
     }
   ]);
-
-  const [newRecipient, setNewRecipient] = useState({
-    name: '',
-    country: 'United Kingdom',
-    currency: 'GBP',
-    payoutMethod: 'Bank',
-    accountDetails: '',
-    bankName: '',
-    accountNumber: '',
-    sortCode: '',
-    iban: '',
-    swiftCode: ''
-  });
 
   const filteredRecipients = recipients.filter(recipient => 
     recipient.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -128,38 +113,6 @@ const Recipients: React.FC = () => {
   const handleCancelAdd = () => {
     setShowAddForm(false);
     setSelectedRecipient(recipients.length > 0 ? recipients[0].id : null);
-  };
-
-  // Map countries to their default currencies
-  const getCurrencyForCountry = (country: string) => {
-    const countryCurrencyMap: Record<string, string> = {
-      'United Kingdom': 'GBP',
-      'Germany': 'EUR',
-      'Canada': 'CAD',
-      'United States': 'USD',
-      'Australia': 'AUD',
-      'Nigeria': 'NGN',
-      'France': 'EUR',
-      'Japan': 'JPY',
-      'China': 'CNY',
-      'India': 'INR',
-      'Brazil': 'BRL',
-      'Mexico': 'MXN',
-      'South Africa': 'ZAR',
-      'Kenya': 'KES',
-      'Ghana': 'GHS'
-    };
-    return countryCurrencyMap[country] || 'USD';
-  };
-
-  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const country = e.target.value;
-    const currency = getCurrencyForCountry(country);
-    setNewRecipient({
-      ...newRecipient,
-      country,
-      currency
-    });
   };
 
   return (

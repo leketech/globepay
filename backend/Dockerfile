@@ -8,10 +8,18 @@ WORKDIR /build
 
 # Copy go mod files
 COPY go.mod go.sum ./
+
+# Download dependencies
 RUN go mod download
+
+# Verify dependencies
+RUN go mod verify
 
 # Copy source code
 COPY . .
+
+# Clean up unnecessary files
+RUN rm -rf tmp/*
 
 # Tidy go modules
 RUN go mod tidy

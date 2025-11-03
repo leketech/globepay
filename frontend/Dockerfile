@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci --only=production
 
 # Copy source code
 COPY . .
@@ -21,7 +21,6 @@ ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_ENVIRONMENT=$VITE_ENVIRONMENT
 
 # Build application
-# Removed explicit @tailwindcss/postcss installation to avoid conflicts
 RUN npm run build
 
 # Production stage
