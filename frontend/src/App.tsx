@@ -21,7 +21,7 @@ const App: React.FC = () => {
   useEffect(() => {
     // Apply saved theme or system preference on app load
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null;
-    
+
     const applyTheme = (theme: 'light' | 'dark' | 'system') => {
       if (theme === 'system') {
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -36,14 +36,14 @@ const App: React.FC = () => {
         document.documentElement.classList.remove('dark');
       }
     };
-    
+
     if (savedTheme) {
       applyTheme(savedTheme);
     } else {
       // Default to system preference
       applyTheme('system');
     }
-    
+
     // Listen for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleSystemThemeChange = (e: MediaQueryListEvent) => {
@@ -57,9 +57,9 @@ const App: React.FC = () => {
         }
       }
     };
-    
+
     mediaQuery.addEventListener('change', handleSystemThemeChange);
-    
+
     return () => {
       mediaQuery.removeEventListener('change', handleSystemThemeChange);
     };
@@ -75,48 +75,66 @@ const App: React.FC = () => {
           <Route path="/debug-login" element={<DebugLogin />} />
           <Route path="/browser-test-login" element={<BrowserTestLogin />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={
-            <PrivateRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/transfer" element={
-            <PrivateRoute>
-              <Layout>
-                <Transfer />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/history" element={
-            <PrivateRoute>
-              <Layout>
-                <History />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/recipients" element={
-            <PrivateRoute>
-              <Layout>
-                <Recipients />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/profile" element={
-            <PrivateRoute>
-              <Layout>
-                <Profile />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/settings" element={
-            <PrivateRoute>
-              <Layout>
-                <Settings />
-              </Layout>
-            </PrivateRoute>
-          } />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/transfer"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Transfer />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <History />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/recipients"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Recipients />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Profile />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Settings />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Router>
     </Provider>

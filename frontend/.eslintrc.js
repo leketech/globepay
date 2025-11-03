@@ -1,41 +1,37 @@
 module.exports = {
   root: true,
-  env: {
-    browser: true,
-    es2021: true,
-    node: true,
-  },
-  extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended',
-    'plugin:react-hooks/recommended',
-    'plugin:react-refresh/recommended',
-  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: 'latest',
+    project: './tsconfig.eslint.json',
+    tsconfigRootDir: __dirname,
+    ecmaVersion: 2020,
     sourceType: 'module',
-    project: ['./tsconfig.json'],
   },
-  plugins: [
-    '@typescript-eslint',
-    'react-hooks',
-    'react-refresh',
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'prettier', 'jest'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:jest/recommended',
+    'plugin:prettier/recommended', // Prettier integration
   ],
-  rules: {
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-  },
   settings: {
     react: {
       version: 'detect',
     },
   },
-  ignorePatterns: ['dist', 'node_modules', 'coverage'],
+  env: {
+    browser: true,
+    node: true,
+    es6: true,
+    jest: true,
+  },
+  rules: {
+    '@typescript-eslint/no-explicit-any': 'warn', // warn on 'any'
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    'react-hooks/exhaustive-deps': 'warn',
+    'react/prop-types': 'off',
+    'prettier/prettier': ['warn', { singleQuote: true, semi: true, trailingComma: 'es5' }],
+  },
 };

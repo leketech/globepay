@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
+import type { AppDispatch, RootState } from '../../store';
 import { createTransfer } from '../../store/transferSlice';
 import { TransferRequest } from '../../services/transfer.service';
 
 export const TransferForm: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { accounts } = useSelector((state: RootState) => state.auth);
   const { loading, error } = useSelector((state: RootState) => state.transfer);
 
@@ -27,7 +27,7 @@ export const TransferForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Create the transfer request object with the correct interface
     const transferData: TransferRequest = {
       recipientName: 'Recipient', // This should be updated with actual recipient name
@@ -41,7 +41,7 @@ export const TransferForm: React.FC = () => {
       purpose: formData.description,
     };
 
-    dispatch(createTransfer(transferData) as any);
+    dispatch(createTransfer(transferData));
   };
 
   return (
@@ -63,7 +63,8 @@ export const TransferForm: React.FC = () => {
             <option value="">Select account</option>
             {accounts.map((account) => (
               <option key={account.id} value={account.id}>
-                {account.accountNumber} ({account.currency}) - {account.balance.toLocaleString('en-US', {
+                {account.accountNumber} ({account.currency}) -{' '}
+                {account.balance.toLocaleString('en-US', {
                   style: 'currency',
                   currency: account.currency,
                 })}
@@ -143,8 +144,17 @@ export const TransferForm: React.FC = () => {
           <div className="rounded-md bg-red-50 p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3">

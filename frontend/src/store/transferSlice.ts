@@ -21,23 +21,26 @@ export const createTransfer = createAsyncThunk(
     try {
       const response = await transferService.createTransfer(data);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create transfer');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return rejectWithValue(error.message || 'Failed to create transfer');
+      }
+      return rejectWithValue('Failed to create transfer');
     }
   }
 );
 
-export const getTransfers = createAsyncThunk(
-  'transfer/getAll',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await transferService.getTransfers();
-      return response.transfers;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch transfers');
+export const getTransfers = createAsyncThunk('transfer/getAll', async (_, { rejectWithValue }) => {
+  try {
+    const response = await transferService.getTransfers();
+    return response.transfers;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message || 'Failed to fetch transfers');
     }
+    return rejectWithValue('Failed to fetch transfers');
   }
-);
+});
 
 export const getTransfer = createAsyncThunk(
   'transfer/get',
@@ -45,8 +48,11 @@ export const getTransfer = createAsyncThunk(
     try {
       const response = await transferService.getTransfer(id);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch transfer');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return rejectWithValue(error.message || 'Failed to fetch transfer');
+      }
+      return rejectWithValue('Failed to fetch transfer');
     }
   }
 );

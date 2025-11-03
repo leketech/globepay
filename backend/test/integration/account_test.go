@@ -5,6 +5,7 @@ import (
 
 	"globepay/internal/domain/model"
 	"globepay/internal/repository"
+	"globepay/test/utils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -12,18 +13,20 @@ import (
 
 type AccountTestSuite struct {
 	suite.Suite
-	accountRepo repository.AccountRepository // Changed from AccountRepoInterface
-	db          *TestDB
-	redisClient *TestRedis
+	accountRepo repository.AccountRepository
+	db          *utils.TestDB
+	redisClient *utils.TestRedis
 }
 
 func (suite *AccountTestSuite) SetupSuite() {
 	// Initialize test database
-	suite.db = NewTestDB()
-	suite.redisClient = NewTestRedis()
+	suite.db = utils.NewTestDB()
+	suite.redisClient = utils.NewTestRedis()
 
 	// Initialize repository
-	suite.accountRepo = repository.NewAccountRepository(suite.db.DB) // Changed from NewAccountRepo
+	if suite.db != nil {
+		suite.accountRepo = repository.NewAccountRepository(suite.db.DB)
+	}
 }
 
 func (suite *AccountTestSuite) TearDownSuite() {
@@ -37,7 +40,9 @@ func (suite *AccountTestSuite) TearDownSuite() {
 
 func (suite *AccountTestSuite) SetupTest() {
 	// Clear test data before each test
-	suite.db.ClearTables()
+	if suite.db != nil {
+		suite.db.ClearTables()
+	}
 }
 
 func (suite *AccountTestSuite) TestAccountRepository_Create() {
@@ -91,7 +96,7 @@ func (suite *AccountTestSuite) TestAccountRepository_GetByID() {
 	assert.Equal(suite.T(), account.Status, retrievedAccount.Status)
 }
 
-func (suite *AccountTestSuite) TestAccountRepository_GetByUser() { // Changed from GetByUserID
+func (suite *AccountTestSuite) TestAccountRepository_GetByUser() {
 	// Skip if no database connection
 	if suite.db == nil {
 		suite.T().Skip("No database connection")
@@ -121,7 +126,7 @@ func (suite *AccountTestSuite) TestAccountRepository_GetByUser() { // Changed fr
 	assert.NoError(suite.T(), err)
 
 	// Test getting accounts by user ID
-	accounts, err := suite.accountRepo.GetByUser(nil, "1", 100, 0) // Added context and pagination
+	accounts, err := suite.accountRepo.GetByUser(nil, "1", 100, 0)
 	assert.NoError(suite.T(), err)
 	assert.Len(suite.T(), accounts, 2)
 }
@@ -146,7 +151,7 @@ func (suite *AccountTestSuite) TestAccountRepository_UpdateBalance() {
 
 	// Test updating account balance
 	newBalance := 1500.0
-	err = suite.accountRepo.UpdateBalance(nil, account.ID, newBalance) // Added context
+	err = suite.accountRepo.UpdateBalance(nil, account.ID, newBalance)
 	assert.NoError(suite.T(), err)
 
 	// Verify the balance was updated

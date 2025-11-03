@@ -6,9 +6,7 @@ import { LoginRequest, SignupRequest } from '../services/auth.service';
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user, isAuthenticated, loading, error } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { user, isAuthenticated, loading, error } = useSelector((state: RootState) => state.auth);
 
   const handleLogin = useCallback(
     (credentials: LoginRequest) => {

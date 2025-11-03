@@ -33,18 +33,21 @@ export const userPreferencesService = {
         marketing_emails: false,
         two_factor_enabled: false,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
     }
   },
 
-  async updateUserPreferences(token: string, preferences: Partial<UserPreferences>): Promise<UserPreferences> {
+  async updateUserPreferences(
+    token: string,
+    preferences: Partial<UserPreferences>
+  ): Promise<UserPreferences> {
     try {
-      const response = await userApi.updateUserPreferences(token, preferences);
+      const response = await userApi.updateUserPreferences(token, preferences as any);
       return response;
     } catch (error) {
       console.error('Failed to update user preferences:', error);
       throw error;
     }
-  }
+  },
 };

@@ -2,10 +2,32 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authService, LoginRequest, SignupRequest, AuthResponse } from '../services/auth.service';
 import { AuthState, User } from '../types';
 
+interface ApiUser {
+  id: string;
+  email: string;
+  first_name?: string;
+  firstName?: string;
+  last_name?: string;
+  lastName?: string;
+  phone_number?: string;
+  phoneNumber?: string;
+  date_of_birth?: string;
+  dateOfBirth?: string;
+  country?: string;
+  kyc_status?: string;
+  kycStatus?: string;
+  account_status?: string;
+  accountStatus?: string;
+  created_at?: string;
+  createdAt?: string;
+  updated_at?: string;
+  updatedAt?: string;
+}
+
 // Create a function to map the API user response to our User type
-const mapApiUserToUser = (apiUser: any): User => {
+const mapApiUserToUser = (apiUser: ApiUser): User => {
   console.log('Mapping API user to frontend user:', apiUser);
-  
+
   const user: User = {
     id: apiUser.id,
     email: apiUser.email,
@@ -19,7 +41,7 @@ const mapApiUserToUser = (apiUser: any): User => {
     createdAt: apiUser.created_at || apiUser.createdAt || '',
     updatedAt: apiUser.updated_at || apiUser.updatedAt || '',
   };
-  
+
   console.log('Mapped user:', user);
   return user;
 };
@@ -41,15 +63,11 @@ export const login = createAsyncThunk(
       const response = await authService.login(credentials);
       console.log('AuthService login response:', response);
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error in authService:', error);
       // Try to extract more detailed error information
       let errorMessage = 'Login failed';
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error.message) {
+      if (error instanceof Error) {
         errorMessage = error.message;
       }
       return rejectWithValue(errorMessage);
@@ -63,8 +81,11 @@ export const signup = createAsyncThunk(
     try {
       const response = await authService.signup(userData);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Signup failed');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return rejectWithValue(error.message || 'Signup failed');
+      }
+      return rejectWithValue('Signup failed');
     }
   }
 );

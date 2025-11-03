@@ -1,4 +1,4 @@
-export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+export const formatCurrency = (amount: number, currency = 'USD'): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
@@ -30,7 +30,7 @@ export const capitalize = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-export const truncateString = (str: string, maxLength: number = 20): string => {
+export const truncateString = (str: string, maxLength = 20): string => {
   if (!str) return '';
   if (str.length <= maxLength) return str;
   return str.substring(0, maxLength) + '...';

@@ -79,72 +79,77 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center gap-4">
-        <button 
-          onClick={onBack}
-          className="flex items-center gap-2 text-primary hover:underline"
-        >
+        <button onClick={onBack} className="flex items-center gap-2 text-primary hover:underline">
           <span className="material-symbols-outlined">arrow_back</span>
           <span>Back to Settings</span>
         </button>
       </div>
-      
+
       <h2 className="text-2xl font-bold text-[#111618] dark:text-white">Notifications</h2>
-      
+
       {/* Notification Preferences */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">Notification Preferences</h3>
-        
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">
+          Notification Preferences
+        </h3>
+
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div>
               <p className="font-medium text-gray-900 dark:text-white">Email Notifications</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Receive email updates about your account</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Receive email updates about your account
+              </p>
             </div>
-            <button 
+            <button
               onClick={() => handleEmailNotificationsChange(!emailNotifications)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                 emailNotifications ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
               }`}
             >
-              <span 
+              <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   emailNotifications ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
             </button>
           </div>
-          
+
           <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div>
               <p className="font-medium text-gray-900 dark:text-white">Push Notifications</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Receive push notifications on your device</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Receive push notifications on your device
+              </p>
             </div>
-            <button 
+            <button
               onClick={() => handlePushNotificationsChange(!pushNotifications)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                 pushNotifications ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
               }`}
             >
-              <span 
+              <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   pushNotifications ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
             </button>
           </div>
-          
+
           <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div>
               <p className="font-medium text-gray-900 dark:text-white">SMS Notifications</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Receive SMS updates about your transactions</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Receive SMS updates about your transactions
+              </p>
             </div>
-            <button 
+            <button
               onClick={() => handleSmsNotificationsChange(!smsNotifications)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                 smsNotifications ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
               }`}
             >
-              <span 
+              <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   smsNotifications ? 'translate-x-6' : 'translate-x-1'
                 }`}
@@ -153,43 +158,49 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Transaction Notifications */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">Transaction Notifications</h3>
-        
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">
+          Transaction Notifications
+        </h3>
+
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div>
               <p className="font-medium text-gray-900 dark:text-white">Transaction Alerts</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when transactions occur</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Get notified when transactions occur
+              </p>
             </div>
-            <button 
+            <button
               onClick={() => handleTransactionAlertsChange(!transactionAlerts)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                 transactionAlerts ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
               }`}
             >
-              <span 
+              <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   transactionAlerts ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
             </button>
           </div>
-          
+
           <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div>
               <p className="font-medium text-gray-900 dark:text-white">Security Alerts</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Get notified about security-related events</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Get notified about security-related events
+              </p>
             </div>
-            <button 
+            <button
               onClick={() => handleSecurityAlertsChange(!securityAlerts)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                 securityAlerts ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
               }`}
             >
-              <span 
+              <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   securityAlerts ? 'translate-x-6' : 'translate-x-1'
                 }`}
@@ -198,24 +209,28 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Marketing Communications */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">Marketing Communications</h3>
-        
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">
+          Marketing Communications
+        </h3>
+
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div>
               <p className="font-medium text-gray-900 dark:text-white">Marketing Emails</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Receive promotional emails and updates</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Receive promotional emails and updates
+              </p>
             </div>
-            <button 
+            <button
               onClick={() => handleMarketingEmailsChange(!marketingEmails)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                 marketingEmails ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
               }`}
             >
-              <span 
+              <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   marketingEmails ? 'translate-x-6' : 'translate-x-1'
                 }`}

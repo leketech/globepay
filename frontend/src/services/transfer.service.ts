@@ -1,6 +1,5 @@
 import { transferApi } from './api';
-// Remove the currencyService import since we'll use the backend API directly
-// import { currencyService } from './currency.service';
+import { Transfer as TransferType } from '../types';
 
 export interface TransferRequest {
   recipientName: string;
@@ -44,41 +43,47 @@ export const transferService = {
   async getExchangeRate(from: string, to: string, amount: number): Promise<ExchangeRateResponse> {
     try {
       console.log('Getting exchange rate from backend API...', { from, to, amount });
-      
+
       // Validate inputs
       if (!from || !to || amount <= 0) {
         throw new Error('Invalid input parameters for exchange rate calculation');
       }
-      
+
       // Call the backend API endpoint for exchange rates
       const response = await fetch(`/api/v1/exchange-rates?from=${from}&to=${to}&amount=${amount}`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data: ExchangeRateResponse = await response.json();
       console.log('Backend API response:', data);
-      
+
       // Validate response
       if (!data || !isFinite(data.rate) || !isFinite(data.convertedAmount)) {
         throw new Error('Invalid response from backend API');
       }
-      
+
       return data;
     } catch (error) {
       console.error('Failed to get exchange rate from backend API:', error);
       // Fallback to a mock implementation with reasonable defaults
-      const mockRate = from === 'USD' && to === 'EUR' ? 0.85 : 
-                      from === 'EUR' && to === 'USD' ? 1.18 : 
-                      from === 'USD' && to === 'GBP' ? 0.75 : 
-                      from === 'GBP' && to === 'USD' ? 1.33 : 
-                      from === 'USD' && to === 'NGN' ? 1580.0 : 
-                      1.0; // Default 1:1 rate
-      
+      const mockRate =
+        from === 'USD' && to === 'EUR'
+          ? 0.85
+          : from === 'EUR' && to === 'USD'
+          ? 1.18
+          : from === 'USD' && to === 'GBP'
+          ? 0.75
+          : from === 'GBP' && to === 'USD'
+          ? 1.33
+          : from === 'USD' && to === 'NGN'
+          ? 1580.0
+          : 1.0; // Default 1:1 rate
+
       const fee = this.calculateFee(amount);
       const convertedAmount = (amount - fee) * mockRate;
-      
+
       return {
         fromCurrency: from,
         toCurrency: to,
@@ -86,7 +91,7 @@ export const transferService = {
         fee: fee,
         amount: amount,
         convertedAmount: convertedAmount,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   },
@@ -100,20 +105,46 @@ export const transferService = {
     } else {
       fee = amount * 0.005; // 0.5% fee for large amounts
     }
-    
+
     // Validate fee
     if (!isFinite(fee)) {
       fee = 0;
     }
-    
+
     return fee;
   },
 
-  async createTransfer(data: TransferRequest): Promise<Transfer> {
+  async createTransfer(data: TransferRequest): Promise<TransferType> {
     // Get token from localStorage
     const token = localStorage.getItem('token') || '';
+    
+    // Map TransferRequest to Transfer for the API call
+    const transferData: any = {
+      recipientName: data.recipientName,
+      recipientCountry: data.recipientCountry,
+      recipientBankName: data.recipientBankName,
+      recipientAccountNo: data.recipientAccountNo,
+      recipientSwiftCode: data.recipientSwiftCode,
+      sourceCurrency: data.sourceCurrency,
+      destCurrency: data.destCurrency,
+      sourceAmount: data.sourceAmount,
+      purpose: data.purpose,
+      // These fields will be populated by the backend
+      id: '',
+      userId: '',
+      recipientEmail: '',
+      destAmount: 0,
+      fee: 0,
+      exchangeRate: 0,
+      status: 'pending',
+      transactionId: '',
+      estimatedArrival: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
     // Using the transferApi.createTransfer function directly
-    return transferApi.createTransfer(token, data);
+    return transferApi.createTransfer(token, transferData);
   },
 
   async getTransfer(id: string): Promise<Transfer> {

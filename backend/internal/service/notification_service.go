@@ -11,10 +11,12 @@ import (
 type NotificationServiceInterface interface {
 	SendEmail(to, subject, body string) error
 	SendSMS(to, message string) error
-	SendPushNotification(userID int64, title, message string) error
+	SendPushNotification(userID string, title, message string) error // Changed from int64 to string
 	SendTransferNotification(transfer *domain.Transfer) error
 	SendTransactionNotification(transaction *domain.Transaction) error
-	SendVerificationNotification(userID int64, verificationType string) error
+	SendVerificationNotification(userID string, verificationType string) error // Changed from int64 to string
+	SendWelcomeNotification(userID string, email string) error // Changed from int64 to string
+	SendSecurityAlert(userID string, alertType, details string) error // Changed from int64 to string
 }
 
 // NotificationService implements NotificationServiceInterface
@@ -84,10 +86,10 @@ func (s *NotificationService) SendSMS(to, message string) error {
 }
 
 // SendPushNotification sends a push notification
-func (s *NotificationService) SendPushNotification(userID int64, title, message string) error {
+func (s *NotificationService) SendPushNotification(userID string, title, message string) error { // Changed from int64 to string
 	// In a real implementation, you would use a push notification service like Firebase, APNs, etc.
 	// For now, we'll just log the push notification
-	log.Printf("Sending push notification to user %d: %s - %s", userID, title, message)
+	log.Printf("Sending push notification to user %s: %s - %s", userID, title, message) // Changed from %d to %s
 
 	// Example implementation with Firebase:
 	// notification := &messaging.Message{
@@ -95,7 +97,7 @@ func (s *NotificationService) SendPushNotification(userID int64, title, message 
 	//         "title":   title,
 	//         "message": message,
 	//     },
-	//     Topic: fmt.Sprintf("user-%d", userID),
+	//     Topic: fmt.Sprintf("user-%s", userID), // Changed from %d to %s
 	// }
 	//
 	// _, err := s.pushClient.Send(context.Background(), notification)
@@ -110,7 +112,7 @@ func (s *NotificationService) SendPushNotification(userID int64, title, message 
 func (s *NotificationService) SendTransferNotification(transfer *domain.Transfer) error {
 	// In a real implementation, you would fetch user details and format a proper message
 	// For now, we'll just log the transfer notification
-	log.Printf("Sending transfer notification for transfer ID %d", transfer.ID)
+	log.Printf("Sending transfer notification for transfer ID %s", transfer.ID) // Changed from %d to %s
 
 	// Example implementation:
 	// message := fmt.Sprintf("Your transfer of %.2f %s has been %s", 
@@ -133,7 +135,7 @@ func (s *NotificationService) SendTransferNotification(transfer *domain.Transfer
 func (s *NotificationService) SendTransactionNotification(transaction *domain.Transaction) error {
 	// In a real implementation, you would fetch user details and format a proper message
 	// For now, we'll just log the transaction notification
-	log.Printf("Sending transaction notification for transaction ID %d", transaction.ID)
+	log.Printf("Sending transaction notification for transaction ID %s", transaction.ID)
 
 	// Example implementation:
 	// message := fmt.Sprintf("Your transaction of %.2f %s has been %s", 
@@ -147,10 +149,10 @@ func (s *NotificationService) SendTransactionNotification(transaction *domain.Tr
 }
 
 // SendVerificationNotification sends a verification notification
-func (s *NotificationService) SendVerificationNotification(userID int64, verificationType string) error {
+func (s *NotificationService) SendVerificationNotification(userID string, verificationType string) error { // Changed from int64 to string
 	// In a real implementation, you would fetch user details and send appropriate verification
 	// For now, we'll just log the verification notification
-	log.Printf("Sending %s verification notification to user %d", verificationType, userID)
+	log.Printf("Sending %s verification notification to user %s", verificationType, userID) // Changed from %d to %s
 
 	// Example implementation:
 	// switch verificationType {
@@ -173,7 +175,7 @@ func (s *NotificationService) SendVerificationNotification(userID int64, verific
 }
 
 // SendWelcomeNotification sends a welcome notification to a new user
-func (s *NotificationService) SendWelcomeNotification(userID int64, email string) error {
+func (s *NotificationService) SendWelcomeNotification(userID string, email string) error { // Changed from int64 to string
 	subject := "Welcome to Globepay!"
 	body := fmt.Sprintf(`
 		Welcome to Globepay!
@@ -211,9 +213,9 @@ func (s *NotificationService) SendPasswordResetNotification(email, resetLink str
 }
 
 // SendSecurityAlert sends a security alert notification
-func (s *NotificationService) SendSecurityAlert(userID int64, alertType, details string) error {
+func (s *NotificationService) SendSecurityAlert(userID string, alertType, details string) error { // Changed from int64 to string
 	// In a real implementation, you would fetch user details
-	log.Printf("Sending security alert to user %d: %s - %s", userID, alertType, details)
+	log.Printf("Sending security alert to user %s: %s - %s", userID, alertType, details) // Changed from %d to %s
 
 	// Example implementation:
 	// message := fmt.Sprintf("Security Alert: %s\n\nDetails: %s\n\nIf this wasn't you, please contact support immediately.", alertType, details)

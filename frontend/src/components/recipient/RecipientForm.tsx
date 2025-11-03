@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-interface RecipientFormData {
+export interface RecipientFormData {
   name: string;
   bankName: string;
   accountNumber: string;
@@ -17,11 +17,7 @@ interface RecipientFormProps {
   initialData?: RecipientFormData;
 }
 
-const RecipientForm: React.FC<RecipientFormProps> = ({ 
-  onSubmit, 
-  onCancel, 
-  initialData 
-}) => {
+const RecipientForm: React.FC<RecipientFormProps> = ({ onSubmit, onCancel, initialData }) => {
   const [formData, setFormData] = useState<RecipientFormData>(
     initialData || {
       name: '',
@@ -36,11 +32,11 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -50,19 +46,19 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.bankName.trim()) {
       newErrors.bankName = 'Bank name is required';
     }
-    
+
     if (!formData.accountNumber.trim()) {
       newErrors.accountNumber = 'Account number is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -78,20 +74,20 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
   const getCurrencyForCountry = (country: string) => {
     const countryCurrencyMap: Record<string, string> = {
       'United Kingdom': 'GBP',
-      'Germany': 'EUR',
-      'Canada': 'CAD',
+      Germany: 'EUR',
+      Canada: 'CAD',
       'United States': 'USD',
-      'Australia': 'AUD',
-      'Nigeria': 'NGN',
-      'France': 'EUR',
-      'Japan': 'JPY',
-      'China': 'CNY',
-      'India': 'INR',
-      'Brazil': 'BRL',
-      'Mexico': 'MXN',
+      Australia: 'AUD',
+      Nigeria: 'NGN',
+      France: 'EUR',
+      Japan: 'JPY',
+      China: 'CNY',
+      India: 'INR',
+      Brazil: 'BRL',
+      Mexico: 'MXN',
       'South Africa': 'ZAR',
-      'Kenya': 'KES',
-      'Ghana': 'GHS'
+      Kenya: 'KES',
+      Ghana: 'GHS',
     };
     return countryCurrencyMap[country] || 'USD';
   };
@@ -102,7 +98,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
     setFormData({
       ...formData,
       country,
-      currency
+      currency,
     });
   };
 
@@ -111,7 +107,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
       <h2 className="text-2xl font-bold text-[#111618] dark:text-white">
         {initialData ? 'Edit Recipient' : 'Add New Recipient'}
       </h2>
-      
+
       {/* Personal Details Section */}
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">
@@ -119,19 +115,19 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label 
-              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block" 
+            <label
+              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block"
               htmlFor="name"
             >
               Full Name
             </label>
-            <input 
+            <input
               className={`form-input w-full rounded-lg border ${
                 errors.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-              } bg-transparent focus:border-primary focus:ring-primary`} 
-              id="name" 
+              } bg-transparent focus:border-primary focus:ring-primary`}
+              id="name"
               name="name"
-              type="text" 
+              type="text"
               value={formData.name}
               onChange={handleChange}
               required
@@ -140,7 +136,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
           </div>
         </div>
       </div>
-      
+
       {/* Bank Details Section */}
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">
@@ -148,19 +144,19 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label 
-              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block" 
+            <label
+              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block"
               htmlFor="bankName"
             >
               Bank Name
             </label>
-            <input 
+            <input
               className={`form-input w-full rounded-lg border ${
                 errors.bankName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-              } bg-transparent focus:border-primary focus:ring-primary`} 
-              id="bankName" 
+              } bg-transparent focus:border-primary focus:ring-primary`}
+              id="bankName"
               name="bankName"
-              type="text" 
+              type="text"
               value={formData.bankName}
               onChange={handleChange}
               required
@@ -168,34 +164,36 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
             {errors.bankName && <p className="mt-1 text-sm text-red-500">{errors.bankName}</p>}
           </div>
           <div>
-            <label 
-              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block" 
+            <label
+              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block"
               htmlFor="accountNumber"
             >
               Account Number
             </label>
-            <input 
+            <input
               className={`form-input w-full rounded-lg border ${
                 errors.accountNumber ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-              } bg-transparent focus:border-primary focus:ring-primary`} 
-              id="accountNumber" 
+              } bg-transparent focus:border-primary focus:ring-primary`}
+              id="accountNumber"
               name="accountNumber"
-              type="text" 
+              type="text"
               value={formData.accountNumber}
               onChange={handleChange}
               required
             />
-            {errors.accountNumber && <p className="mt-1 text-sm text-red-500">{errors.accountNumber}</p>}
+            {errors.accountNumber && (
+              <p className="mt-1 text-sm text-red-500">{errors.accountNumber}</p>
+            )}
           </div>
           <div>
-            <label 
-              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block" 
+            <label
+              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block"
               htmlFor="country"
             >
               Country
             </label>
-            <select 
-              className="form-select w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary" 
+            <select
+              className="form-select w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary"
               id="country"
               name="country"
               value={formData.country}
@@ -219,14 +217,14 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
             </select>
           </div>
           <div>
-            <label 
-              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block" 
+            <label
+              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block"
               htmlFor="currency"
             >
               Currency
             </label>
-            <select 
-              className="form-select w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary" 
+            <select
+              className="form-select w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary"
               id="currency"
               name="currency"
               value={formData.currency}
@@ -249,51 +247,51 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
             </select>
           </div>
           <div>
-            <label 
-              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block" 
+            <label
+              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block"
               htmlFor="sortCode"
             >
               Sort Code (UK only)
             </label>
-            <input 
-              className="form-input w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary" 
-              id="sortCode" 
+            <input
+              className="form-input w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary"
+              id="sortCode"
               name="sortCode"
-              type="text" 
+              type="text"
               value={formData.sortCode || ''}
               onChange={handleChange}
               placeholder="12-34-56"
             />
           </div>
           <div>
-            <label 
-              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block" 
+            <label
+              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block"
               htmlFor="iban"
             >
               IBAN (International)
             </label>
-            <input 
-              className="form-input w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary" 
-              id="iban" 
+            <input
+              className="form-input w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary"
+              id="iban"
               name="iban"
-              type="text" 
+              type="text"
               value={formData.iban || ''}
               onChange={handleChange}
               placeholder="DE44500105170445678901"
             />
           </div>
           <div>
-            <label 
-              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block" 
+            <label
+              className="font-medium text-sm text-gray-600 dark:text-gray-300 mb-2 block"
               htmlFor="swiftCode"
             >
               SWIFT/BIC Code
             </label>
-            <input 
-              className="form-input w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary" 
-              id="swiftCode" 
+            <input
+              className="form-input w-full rounded-lg border-gray-300 dark:border-gray-600 bg-transparent focus:border-primary focus:ring-primary"
+              id="swiftCode"
               name="swiftCode"
-              type="text" 
+              type="text"
               value={formData.swiftCode || ''}
               onChange={handleChange}
               placeholder="COBADEFFXXX"
@@ -301,16 +299,16 @@ const RecipientForm: React.FC<RecipientFormProps> = ({
           </div>
         </div>
       </div>
-      
+
       <div className="flex gap-3">
-        <button 
+        <button
           type="button"
           className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 gap-2 text-base font-bold leading-normal tracking-[0.015em] hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           onClick={onCancel}
         >
           <span className="truncate">Cancel</span>
         </button>
-        <button 
+        <button
           type="submit"
           className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
         >

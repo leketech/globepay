@@ -29,9 +29,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
           <div className="text-center p-8">
             <h1 className="text-2xl font-bold text-red-500 mb-4">Something went wrong</h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {this.state.error?.message}
-            </p>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{this.state.error?.message}</p>
             <button
               onClick={() => window.location.reload()}
               className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90"

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"globepay/internal/infrastructure/cache"
+	"globepay/test/utils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -13,13 +13,30 @@ import (
 
 type RedisTestSuite struct {
 	suite.Suite
-	redisClient *cache.RedisClient
+	redisClient *utils.TestRedis
 }
 
 func (suite *RedisTestSuite) SetupSuite() {
-	// In a real test, you would connect to a test Redis instance
-	// For now, we'll skip the actual Redis connection
-	suite.T().Skip("Skipping Redis tests - no test Redis instance configured")
+	// Initialize test Redis
+	suite.redisClient = utils.NewTestRedis()
+	
+	// Skip if no Redis connection
+	if suite.redisClient == nil {
+		suite.T().Skip("Skipping Redis tests - no test Redis instance configured")
+	}
+}
+
+func (suite *RedisTestSuite) TearDownSuite() {
+	if suite.redisClient != nil {
+		suite.redisClient.Close()
+	}
+}
+
+func (suite *RedisTestSuite) SetupTest() {
+	// Clear Redis data before each test
+	if suite.redisClient != nil {
+		suite.redisClient.Clear()
+	}
 }
 
 func (suite *RedisTestSuite) TestRedis_SetAndGet() {
@@ -34,11 +51,11 @@ func (suite *RedisTestSuite) TestRedis_SetAndGet() {
 	expiration := 1 * time.Minute
 
 	// Test setting a value
-	err := suite.redisClient.Set(ctx, key, value, expiration)
+	err := suite.redisClient.Client.Set(ctx, key, value, expiration).Err()
 	assert.NoError(suite.T(), err)
 
 	// Test getting the value
-	retrievedValue, err := suite.redisClient.Get(ctx, key)
+	retrievedValue, err := suite.redisClient.Client.Get(ctx, key).Result()
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), value, retrievedValue)
 }
@@ -55,15 +72,15 @@ func (suite *RedisTestSuite) TestRedis_Delete() {
 	expiration := 1 * time.Minute
 
 	// First set a value
-	err := suite.redisClient.Set(ctx, key, value, expiration)
+	err := suite.redisClient.Client.Set(ctx, key, value, expiration).Err()
 	assert.NoError(suite.T(), err)
 
 	// Delete the value
-	err = suite.redisClient.Delete(ctx, key)
+	err = suite.redisClient.Client.Del(ctx, key).Err()
 	assert.NoError(suite.T(), err)
 
 	// Try to get the deleted value (should fail)
-	_, err = suite.redisClient.Get(ctx, key)
+	_, err = suite.redisClient.Client.Get(ctx, key).Result()
 	assert.Error(suite.T(), err)
 }
 
@@ -79,14 +96,14 @@ func (suite *RedisTestSuite) TestRedis_ExpiredKey() {
 	expiration := 1 * time.Second
 
 	// Set a value with short expiration
-	err := suite.redisClient.Set(ctx, key, value, expiration)
+	err := suite.redisClient.Client.Set(ctx, key, value, expiration).Err()
 	assert.NoError(suite.T(), err)
 
 	// Wait for expiration
 	time.Sleep(2 * time.Second)
 
 	// Try to get the expired value (should fail)
-	_, err = suite.redisClient.Get(ctx, key)
+	_, err = suite.redisClient.Client.Get(ctx, key).Result()
 	assert.Error(suite.T(), err)
 }
 

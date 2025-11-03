@@ -35,14 +35,14 @@ const SecurityPanel: React.FC<SecurityPanelProps> = ({ onBack }) => {
       alert('New passwords do not match');
       return;
     }
-    
+
     setLoading(true);
     try {
       // In a real app, this would call an API to update the password
       console.log('Password change requested');
       // Example: await api.changePassword(currentPassword, newPassword);
       alert('Password updated successfully!');
-      
+
       // Reset form
       setCurrentPassword('');
       setNewPassword('');
@@ -72,24 +72,25 @@ const SecurityPanel: React.FC<SecurityPanelProps> = ({ onBack }) => {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center gap-4">
-        <button 
-          onClick={onBack}
-          className="flex items-center gap-2 text-primary hover:underline"
-        >
+        <button onClick={onBack} className="flex items-center gap-2 text-primary hover:underline">
           <span className="material-symbols-outlined">arrow_back</span>
           <span>Back to Settings</span>
         </button>
       </div>
-      
+
       <h2 className="text-2xl font-bold text-[#111618] dark:text-white">Security</h2>
-      
+
       {/* Password Change */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">Change Password</h3>
-        
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">
+          Change Password
+        </h3>
+
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Current Password
+            </label>
             <input
               type="password"
               value={currentPassword}
@@ -98,9 +99,11 @@ const SecurityPanel: React.FC<SecurityPanelProps> = ({ onBack }) => {
               required
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              New Password
+            </label>
             <input
               type="password"
               value={newPassword}
@@ -109,9 +112,11 @@ const SecurityPanel: React.FC<SecurityPanelProps> = ({ onBack }) => {
               required
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Confirm New Password
+            </label>
             <input
               type="password"
               value={confirmPassword}
@@ -120,7 +125,7 @@ const SecurityPanel: React.FC<SecurityPanelProps> = ({ onBack }) => {
               required
             />
           </div>
-          
+
           <button
             type="submit"
             disabled={loading}
@@ -130,23 +135,27 @@ const SecurityPanel: React.FC<SecurityPanelProps> = ({ onBack }) => {
           </button>
         </form>
       </div>
-      
+
       {/* Two-Factor Authentication */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">Two-Factor Authentication</h3>
-        
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">
+          Two-Factor Authentication
+        </h3>
+
         <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div>
             <p className="font-medium text-gray-900 dark:text-white">Two-Factor Authentication</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of security to your account</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Add an extra layer of security to your account
+            </p>
           </div>
-          <button 
+          <button
             onClick={() => handleTwoFactorChange(!twoFactorEnabled)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
               twoFactorEnabled ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
             }`}
           >
-            <span 
+            <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                 twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'
               }`}
@@ -154,27 +163,33 @@ const SecurityPanel: React.FC<SecurityPanelProps> = ({ onBack }) => {
           </button>
         </div>
       </div>
-      
+
       {/* Login Activity */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">Recent Login Activity</h3>
-        
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">
+          Recent Login Activity
+        </h3>
+
         <div className="space-y-4">
           <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex justify-between">
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">Chrome on Windows</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">New York, US • Today at 10:30 AM</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  New York, US • Today at 10:30 AM
+                </p>
               </div>
               <span className="text-green-500 text-sm font-medium">Current Session</span>
             </div>
           </div>
-          
+
           <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex justify-between">
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">Safari on iPhone</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">New York, US • Yesterday at 4:15 PM</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  New York, US • Yesterday at 4:15 PM
+                </p>
               </div>
               <span className="text-gray-500 dark:text-gray-400 text-sm">Active</span>
             </div>

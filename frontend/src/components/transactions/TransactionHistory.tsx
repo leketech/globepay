@@ -32,12 +32,16 @@ export const TransactionHistory: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                    transaction.type === 'credit' ? 'bg-green-100' : 'bg-red-100'
-                  }`}>
-                    <span className={`text-sm font-medium ${
-                      transaction.type === 'credit' ? 'text-green-800' : 'text-red-800'
-                    }`}>
+                  <div
+                    className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                      transaction.type === 'credit' ? 'bg-green-100' : 'bg-red-100'
+                    }`}
+                  >
+                    <span
+                      className={`text-sm font-medium ${
+                        transaction.type === 'credit' ? 'text-green-800' : 'text-red-800'
+                      }`}
+                    >
                       {transaction.type === 'credit' ? '+' : '-'}
                     </span>
                   </div>
@@ -47,9 +51,11 @@ export const TransactionHistory: React.FC = () => {
                   <div className="text-sm text-gray-500">{formatDate(transaction.createdAt)}</div>
                 </div>
               </div>
-              <div className={`text-sm font-medium ${
-                transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <div
+                className={`text-sm font-medium ${
+                  transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
                 {transaction.type === 'credit' ? '+' : '-'}
                 {formatCurrency(transaction.amount, transaction.currency)}
               </div>

@@ -30,18 +30,18 @@ export const authService = {
       // Using the authApi.login function directly
       const response = await authApi.login(data.email, data.password);
       console.log('AuthService login response:', response);
-      
+
       // Ensure the response has the expected structure
       if (!response || !response.token || !response.user) {
         throw new Error('Invalid login response');
       }
-      
+
       // Store in localStorage
       if (response.token) {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
       }
-      
+
       return response;
     } catch (error) {
       console.error('AuthService login error:', error);

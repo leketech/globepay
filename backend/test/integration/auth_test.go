@@ -5,6 +5,7 @@ import (
 
 	"globepay/internal/domain/model"
 	"globepay/internal/repository"
+	"globepay/test/utils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -12,18 +13,20 @@ import (
 
 type AuthTestSuite struct {
 	suite.Suite
-	userRepo    repository.UserRepository // Changed from UserRepoInterface
-	db          *TestDB
-	redisClient *TestRedis
+	userRepo    repository.UserRepository
+	db          *utils.TestDB
+	redisClient *utils.TestRedis
 }
 
 func (suite *AuthTestSuite) SetupSuite() {
 	// Initialize test database
-	suite.db = NewTestDB()
-	suite.redisClient = NewTestRedis()
+	suite.db = utils.NewTestDB()
+	suite.redisClient = utils.NewTestRedis()
 
 	// Initialize repository
-	suite.userRepo = repository.NewUserRepository(suite.db.DB) // Changed from NewUserRepo
+	if suite.db != nil {
+		suite.userRepo = repository.NewUserRepository(suite.db.DB)
+	}
 }
 
 func (suite *AuthTestSuite) TearDownSuite() {
@@ -37,7 +40,9 @@ func (suite *AuthTestSuite) TearDownSuite() {
 
 func (suite *AuthTestSuite) SetupTest() {
 	// Clear test data before each test
-	suite.db.ClearTables()
+	if suite.db != nil {
+		suite.db.ClearTables()
+	}
 }
 
 func (suite *AuthTestSuite) TestUserRepository_Create() {

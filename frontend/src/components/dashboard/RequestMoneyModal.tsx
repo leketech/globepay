@@ -6,7 +6,11 @@ interface RequestMoneyModalProps {
   onRequestMoney: (amount: number, recipient: string, isLink: boolean) => void;
 }
 
-const RequestMoneyModal: React.FC<RequestMoneyModalProps> = ({ isOpen, onClose, onRequestMoney }) => {
+const RequestMoneyModal: React.FC<RequestMoneyModalProps> = ({
+  isOpen,
+  onClose,
+  onRequestMoney,
+}) => {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState('');
   const [requestType, setRequestType] = useState<'user' | 'link'>('user');
@@ -34,7 +38,7 @@ const RequestMoneyModal: React.FC<RequestMoneyModalProps> = ({ isOpen, onClose, 
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Request Money</h2>
-            <button 
+            <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >

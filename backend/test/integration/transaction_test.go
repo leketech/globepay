@@ -6,6 +6,7 @@ import (
 
 	"globepay/internal/domain/model"
 	"globepay/internal/repository"
+	"globepay/test/utils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -13,20 +14,22 @@ import (
 
 type TransactionTestSuite struct {
 	suite.Suite
-	transactionRepo repository.TransactionRepository // Changed from TransactionRepoInterface
-	accountRepo     repository.AccountRepository     // Changed from AccountRepoInterface
-	db              *TestDB
-	redisClient     *TestRedis
+	transactionRepo repository.TransactionRepository
+	accountRepo     repository.AccountRepository
+	db              *utils.TestDB
+	redisClient     *utils.TestRedis
 }
 
 func (suite *TransactionTestSuite) SetupSuite() {
 	// Initialize test database
-	suite.db = NewTestDB()
-	suite.redisClient = NewTestRedis()
+	suite.db = utils.NewTestDB()
+	suite.redisClient = utils.NewTestRedis()
 
 	// Initialize repositories
-	suite.transactionRepo = repository.NewTransactionRepository(suite.db.DB) // Changed from NewTransactionRepo
-	suite.accountRepo = repository.NewAccountRepository(suite.db.DB)         // Changed from NewAccountRepo
+	if suite.db != nil {
+		suite.transactionRepo = repository.NewTransactionRepository(suite.db.DB)
+		suite.accountRepo = repository.NewAccountRepository(suite.db.DB)
+	}
 }
 
 func (suite *TransactionTestSuite) TearDownSuite() {
@@ -40,7 +43,9 @@ func (suite *TransactionTestSuite) TearDownSuite() {
 
 func (suite *TransactionTestSuite) SetupTest() {
 	// Clear test data before each test
-	suite.db.ClearTables()
+	if suite.db != nil {
+		suite.db.ClearTables()
+	}
 }
 
 func (suite *TransactionTestSuite) TestTransactionRepository_Create() {
@@ -109,7 +114,7 @@ func (suite *TransactionTestSuite) TestTransactionRepository_GetByID() {
 	assert.Equal(suite.T(), transaction.Status, retrievedTransaction.Status)
 }
 
-func (suite *TransactionTestSuite) TestTransactionRepository_GetByUser() { // Changed from GetByUserID
+func (suite *TransactionTestSuite) TestTransactionRepository_GetByUser() {
 	// Skip if no database connection
 	if suite.db == nil {
 		suite.T().Skip("No database connection")
@@ -151,7 +156,7 @@ func (suite *TransactionTestSuite) TestTransactionRepository_GetByUser() { // Ch
 	assert.NoError(suite.T(), err)
 
 	// Test getting transactions by user ID
-	transactions, err := suite.transactionRepo.GetByUser(nil, "1", 100, 0) // Added context and pagination
+	transactions, err := suite.transactionRepo.GetByUser(nil, "1", 100, 0)
 	assert.NoError(suite.T(), err)
 	assert.Len(suite.T(), transactions, 2)
 }

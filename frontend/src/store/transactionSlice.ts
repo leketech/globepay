@@ -1,13 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-
-interface TransactionState {
-  transactions: any[];
-  loading: boolean;
-  error: string | null;
-}
+import { TransactionState } from '../types';
 
 const initialState: TransactionState = {
   transactions: [],
+  currentTransaction: null,
   loading: false,
   error: null,
 };
@@ -34,5 +30,6 @@ const transactionSlice = createSlice({
   },
 });
 
-export const { setTransactions, addTransaction, setLoading, setError, clearError } = transactionSlice.actions;
+export const { setTransactions, addTransaction, setLoading, setError, clearError } =
+  transactionSlice.actions;
 export default transactionSlice.reducer;

@@ -16,6 +16,7 @@ import (
 	"globepay/internal/infrastructure/config"
 	"globepay/internal/infrastructure/database"
 	"globepay/internal/infrastructure/metrics"
+	"globepay/test/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -28,9 +29,20 @@ func TestWalletAddMoney(t *testing.T) {
 		t.Skip("skipping integration test in short mode")
 	}
 
+	// Setup test database
+	testDB := utils.NewTestDB()
+	if testDB == nil {
+		t.Skip("No test database connection")
+	}
+	defer testDB.Close()
+
+	// Clear tables
+	testDB.ClearTables()
+
 	// Setup
 	cfg := config.LoadConfig()
-	db := database.NewTestDB(t, cfg)
+	// Use test database instead of the real one
+	db := &database.Database{DB: testDB.DB}
 	serviceFactory := service.NewServiceFactory(cfg, db, nil, nil)
 	metrics := metrics.NewMetrics()
 
@@ -86,9 +98,20 @@ func TestWalletRequestMoney(t *testing.T) {
 		t.Skip("skipping integration test in short mode")
 	}
 
+	// Setup test database
+	testDB := utils.NewTestDB()
+	if testDB == nil {
+		t.Skip("No test database connection")
+	}
+	defer testDB.Close()
+
+	// Clear tables
+	testDB.ClearTables()
+
 	// Setup
 	cfg := config.LoadConfig()
-	db := database.NewTestDB(t, cfg)
+	// Use test database instead of the real one
+	db := &database.Database{DB: testDB.DB}
 	serviceFactory := service.NewServiceFactory(cfg, db, nil, nil)
 	metrics := metrics.NewMetrics()
 

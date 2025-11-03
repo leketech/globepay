@@ -11,7 +11,7 @@ export const validatePassword = (password: string): boolean => {
 
 export const validatePhoneNumber = (phone: string): boolean => {
   // Basic phone number validation
-  const re = /^\+?[\d\s\-\(\)]{10,}$/;
+  const re = /^\+?[\d\s\-()]{10,}$/; // Removed unnecessary escapes for parentheses
   return re.test(phone);
 };
 

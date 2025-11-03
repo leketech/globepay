@@ -2,27 +2,29 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/authSlice';
+import type { AppDispatch } from '../../store';
+import type { AuthResponse } from '../../services/auth.service';
 
 const TestLogin: React.FC = () => {
   const [email, setEmail] = useState('final_clean_test@example.com');
   const [password, setPassword] = useState('password123');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<AuthResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  
-  const dispatch = useDispatch();
+
+  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleTestLogin = async () => {
     setLoading(true);
     setError(null);
     setResult(null);
-    
+
     try {
       console.log('Dispatching login action with:', { email, password });
-      const actionResult: any = await dispatch(login({ email, password }) as any);
+      const actionResult = await dispatch(login({ email, password }));
       console.log('Login action result:', actionResult);
-      
+
       if (login.fulfilled.match(actionResult)) {
         setResult(actionResult.payload);
         console.log('Login successful!');
@@ -45,63 +47,64 @@ const TestLogin: React.FC = () => {
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Test Login Component</h1>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label>Email: </label>
-        <input 
-          type="email" 
-          value={email} 
+        <input
+          type="email"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
           style={{ marginLeft: '10px', padding: '5px' }}
         />
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label>Password: </label>
-        <input 
-          type="password" 
-          value={password} 
+        <input
+          type="password"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={{ marginLeft: '10px', padding: '5px' }}
         />
       </div>
-      
-      <button 
-        onClick={handleTestLogin} 
+
+      <button
+        onClick={handleTestLogin}
         disabled={loading}
         style={{ padding: '10px 20px', marginRight: '10px' }}
       >
         {loading ? 'Logging in...' : 'Test Login'}
       </button>
-      
-      <button 
-        onClick={handleNavigateToDashboard}
-        style={{ padding: '10px 20px' }}
-      >
+
+      <button onClick={handleNavigateToDashboard} style={{ padding: '10px 20px' }}>
         Go to Dashboard
       </button>
-      
+
       {error && (
-        <div style={{ 
-          marginTop: '20px', 
-          padding: '10px', 
-          backgroundColor: '#ffebee', 
-          color: '#c62828',
-          border: '1px solid #ffcdd2'
-        }}>
+        <div
+          style={{
+            marginTop: '20px',
+            padding: '10px',
+            backgroundColor: '#ffebee',
+            color: '#c62828',
+            border: '1px solid #ffcdd2',
+          }}
+        >
           <h3>Error:</h3>
           <p>{error}</p>
         </div>
       )}
-      
+
       {result && (
-        <div style={{ 
-          marginTop: '20px', 
-          padding: '10px', 
-          backgroundColor: '#e8f5e9', 
-          color: '#2e7d32',
-          border: '1px solid #c8e6c9'
-        }}>
+        <div
+          style={{
+            marginTop: '20px',
+            padding: '10px',
+            backgroundColor: '#e8f5e9',
+            color: '#2e7d32',
+            border: '1px solid #c8e6c9',
+          }}
+        >
           <h3>Login Result:</h3>
           <pre>{JSON.stringify(result, null, 2)}</pre>
         </div>
