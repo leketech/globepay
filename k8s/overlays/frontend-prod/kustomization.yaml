@@ -9,10 +9,3 @@ namespace: globepay-prod
 
 patchesStrategicMerge:
 - ./patches/frontend-deployment.yaml
-
-secretGenerator:
-- name: backend-secrets
-  literals:
-  - database-url=postgresql://globepay:secure_password_here@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable
-  - redis-url=redis://redis:6379/0
-  - jwt-secret=SECURE_JWT_SECRET_KEY
