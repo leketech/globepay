@@ -136,6 +136,7 @@ resource "aws_iam_policy" "load_balancer_controller" {
           "ec2:DescribeCoipPools",
           "ec2:CreateSecurityGroup",
           "ec2:CreateTags",
+          "ec2:AuthorizeSecurityGroupIngress",
           "elasticloadbalancing:DescribeLoadBalancers",
           "elasticloadbalancing:DescribeLoadBalancerAttributes",
           "elasticloadbalancing:DescribeListeners",
