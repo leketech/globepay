@@ -3,8 +3,9 @@ kind: Ingress
 metadata:
   name: frontend-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
+  ingressClassName: nginx
   rules:
   - host: globepay.com
     http:
@@ -14,5 +15,15 @@ spec:
         backend:
           service:
             name: frontend
+            port:
+              number: 80
+  - host: api.globepay.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
             port:
               number: 80
