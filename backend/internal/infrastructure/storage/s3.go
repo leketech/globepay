@@ -213,7 +213,11 @@ func (s *S3Client) GetObjectMetadata(ctx context.Context, bucketName, key string
 
 	metadata := make(map[string]string)
 	for key, value := range result.Metadata {
-		metadata[key] = *value
+		if value != nil {
+			metadata[key] = *value
+		} else {
+			metadata[key] = ""
+		}
 	}
 
 	return metadata, nil

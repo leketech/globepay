@@ -13,7 +13,7 @@ import (
 type TransactionServiceInterface interface {
 	GetTransactions(userID int64) ([]model.Transaction, error)
 	GetTransactionByID(transactionID int64) (*model.Transaction, error)
-	CreateTransaction(transaction *model.Transaction) error)
+	CreateTransaction(transaction *model.Transaction) error
 	GetTransactionHistory(userID int64, limit, offset int) ([]model.Transaction, error)
 	GetTransactionsByStatus(status string) ([]model.Transaction, error)
 	UpdateTransactionStatus(transactionID int64, status string) error
