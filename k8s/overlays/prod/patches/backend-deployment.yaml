@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:v1.0.0
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:latest
         resources:
           requests:
             memory: "512Mi"
