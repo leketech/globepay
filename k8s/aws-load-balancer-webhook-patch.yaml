@@ -1,0 +1,24 @@
+# This patch should be applied to the AWS Load Balancer Controller's
+# ValidatingWebhookConfiguration to fix the certificate validation issue
+#
+# Apply with:
+# kubectl patch validatingwebhookconfiguration aws-load-balancer-webhook -p "$(cat aws-load-balancer-webhook-patch.yaml)" --type=merge
+
+# Note: The caBundle field needs to be populated with the base64-encoded CA certificate
+# from the aws-load-balancer-ca-tls secret after it's created by cert-manager
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: aws-load-balancer-webhook
+webhooks:
+- name: vingress.elbv2.k8s.aws
+  clientConfig:
+    caBundle: ""  # This will be updated with the actual CA bundle
+  admissionReviewVersions: ["v1", "v1beta1"]
+  sideEffects: None
+  rules:
+  - apiGroups: ["networking.k8s.io"]
+    apiVersions: ["v1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["ingresses"]

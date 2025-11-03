@@ -1,0 +1,7 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: aws-load-balancer-ca-issuer
+spec:
+  ca:
+    secretName: aws-load-balancer-ca-tls
