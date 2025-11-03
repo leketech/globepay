@@ -9,11 +9,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	"errors"
 )
 
 // SQSConfig holds the SQS configuration
 type SQSConfig struct {
-	Region string
+	Region   string
 	Endpoint string // Optional, for local testing
 }
 
@@ -24,26 +25,26 @@ type SQSClient struct {
 
 // Message represents an SQS message
 type Message struct {
-	ID          string
-	Body        string
+	ID            string
+	Body          string
 	ReceiptHandle string
-	Attributes  map[string]string
+	Attributes    map[string]string
 }
 
 // NewSQSClient creates a new SQS client
-func NewSQSClient(config SQSConfig) (*SQSClient, error) {
+func NewSQSClient(cfg SQSConfig) (*SQSClient, error) {
 	// Load AWS configuration
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(config.Region))
+	awsConfig, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(cfg.Region))
 	if err != nil {
 		return nil, fmt.Errorf("failed to load AWS config: %w", err)
 	}
 
 	// Create SQS client
-	client := sqs.NewFromConfig(cfg, func(o *sqs.Options) {
-		if config.Endpoint != "" {
+	client := sqs.NewFromConfig(awsConfig, func(o *sqs.Options) {
+		if cfg.Endpoint != "" {
 			o.EndpointResolver = sqs.EndpointResolverFunc(func(region string, options sqs.EndpointResolverOptions) (aws.Endpoint, error) {
 				return aws.Endpoint{
-					URL: config.Endpoint,
+					URL: cfg.Endpoint,
 				}, nil
 			})
 		}
@@ -145,7 +146,7 @@ func (s *SQSClient) GetQueueURL(ctx context.Context, queueName string) (string, 
 	result, err := s.client.GetQueueUrl(ctx, input)
 	if err != nil {
 		var queueDoesNotExist *types.QueueDoesNotExist
-		if ok := As(err, &queueDoesNotExist); ok {
+		if errors.As(err, &queueDoesNotExist) {
 			return "", fmt.Errorf("queue %s does not exist", queueName)
 		}
 		return "", fmt.Errorf("failed to get queue URL: %w", err)

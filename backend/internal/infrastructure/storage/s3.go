@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 // S3Config holds the S3 configuration
@@ -34,19 +33,19 @@ type ObjectMetadata struct {
 }
 
 // NewS3Client creates a new S3 client
-func NewS3Client(config S3Config) (*S3Client, error) {
+func NewS3Client(cfg S3Config) (*S3Client, error) {
 	// Load AWS configuration
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(config.Region))
+	awsConfig, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(cfg.Region))
 	if err != nil {
 		return nil, fmt.Errorf("failed to load AWS config: %w", err)
 	}
 
 	// Create S3 client
-	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
-		if config.Endpoint != "" {
+	client := s3.NewFromConfig(awsConfig, func(o *s3.Options) {
+		if cfg.Endpoint != "" {
 			o.EndpointResolver = s3.EndpointResolverFunc(func(region string, options s3.EndpointResolverOptions) (aws.Endpoint, error) {
 				return aws.Endpoint{
-					URL: config.Endpoint,
+					URL: cfg.Endpoint,
 				}, nil
 			})
 		}
@@ -145,7 +144,7 @@ func (s *S3Client) ListObjects(ctx context.Context, bucketName, prefix string) (
 	for i, obj := range result.Contents {
 		objects[i] = ObjectMetadata{
 			Key:          *obj.Key,
-			Size:         obj.Size,
+			Size:         *obj.Size,
 			LastModified: obj.LastModified.String(),
 			ETag:         *obj.ETag,
 		}

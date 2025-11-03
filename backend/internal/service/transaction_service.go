@@ -6,26 +6,27 @@ import (
 
 	"globepay/internal/domain"
 	"globepay/internal/repository"
+	"globepay/internal/domain/model"
 )
 
 // TransactionServiceInterface defines the interface for transaction service
 type TransactionServiceInterface interface {
-	GetTransactions(userID int64) ([]domain.Transaction, error)
-	GetTransactionByID(transactionID int64) (*domain.Transaction, error)
-	CreateTransaction(transaction *domain.Transaction) error
-	GetTransactionHistory(userID int64, limit, offset int) ([]domain.Transaction, error)
-	GetTransactionsByStatus(status domain.TransactionStatus) ([]domain.Transaction, error)
-	UpdateTransactionStatus(transactionID int64, status domain.TransactionStatus) error
+	GetTransactions(userID int64) ([]model.Transaction, error)
+	GetTransactionByID(transactionID int64) (*model.Transaction, error)
+	CreateTransaction(transaction *model.Transaction) error)
+	GetTransactionHistory(userID int64, limit, offset int) ([]model.Transaction, error)
+	GetTransactionsByStatus(status string) ([]model.Transaction, error)
+	UpdateTransactionStatus(transactionID int64, status string) error
 }
 
 // TransactionService implements TransactionServiceInterface
 type TransactionService struct {
-	transactionRepo repository.TransactionRepoInterface
-	accountRepo     repository.AccountRepoInterface
+	transactionRepo repository.TransactionRepository
+	accountRepo     repository.AccountRepository
 }
 
 // NewTransactionService creates a new TransactionService
-func NewTransactionService(transactionRepo repository.TransactionRepoInterface, accountRepo repository.AccountRepoInterface) *TransactionService {
+func NewTransactionService(transactionRepo repository.TransactionRepository, accountRepo repository.AccountRepository) *TransactionService {
 	return &TransactionService{
 		transactionRepo: transactionRepo,
 		accountRepo:     accountRepo,
@@ -33,7 +34,7 @@ func NewTransactionService(transactionRepo repository.TransactionRepoInterface, 
 }
 
 // GetTransactions retrieves all transactions for a user
-func (s *TransactionService) GetTransactions(userID int64) ([]domain.Transaction, error) {
+func (s *TransactionService) GetTransactions(userID int64) ([]model.Transaction, error) {
 	transactions, err := s.transactionRepo.GetByUserID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transactions: %w", err)
@@ -43,7 +44,7 @@ func (s *TransactionService) GetTransactions(userID int64) ([]domain.Transaction
 }
 
 // GetTransactionByID retrieves a transaction by ID
-func (s *TransactionService) GetTransactionByID(transactionID int64) (*domain.Transaction, error) {
+func (s *TransactionService) GetTransactionByID(transactionID int64) (*model.Transaction, error) {
 	transaction, err := s.transactionRepo.GetByID(transactionID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transaction: %w", err)
@@ -53,7 +54,7 @@ func (s *TransactionService) GetTransactionByID(transactionID int64) (*domain.Tr
 }
 
 // CreateTransaction creates a new transaction
-func (s *TransactionService) CreateTransaction(transaction *domain.Transaction) error {
+func (s *TransactionService) CreateTransaction(transaction *model.Transaction) error {
 	// Set default values
 	transaction.Status = string(domain.TransactionPending)
 	transaction.CreatedAt = time.Now()
@@ -90,7 +91,7 @@ func (s *TransactionService) CreateTransaction(transaction *domain.Transaction) 
 }
 
 // GetTransactionHistory retrieves transaction history with pagination
-func (s *TransactionService) GetTransactionHistory(userID int64, limit, offset int) ([]domain.Transaction, error) {
+func (s *TransactionService) GetTransactionHistory(userID int64, limit, offset int) ([]model.Transaction, error) {
 	// Get all transactions for the user
 	allTransactions, err := s.transactionRepo.GetByUserID(userID)
 	if err != nil {
@@ -101,7 +102,7 @@ func (s *TransactionService) GetTransactionHistory(userID int64, limit, offset i
 	start := offset
 	end := offset + limit
 	if start >= len(allTransactions) {
-		return []domain.Transaction{}, nil
+		return []model.Transaction{}, nil
 	}
 	if end > len(allTransactions) {
 		end = len(allTransactions)
@@ -111,7 +112,7 @@ func (s *TransactionService) GetTransactionHistory(userID int64, limit, offset i
 }
 
 // GetTransactionsByStatus retrieves all transactions with a specific status
-func (s *TransactionService) GetTransactionsByStatus(status domain.TransactionStatus) ([]domain.Transaction, error) {
+func (s *TransactionService) GetTransactionsByStatus(status string) ([]model.Transaction, error) {
 	transactions, err := s.transactionRepo.GetByStatus(status)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transactions: %w", err)
@@ -121,7 +122,7 @@ func (s *TransactionService) GetTransactionsByStatus(status domain.TransactionSt
 }
 
 // UpdateTransactionStatus updates the status of a transaction
-func (s *TransactionService) UpdateTransactionStatus(transactionID int64, status domain.TransactionStatus) error {
+func (s *TransactionService) UpdateTransactionStatus(transactionID int64, status string) error {
 	// Get existing transaction
 	transaction, err := s.transactionRepo.GetByID(transactionID)
 	if err != nil {
@@ -154,7 +155,7 @@ func (s *TransactionService) UpdateTransactionStatus(transactionID int64, status
 }
 
 // processDeposit processes a deposit transaction
-func (s *TransactionService) processDeposit(transaction *domain.Transaction) error {
+func (s *TransactionService) processDeposit(transaction *model.Transaction) error {
 	// Update account balance
 	account, err := s.accountRepo.GetByID(transaction.AccountID)
 	if err != nil {
@@ -176,7 +177,7 @@ func (s *TransactionService) processDeposit(transaction *domain.Transaction) err
 }
 
 // handleStatusTransition handles logic when a transaction status changes
-func (s *TransactionService) handleStatusTransition(transaction *domain.Transaction, oldStatus, newStatus domain.TransactionStatus) error {
+func (s *TransactionService) handleStatusTransition(transaction *model.Transaction, oldStatus, newStatus domain.TransactionStatus) error {
 	// Handle different status transitions
 	switch {
 	case oldStatus == domain.TransactionPending && newStatus == domain.TransactionProcessed:
@@ -229,7 +230,7 @@ func (s *TransactionService) handleStatusTransition(transaction *domain.Transact
 }
 
 // GetTransactionByReferenceNumber retrieves a transaction by reference number
-func (s *TransactionService) GetTransactionByReferenceNumber(referenceNumber string) (*domain.Transaction, error) {
+func (s *TransactionService) GetTransactionByReferenceNumber(referenceNumber string) (*model.Transaction, error) {
 	// This would require adding a method to the repository interface
 	// For now, we'll return a placeholder implementation
 	return nil, fmt.Errorf("not implemented")

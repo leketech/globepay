@@ -26,7 +26,10 @@ func NewCrypto(secretKey string) *Crypto {
 }
 
 // Encrypt encrypts plaintext using AES-GCM
-func (c *Crypto) Encrypt(plaintext []byte) (string, error) {
+func (c *Crypto) Encrypt(plaintext string) (string, error) {
+	// Convert string to []byte
+	plaintextBytes := []byte(plaintext)
+	
 	// Create a new AES cipher
 	block, err := aes.NewCipher(c.encryptionKey)
 	if err != nil {
@@ -46,48 +49,48 @@ func (c *Crypto) Encrypt(plaintext []byte) (string, error) {
 	}
 
 	// Encrypt the plaintext
-	ciphertext := gcm.Seal(nonce, nonce, plaintext, nil)
+	ciphertext := gcm.Seal(nonce, nonce, plaintextBytes, nil)
 
 	// Encode to base64
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
 // Decrypt decrypts ciphertext using AES-GCM
-func (c *Crypto) Decrypt(ciphertext string) ([]byte, error) {
+func (c *Crypto) Decrypt(ciphertext string) (string, error) {
 	// Decode from base64
 	data, err := base64.StdEncoding.DecodeString(ciphertext)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64: %w", err)
+		return "", fmt.Errorf("failed to decode base64: %w", err)
 	}
 
 	// Create a new AES cipher
 	block, err := aes.NewCipher(c.encryptionKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create cipher: %w", err)
+		return "", fmt.Errorf("failed to create cipher: %w", err)
 	}
 
 	// Create GCM
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create GCM: %w", err)
+		return "", fmt.Errorf("failed to create GCM: %w", err)
 	}
 
 	// Get the nonce size
 	nonceSize := gcm.NonceSize()
 	if len(data) < nonceSize {
-		return nil, fmt.Errorf("ciphertext too short")
+		return "", fmt.Errorf("ciphertext too short")
 	}
 
 	// Extract nonce and ciphertext
-	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
+	nonce, ciphertextBytes := data[:nonceSize], data[nonceSize:]
 
 	// Decrypt the ciphertext
-	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	plaintext, err := gcm.Open(nil, nonce, ciphertextBytes, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt: %w", err)
+		return "", fmt.Errorf("failed to decrypt: %w", err)
 	}
 
-	return plaintext, nil
+	return string(plaintext), nil
 }
 
 // HashSHA256 generates a SHA-256 hash of the input

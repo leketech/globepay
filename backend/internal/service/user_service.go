@@ -6,27 +6,40 @@ import (
 
 	"globepay/internal/domain"
 	"globepay/internal/repository"
+	"globepay/internal/domain/model"
 )
 
 // UserServiceInterface defines the interface for user service
 type UserServiceInterface interface {
-	GetProfile(userID int64) (*domain.User, error)
-	UpdateProfile(userID int64, user *domain.User) error
-	GetVerificationStatus(userID int64) (*domain.UserVerification, error)
-	SubmitVerification(userID int64, verification *domain.UserVerification) error
-	GetAccounts(userID int64) ([]domain.Account, error)
-	CreateAccount(userID int64, account *domain.Account) error
-	GetUserByID(id int64) (*domain.User, error)
+	GetProfile(userID int64) (*model.User, error)
+	UpdateProfile(userID int64, user *model.User) error
+	GetVerificationStatus(userID int64) (*UserVerification, error)
+	SubmitVerification(userID int64, verification *UserVerification) error
+	GetAccounts(userID int64) ([]model.Account, error)
+	CreateAccount(userID int64, account *model.Account) error
+	GetUserByID(id int64) (*model.User, error)
+}
+
+// UserVerification represents user verification status
+type UserVerification struct {
+	UserID          int64     `json:"user_id" db:"user_id"`
+	EmailVerified   bool      `json:"email_verified" db:"email_verified"`
+	PhoneVerified   bool      `json:"phone_verified" db:"phone_verified"`
+	IDVerified      bool      `json:"id_verified" db:"id_verified"`
+	AddressVerified bool      `json:"address_verified" db:"address_verified"`
+	KYCLevel        int       `json:"kyc_level" db:"kyc_level"`
+	CreatedAt       time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // UserService implements UserServiceInterface
 type UserService struct {
-	userRepo    repository.UserRepoInterface
-	accountRepo repository.AccountRepoInterface
+	userRepo    repository.UserRepository
+	accountRepo repository.AccountRepository
 }
 
 // NewUserService creates a new UserService
-func NewUserService(userRepo repository.UserRepoInterface, accountRepo repository.AccountRepoInterface) *UserService {
+func NewUserService(userRepo repository.UserRepository, accountRepo repository.AccountRepository) *UserService {
 	return &UserService{
 		userRepo:    userRepo,
 		accountRepo: accountRepo,
@@ -34,7 +47,7 @@ func NewUserService(userRepo repository.UserRepoInterface, accountRepo repositor
 }
 
 // GetProfile retrieves a user's profile
-func (s *UserService) GetProfile(userID int64) (*domain.User, error) {
+func (s *UserService) GetProfile(userID int64) (*model.User, error) {
 	user, err := s.userRepo.GetByID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -44,7 +57,7 @@ func (s *UserService) GetProfile(userID int64) (*domain.User, error) {
 }
 
 // UpdateProfile updates a user's profile
-func (s *UserService) UpdateProfile(userID int64, user *domain.User) error {
+func (s *UserService) UpdateProfile(userID int64, user *model.User) error {
 	// Get existing user
 	existingUser, err := s.userRepo.GetByID(userID)
 	if err != nil {
@@ -68,10 +81,10 @@ func (s *UserService) UpdateProfile(userID int64, user *domain.User) error {
 }
 
 // GetVerificationStatus retrieves a user's verification status
-func (s *UserService) GetVerificationStatus(userID int64) (*domain.UserVerification, error) {
+func (s *UserService) GetVerificationStatus(userID int64) (*UserVerification, error) {
 	// In a real implementation, you would retrieve this from the database
 	// For now, we'll return a placeholder
-	verification := &domain.UserVerification{
+	verification := &UserVerification{
 		UserID:        userID,
 		EmailVerified: true,
 		PhoneVerified: false,
@@ -86,7 +99,7 @@ func (s *UserService) GetVerificationStatus(userID int64) (*domain.UserVerificat
 }
 
 // SubmitVerification submits user verification documents
-func (s *UserService) SubmitVerification(userID int64, verification *domain.UserVerification) error {
+func (s *UserService) SubmitVerification(userID int64, verification *UserVerification) error {
 	// In a real implementation, you would save this to the database
 	// and process the verification documents
 	verification.UserID = userID
@@ -100,7 +113,7 @@ func (s *UserService) SubmitVerification(userID int64, verification *domain.User
 }
 
 // GetAccounts retrieves all accounts for a user
-func (s *UserService) GetAccounts(userID int64) ([]domain.Account, error) {
+func (s *UserService) GetAccounts(userID int64) ([]model.Account, error) {
 	accounts, err := s.accountRepo.GetByUserID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get accounts: %w", err)
@@ -110,7 +123,7 @@ func (s *UserService) GetAccounts(userID int64) ([]domain.Account, error) {
 }
 
 // CreateAccount creates a new account for a user
-func (s *UserService) CreateAccount(userID int64, account *domain.Account) error {
+func (s *UserService) CreateAccount(userID int64, account *model.Account) error {
 	// Set user ID
 	account.UserID = userID
 
@@ -132,7 +145,7 @@ func (s *UserService) CreateAccount(userID int64, account *domain.Account) error
 }
 
 // GetUserByID retrieves a user by ID
-func (s *UserService) GetUserByID(id int64) (*domain.User, error) {
+func (s *UserService) GetUserByID(id int64) (*model.User, error) {
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -170,7 +183,7 @@ func (s *UserService) UpdateUserStatus(userID int64, status string) error {
 }
 
 // GetUserByEmail retrieves a user by email
-func (s *UserService) GetUserByEmail(email string) (*domain.User, error) {
+func (s *UserService) GetUserByEmail(email string) (*model.User, error) {
 	user, err := s.userRepo.GetByEmail(email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)

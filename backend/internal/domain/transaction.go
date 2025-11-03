@@ -22,3 +22,13 @@ type Transaction struct {
 	CreatedAt          time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at" db:"updated_at"`
 }
+
+// TransactionStatus represents the status of a transaction
+type TransactionStatus string
+
+const (
+	TransactionPending   TransactionStatus = "PENDING"
+	TransactionProcessed TransactionStatus = "PROCESSED"
+	TransactionFailed    TransactionStatus = "FAILED"
+	TransactionCancelled TransactionStatus = "CANCELLED"
+)

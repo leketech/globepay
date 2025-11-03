@@ -6,28 +6,29 @@ import (
 
 	"globepay/internal/domain"
 	"globepay/internal/repository"
+	"globepay/internal/domain/model"
 )
 
 // TransferServiceInterface defines the interface for transfer service
 type TransferServiceInterface interface {
-	GetTransfers(userID int64) ([]domain.Transfer, error)
-	GetTransferByID(transferID int64) (*domain.Transfer, error)
-	CreateTransfer(transfer *domain.Transfer) error
+	GetTransfers(userID int64) ([]model.Transfer, error)
+	GetTransferByID(transferID int64) (*model.Transfer, error)
+	CreateTransfer(transfer *model.Transfer) error
 	GetExchangeRates() ([]domain.ExchangeRate, error)
 	CalculateTransferFee(amount float64, fromCurrency, toCurrency string) (float64, error)
-	GetTransferByReferenceNumber(referenceNumber string) (*domain.Transfer, error)
-	UpdateTransferStatus(transferID int64, status domain.TransferStatus) error
+	GetTransferByReferenceNumber(referenceNumber string) (*model.Transfer, error)
+	UpdateTransferStatus(transferID int64, status string) error
 }
 
 // TransferService implements TransferServiceInterface
 type TransferService struct {
-	transferRepo    repository.TransferRepoInterface
-	accountRepo     repository.AccountRepoInterface
-	transactionRepo repository.TransactionRepoInterface
+	transferRepo    repository.TransferRepository
+	accountRepo     repository.AccountRepository
+	transactionRepo repository.TransactionRepository
 }
 
 // NewTransferService creates a new TransferService
-func NewTransferService(transferRepo repository.TransferRepoInterface, accountRepo repository.AccountRepoInterface, transactionRepo repository.TransactionRepoInterface) *TransferService {
+func NewTransferService(transferRepo repository.TransferRepository, accountRepo repository.AccountRepository, transactionRepo repository.TransactionRepository) *TransferService {
 	return &TransferService{
 		transferRepo:    transferRepo,
 		accountRepo:     accountRepo,
@@ -36,7 +37,7 @@ func NewTransferService(transferRepo repository.TransferRepoInterface, accountRe
 }
 
 // GetTransfers retrieves all transfers for a user (as sender or receiver)
-func (s *TransferService) GetTransfers(userID int64) ([]domain.Transfer, error) {
+func (s *TransferService) GetTransfers(userID int64) ([]model.Transfer, error) {
 	transfers, err := s.transferRepo.GetByUserID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transfers: %w", err)
@@ -46,7 +47,7 @@ func (s *TransferService) GetTransfers(userID int64) ([]domain.Transfer, error) 
 }
 
 // GetTransferByID retrieves a transfer by ID
-func (s *TransferService) GetTransferByID(transferID int64) (*domain.Transfer, error) {
+func (s *TransferService) GetTransferByID(transferID int64) (*model.Transfer, error) {
 	transfer, err := s.transferRepo.GetByID(transferID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transfer: %w", err)
@@ -56,7 +57,7 @@ func (s *TransferService) GetTransferByID(transferID int64) (*domain.Transfer, e
 }
 
 // CreateTransfer creates a new transfer
-func (s *TransferService) CreateTransfer(transfer *domain.Transfer) error {
+func (s *TransferService) CreateTransfer(transfer *model.Transfer) error {
 	// Set default values
 	transfer.Status = string(domain.TransferPending)
 	transfer.CreatedAt = time.Now()
@@ -155,7 +156,7 @@ func (s *TransferService) CalculateTransferFee(amount float64, fromCurrency, toC
 }
 
 // GetTransferByReferenceNumber retrieves a transfer by reference number
-func (s *TransferService) GetTransferByReferenceNumber(referenceNumber string) (*domain.Transfer, error) {
+func (s *TransferService) GetTransferByReferenceNumber(referenceNumber string) (*model.Transfer, error) {
 	transfer, err := s.transferRepo.GetByReferenceNumber(referenceNumber)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transfer: %w", err)
@@ -165,7 +166,7 @@ func (s *TransferService) GetTransferByReferenceNumber(referenceNumber string) (
 }
 
 // UpdateTransferStatus updates the status of a transfer
-func (s *TransferService) UpdateTransferStatus(transferID int64, status domain.TransferStatus) error {
+func (s *TransferService) UpdateTransferStatus(transferID int64, status string) error {
 	// Get existing transfer
 	transfer, err := s.transferRepo.GetByID(transferID)
 	if err != nil {
@@ -174,7 +175,7 @@ func (s *TransferService) UpdateTransferStatus(transferID int64, status domain.T
 
 	// Update status
 	oldStatus := domain.TransferStatus(transfer.Status)
-	transfer.Status = string(status)
+	transfer.Status = status
 	transfer.UpdatedAt = time.Now()
 
 	// If transfer is being processed, update processed_at timestamp
@@ -198,7 +199,7 @@ func (s *TransferService) UpdateTransferStatus(transferID int64, status domain.T
 }
 
 // processTransfer processes a transfer
-func (s *TransferService) processTransfer(transfer *domain.Transfer) error {
+func (s *TransferService) processTransfer(transfer *model.Transfer) error {
 	// Get sender and receiver accounts
 	senderAccount, err := s.accountRepo.GetByID(transfer.SenderAccountID)
 	if err != nil {
@@ -270,7 +271,7 @@ func (s *TransferService) processTransfer(transfer *domain.Transfer) error {
 }
 
 // handleTransferStatusTransition handles logic when a transfer status changes
-func (s *TransferService) handleTransferStatusTransition(transfer *domain.Transfer, oldStatus, newStatus domain.TransferStatus) error {
+func (s *TransferService) handleTransferStatusTransition(transfer *model.Transfer, oldStatus, newStatus domain.TransferStatus) error {
 	// Handle different status transitions
 	switch {
 	case oldStatus == domain.TransferPending && newStatus == domain.TransferFailed:

@@ -26,13 +26,13 @@ type AuthServiceInterface interface {
 
 // AuthService implements AuthServiceInterface
 type AuthService struct {
-	userRepo    repository.UserRepoInterface
+	userRepo    repository.UserRepository
 	jwtSecret   string
 	tokenExpiry time.Duration
 }
 
 // NewAuthService creates a new AuthService
-func NewAuthService(userRepo repository.UserRepoInterface, jwtSecret string) *AuthService {
+func NewAuthService(userRepo repository.UserRepository, jwtSecret string) *AuthService {
 	return &AuthService{
 		userRepo:    userRepo,
 		jwtSecret:   jwtSecret,
