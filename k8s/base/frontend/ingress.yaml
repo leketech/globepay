@@ -16,26 +16,6 @@ metadata:
     alb.ingress.kubernetes.io/success-codes: '200'
 spec:
   rules:
-  - host: globepay.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend
-            port:
-              number: 80
-  - host: api.globepay.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: backend
-            port:
-              number: 80
   - host: globepay.space
     http:
       paths:
