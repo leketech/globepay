@@ -3,7 +3,7 @@ package integration
 import (
 	"testing"
 
-	"globepay/internal/domain"
+	"globepay/internal/domain/model"
 	"globepay/internal/repository"
 
 	"github.com/stretchr/testify/assert"
@@ -12,7 +12,7 @@ import (
 
 type AccountTestSuite struct {
 	suite.Suite
-	accountRepo repository.AccountRepoInterface
+	accountRepo repository.AccountRepository // Changed from AccountRepoInterface
 	db          *TestDB
 	redisClient *TestRedis
 }
@@ -23,7 +23,7 @@ func (suite *AccountTestSuite) SetupSuite() {
 	suite.redisClient = NewTestRedis()
 
 	// Initialize repository
-	suite.accountRepo = repository.NewAccountRepo(suite.db.DB)
+	suite.accountRepo = repository.NewAccountRepository(suite.db.DB) // Changed from NewAccountRepo
 }
 
 func (suite *AccountTestSuite) TearDownSuite() {
@@ -47,8 +47,8 @@ func (suite *AccountTestSuite) TestAccountRepository_Create() {
 	}
 
 	// Create a test account
-	account := &domain.Account{
-		UserID:        1,
+	account := &model.Account{
+		UserID:        "1",
 		Currency:      "USD",
 		Balance:       1000.0,
 		AccountNumber: "ACC001",
@@ -68,8 +68,8 @@ func (suite *AccountTestSuite) TestAccountRepository_GetByID() {
 	}
 
 	// Create a test account
-	account := &domain.Account{
-		UserID:        1,
+	account := &model.Account{
+		UserID:        "1",
 		Currency:      "USD",
 		Balance:       1000.0,
 		AccountNumber: "ACC001",
@@ -91,23 +91,23 @@ func (suite *AccountTestSuite) TestAccountRepository_GetByID() {
 	assert.Equal(suite.T(), account.Status, retrievedAccount.Status)
 }
 
-func (suite *AccountTestSuite) TestAccountRepository_GetByUserID() {
+func (suite *AccountTestSuite) TestAccountRepository_GetByUser() { // Changed from GetByUserID
 	// Skip if no database connection
 	if suite.db == nil {
 		suite.T().Skip("No database connection")
 	}
 
 	// Create test accounts for the same user
-	account1 := &domain.Account{
-		UserID:        1,
+	account1 := &model.Account{
+		UserID:        "1",
 		Currency:      "USD",
 		Balance:       1000.0,
 		AccountNumber: "ACC001",
 		Status:        "active",
 	}
 
-	account2 := &domain.Account{
-		UserID:        1,
+	account2 := &model.Account{
+		UserID:        "1",
 		Currency:      "EUR",
 		Balance:       500.0,
 		AccountNumber: "ACC002",
@@ -121,7 +121,7 @@ func (suite *AccountTestSuite) TestAccountRepository_GetByUserID() {
 	assert.NoError(suite.T(), err)
 
 	// Test getting accounts by user ID
-	accounts, err := suite.accountRepo.GetByUserID(1)
+	accounts, err := suite.accountRepo.GetByUser(nil, "1", 100, 0) // Added context and pagination
 	assert.NoError(suite.T(), err)
 	assert.Len(suite.T(), accounts, 2)
 }
@@ -133,8 +133,8 @@ func (suite *AccountTestSuite) TestAccountRepository_UpdateBalance() {
 	}
 
 	// Create a test account
-	account := &domain.Account{
-		UserID:        1,
+	account := &model.Account{
+		UserID:        "1",
 		Currency:      "USD",
 		Balance:       1000.0,
 		AccountNumber: "ACC001",
@@ -146,7 +146,7 @@ func (suite *AccountTestSuite) TestAccountRepository_UpdateBalance() {
 
 	// Test updating account balance
 	newBalance := 1500.0
-	err = suite.accountRepo.UpdateBalance(account.ID, newBalance)
+	err = suite.accountRepo.UpdateBalance(nil, account.ID, newBalance) // Added context
 	assert.NoError(suite.T(), err)
 
 	// Verify the balance was updated

@@ -49,6 +49,7 @@ type TransactionRepository interface {
 	GetByTransfer(ctx context.Context, transferID string) ([]*model.Transaction, error)
 	Update(transaction *model.Transaction) error
 	Delete(id string) error
+	GetByStatus(status string) ([]model.Transaction, error) // Added missing method
 }
 
 // BeneficiaryRepository defines the interface for beneficiary repository

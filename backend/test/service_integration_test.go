@@ -43,7 +43,7 @@ func TestExchangeRateService(t *testing.T) {
 	}
 }
 
-func TestUserModel(t *testing.T) {
+func TestUserModelServiceIntegration(t *testing.T) { // Renamed from TestUserModel
 	// Test creating a user model
 	user := &domain.User{
 		Email:         "test@example.com",

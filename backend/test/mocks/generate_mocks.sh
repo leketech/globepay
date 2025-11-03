@@ -4,10 +4,10 @@
 # Install mockery first: go install github.com/vektra/mockery/v2@latest
 
 echo "Generating mocks for repositories..."
-mockery --dir=../internal/repository --name=UserRepoInterface --output=. --outpkg=mocks
-mockery --dir=../internal/repository --name=AccountRepoInterface --output=. --outpkg=mocks
-mockery --dir=../internal/repository --name=TransferRepoInterface --output=. --outpkg=mocks
-mockery --dir=../internal/repository --name=TransactionRepoInterface --output=. --outpkg=mocks
+mockery --dir=../internal/repository --name=UserRepository --output=. --outpkg=mocks
+mockery --dir=../internal/repository --name=AccountRepository --output=. --outpkg=mocks
+mockery --dir=../internal/repository --name=TransferRepository --output=. --outpkg=mocks
+mockery --dir=../internal/repository --name=TransactionRepository --output=. --outpkg=mocks
 
 echo "Generating mocks for services..."
 mockery --dir=../internal/service --name=UserServiceInterface --output=. --outpkg=mocks

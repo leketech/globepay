@@ -144,7 +144,7 @@ func (s *S3Client) ListObjects(ctx context.Context, bucketName, prefix string) (
 	for i, obj := range result.Contents {
 		objects[i] = ObjectMetadata{
 			Key:          *obj.Key,
-			Size:         *obj.Size,
+			Size:         obj.Size, // Fix: obj.Size is already int64, no need to dereference
 			LastModified: obj.LastModified.String(),
 			ETag:         *obj.ETag,
 		}
@@ -213,11 +213,8 @@ func (s *S3Client) GetObjectMetadata(ctx context.Context, bucketName, key string
 
 	metadata := make(map[string]string)
 	for key, value := range result.Metadata {
-		if value != nil {
-			metadata[key] = *value
-		} else {
-			metadata[key] = ""
-		}
+		// Fix: Values are already strings, no need to dereference
+		metadata[key] = value
 	}
 
 	return metadata, nil

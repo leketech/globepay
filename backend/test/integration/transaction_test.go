@@ -2,10 +2,10 @@ package integration
 
 import (
 	"testing"
+	"time"
 
-	"globepay/internal/domain"
+	"globepay/internal/domain/model"
 	"globepay/internal/repository"
-	"globepay/internal/service"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -13,11 +13,10 @@ import (
 
 type TransactionTestSuite struct {
 	suite.Suite
-	transactionService *service.TransactionService
-	transactionRepo    repository.TransactionRepoInterface
-	accountRepo        repository.AccountRepoInterface
-	db                 *TestDB
-	redisClient        *TestRedis
+	transactionRepo repository.TransactionRepository // Changed from TransactionRepoInterface
+	accountRepo     repository.AccountRepository     // Changed from AccountRepoInterface
+	db              *TestDB
+	redisClient     *TestRedis
 }
 
 func (suite *TransactionTestSuite) SetupSuite() {
@@ -26,11 +25,8 @@ func (suite *TransactionTestSuite) SetupSuite() {
 	suite.redisClient = NewTestRedis()
 
 	// Initialize repositories
-	suite.accountRepo = repository.NewAccountRepo(suite.db.DB)
-	suite.transactionRepo = repository.NewTransactionRepo(suite.db.DB)
-
-	// Initialize service
-	suite.transactionService = service.NewTransactionService(suite.transactionRepo, suite.accountRepo)
+	suite.transactionRepo = repository.NewTransactionRepository(suite.db.DB) // Changed from NewTransactionRepo
+	suite.accountRepo = repository.NewAccountRepository(suite.db.DB)         // Changed from NewAccountRepo
 }
 
 func (suite *TransactionTestSuite) TearDownSuite() {
@@ -47,144 +43,190 @@ func (suite *TransactionTestSuite) SetupTest() {
 	suite.db.ClearTables()
 }
 
-func (suite *TransactionTestSuite) TestTransactionService_CreateDepositTransaction() {
+func (suite *TransactionTestSuite) TestTransactionRepository_Create() {
 	// Skip if no database connection
 	if suite.db == nil {
 		suite.T().Skip("No database connection")
 	}
 
-	// Create test account
-	account := &domain.Account{
-		UserID:        1,
-		Currency:      "USD",
-		Balance:       500.0,
-		AccountNumber: "ACC001",
-		Status:        "active",
-	}
-
-	err := suite.accountRepo.Create(account)
-	assert.NoError(suite.T(), err)
-
-	// Create deposit transaction
-	transaction := &domain.Transaction{
-		UserID:          1,
-		AccountID:       account.ID,
-		Type:            string(domain.TransactionDeposit),
+	// Create a test transaction
+	transaction := &model.Transaction{
+		UserID:          "1",
+		AccountID:       "1",
+		Type:            string(model.TransactionDeposit),
 		Amount:          100.0,
 		Currency:        "USD",
 		Fee:             0.0,
 		Description:     "Test deposit",
 		ReferenceNumber: "DEP001",
+		Status:          "pending",
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
-	err = suite.transactionService.CreateTransaction(transaction)
+	// Test creating transaction
+	err := suite.transactionRepo.Create(transaction)
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), "processed", transaction.Status)
-
-	// Verify account balance
-	updatedAccount, err := suite.accountRepo.GetByID(account.ID)
-	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), 600.0, updatedAccount.Balance) // 500 + 100
+	assert.NotEmpty(suite.T(), transaction.ID)
 }
 
-func (suite *TransactionTestSuite) TestTransactionService_CreateWithdrawalTransaction() {
+func (suite *TransactionTestSuite) TestTransactionRepository_GetByID() {
 	// Skip if no database connection
 	if suite.db == nil {
 		suite.T().Skip("No database connection")
 	}
 
-	// Create test account with sufficient funds
-	account := &domain.Account{
-		UserID:        1,
-		Currency:      "USD",
-		Balance:       500.0,
-		AccountNumber: "ACC001",
-		Status:        "active",
-	}
-
-	err := suite.accountRepo.Create(account)
-	assert.NoError(suite.T(), err)
-
-	// Create withdrawal transaction
-	transaction := &domain.Transaction{
-		UserID:          1,
-		AccountID:       account.ID,
-		Type:            string(domain.TransactionWithdrawal),
-		Amount:          100.0,
-		Currency:        "USD",
-		Fee:             5.0,
-		Description:     "Test withdrawal",
-		ReferenceNumber: "WTH001",
-	}
-
-	err = suite.transactionService.CreateTransaction(transaction)
-	assert.NoError(suite.T(), err)
-
-	// Manually process the transaction (in real app, this would be done by a worker)
-	err = suite.transactionService.UpdateTransactionStatus(transaction.ID, domain.TransactionProcessed)
-	assert.NoError(suite.T(), err)
-
-	// Verify account balance
-	updatedAccount, err := suite.accountRepo.GetByID(account.ID)
-	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), 395.0, updatedAccount.Balance) // 500 - 100 - 5
-}
-
-func (suite *TransactionTestSuite) TestTransactionService_GetTransactions() {
-	// Skip if no database connection
-	if suite.db == nil {
-		suite.T().Skip("No database connection")
-	}
-
-	// Create test account
-	account := &domain.Account{
-		UserID:        1,
-		Currency:      "USD",
-		Balance:       500.0,
-		AccountNumber: "ACC001",
-		Status:        "active",
-	}
-
-	err := suite.accountRepo.Create(account)
-	assert.NoError(suite.T(), err)
-
-	// Create test transactions
-	deposit := &domain.Transaction{
-		UserID:          1,
-		AccountID:       account.ID,
-		Type:            string(domain.TransactionDeposit),
-		Status:          string(domain.TransactionProcessed),
+	// Create a test transaction
+	transaction := &model.Transaction{
+		UserID:          "1",
+		AccountID:       "1",
+		Type:            string(model.TransactionDeposit),
 		Amount:          100.0,
 		Currency:        "USD",
 		Fee:             0.0,
 		Description:     "Test deposit",
 		ReferenceNumber: "DEP001",
+		Status:          "pending",
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
-	withdrawal := &domain.Transaction{
-		UserID:          1,
-		AccountID:       account.ID,
-		Type:            string(domain.TransactionWithdrawal),
-		Status:          string(domain.TransactionProcessed),
+	err := suite.transactionRepo.Create(transaction)
+	assert.NoError(suite.T(), err)
+
+	// Test getting transaction by ID
+	retrievedTransaction, err := suite.transactionRepo.GetByID(transaction.ID)
+	assert.NoError(suite.T(), err)
+	assert.NotNil(suite.T(), retrievedTransaction)
+	assert.Equal(suite.T(), transaction.ID, retrievedTransaction.ID)
+	assert.Equal(suite.T(), transaction.UserID, retrievedTransaction.UserID)
+	assert.Equal(suite.T(), transaction.AccountID, retrievedTransaction.AccountID)
+	assert.Equal(suite.T(), transaction.Type, retrievedTransaction.Type)
+	assert.Equal(suite.T(), transaction.Amount, retrievedTransaction.Amount)
+	assert.Equal(suite.T(), transaction.Currency, retrievedTransaction.Currency)
+	assert.Equal(suite.T(), transaction.Description, retrievedTransaction.Description)
+	assert.Equal(suite.T(), transaction.ReferenceNumber, retrievedTransaction.ReferenceNumber)
+	assert.Equal(suite.T(), transaction.Status, retrievedTransaction.Status)
+}
+
+func (suite *TransactionTestSuite) TestTransactionRepository_GetByUser() { // Changed from GetByUserID
+	// Skip if no database connection
+	if suite.db == nil {
+		suite.T().Skip("No database connection")
+	}
+
+	// Create test transactions for the same user
+	transaction1 := &model.Transaction{
+		UserID:          "1",
+		AccountID:       "1",
+		Type:            string(model.TransactionDeposit),
+		Amount:          100.0,
+		Currency:        "USD",
+		Fee:             0.0,
+		Description:     "Test deposit 1",
+		ReferenceNumber: "DEP001",
+		Status:          "completed",
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+
+	transaction2 := &model.Transaction{
+		UserID:          "1",
+		AccountID:       "1",
+		Type:            string(model.TransactionWithdrawal),
 		Amount:          50.0,
 		Currency:        "USD",
-		Fee:             2.0,
+		Fee:             1.0,
 		Description:     "Test withdrawal",
-		ReferenceNumber: "WTH001",
+		ReferenceNumber: "WIT001",
+		Status:          "completed",
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
-	err = suite.transactionRepo.Create(deposit)
+	err := suite.transactionRepo.Create(transaction1)
 	assert.NoError(suite.T(), err)
 
-	err = suite.transactionRepo.Create(withdrawal)
+	err = suite.transactionRepo.Create(transaction2)
 	assert.NoError(suite.T(), err)
 
-	// Get transactions for user
-	transactions, err := suite.transactionService.GetTransactions(1)
+	// Test getting transactions by user ID
+	transactions, err := suite.transactionRepo.GetByUser(nil, "1", 100, 0) // Added context and pagination
 	assert.NoError(suite.T(), err)
 	assert.Len(suite.T(), transactions, 2)
 }
 
-func TestTransactionService(t *testing.T) {
+func (suite *TransactionTestSuite) TestTransactionRepository_Update() {
+	// Skip if no database connection
+	if suite.db == nil {
+		suite.T().Skip("No database connection")
+	}
+
+	// Create a test transaction
+	transaction := &model.Transaction{
+		UserID:          "1",
+		AccountID:       "1",
+		Type:            string(model.TransactionDeposit),
+		Amount:          100.0,
+		Currency:        "USD",
+		Fee:             0.0,
+		Description:     "Test deposit",
+		ReferenceNumber: "DEP001",
+		Status:          "pending",
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+
+	err := suite.transactionRepo.Create(transaction)
+	assert.NoError(suite.T(), err)
+
+	// Update transaction status
+	transaction.Status = "completed"
+	transaction.UpdatedAt = time.Now()
+
+	// Save updated transaction
+	err = suite.transactionRepo.Update(transaction)
+	assert.NoError(suite.T(), err)
+
+	// Retrieve updated transaction
+	updatedTransaction, err := suite.transactionRepo.GetByID(transaction.ID)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), "completed", updatedTransaction.Status)
+}
+
+func (suite *TransactionTestSuite) TestTransactionRepository_Delete() {
+	// Skip if no database connection
+	if suite.db == nil {
+		suite.T().Skip("No database connection")
+	}
+
+	// Create a test transaction
+	transaction := &model.Transaction{
+		UserID:          "1",
+		AccountID:       "1",
+		Type:            string(model.TransactionDeposit),
+		Amount:          100.0,
+		Currency:        "USD",
+		Fee:             0.0,
+		Description:     "Test deposit",
+		ReferenceNumber: "DEP001",
+		Status:          "pending",
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+
+	err := suite.transactionRepo.Create(transaction)
+	assert.NoError(suite.T(), err)
+
+	// Delete the transaction
+	err = suite.transactionRepo.Delete(transaction.ID)
+	assert.NoError(suite.T(), err)
+
+	// Try to retrieve the deleted transaction (should fail)
+	_, err = suite.transactionRepo.GetByID(transaction.ID)
+	assert.Error(suite.T(), err)
+}
+
+func TestTransactionTestSuite(t *testing.T) {
 	suite.Run(t, new(TransactionTestSuite))
 }

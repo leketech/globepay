@@ -11,18 +11,18 @@ import (
 
 // UserServiceInterface defines the interface for user service
 type UserServiceInterface interface {
-	GetProfile(userID int64) (*model.User, error)
-	UpdateProfile(userID int64, user *model.User) error
-	GetVerificationStatus(userID int64) (*UserVerification, error)
-	SubmitVerification(userID int64, verification *UserVerification) error
-	GetAccounts(userID int64) ([]model.Account, error)
-	CreateAccount(userID int64, account *model.Account) error
-	GetUserByID(id int64) (*model.User, error)
+	GetProfile(userID string) (*model.User, error) // Changed from int64 to string
+	UpdateProfile(userID string, user *model.User) error // Changed from int64 to string
+	GetVerificationStatus(userID string) (*UserVerification, error) // Changed from int64 to string
+	SubmitVerification(userID string, verification *UserVerification) error // Changed from int64 to string
+	GetAccounts(userID string) ([]model.Account, error) // Changed from int64 to string
+	CreateAccount(userID string, account *model.Account) error // Changed from int64 to string
+	GetUserByID(id string) (*model.User, error) // Changed from int64 to string
 }
 
 // UserVerification represents user verification status
 type UserVerification struct {
-	UserID          int64     `json:"user_id" db:"user_id"`
+	UserID          string    `json:"user_id" db:"user_id"` // Changed from int64 to string
 	EmailVerified   bool      `json:"email_verified" db:"email_verified"`
 	PhoneVerified   bool      `json:"phone_verified" db:"phone_verified"`
 	IDVerified      bool      `json:"id_verified" db:"id_verified"`
@@ -47,7 +47,7 @@ func NewUserService(userRepo repository.UserRepository, accountRepo repository.A
 }
 
 // GetProfile retrieves a user's profile
-func (s *UserService) GetProfile(userID int64) (*model.User, error) {
+func (s *UserService) GetProfile(userID string) (*model.User, error) { // Changed from int64 to string
 	user, err := s.userRepo.GetByID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -57,7 +57,7 @@ func (s *UserService) GetProfile(userID int64) (*model.User, error) {
 }
 
 // UpdateProfile updates a user's profile
-func (s *UserService) UpdateProfile(userID int64, user *model.User) error {
+func (s *UserService) UpdateProfile(userID string, user *model.User) error { // Changed from int64 to string
 	// Get existing user
 	existingUser, err := s.userRepo.GetByID(userID)
 	if err != nil {
@@ -67,9 +67,8 @@ func (s *UserService) UpdateProfile(userID int64, user *model.User) error {
 	// Update fields
 	existingUser.FirstName = user.FirstName
 	existingUser.LastName = user.LastName
-	existingUser.Phone = user.Phone
+	existingUser.PhoneNumber = user.PhoneNumber // Fixed field name
 	existingUser.Country = user.Country
-	existingUser.Currency = user.Currency
 	existingUser.UpdatedAt = time.Now()
 
 	// Update user
@@ -81,25 +80,25 @@ func (s *UserService) UpdateProfile(userID int64, user *model.User) error {
 }
 
 // GetVerificationStatus retrieves a user's verification status
-func (s *UserService) GetVerificationStatus(userID int64) (*UserVerification, error) {
+func (s *UserService) GetVerificationStatus(userID string) (*UserVerification, error) { // Changed from int64 to string
 	// In a real implementation, you would retrieve this from the database
 	// For now, we'll return a placeholder
 	verification := &UserVerification{
-		UserID:        userID,
-		EmailVerified: true,
-		PhoneVerified: false,
-		IDVerified:    false,
+		UserID:          userID,
+		EmailVerified:   true,
+		PhoneVerified:   false,
+		IDVerified:      false,
 		AddressVerified: false,
-		KYCLevel:      1,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		KYCLevel:        1,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
 	return verification, nil
 }
 
 // SubmitVerification submits user verification documents
-func (s *UserService) SubmitVerification(userID int64, verification *UserVerification) error {
+func (s *UserService) SubmitVerification(userID string, verification *UserVerification) error { // Changed from int64 to string
 	// In a real implementation, you would save this to the database
 	// and process the verification documents
 	verification.UserID = userID
@@ -113,17 +112,26 @@ func (s *UserService) SubmitVerification(userID int64, verification *UserVerific
 }
 
 // GetAccounts retrieves all accounts for a user
-func (s *UserService) GetAccounts(userID int64) ([]model.Account, error) {
-	accounts, err := s.accountRepo.GetByUserID(userID)
+func (s *UserService) GetAccounts(userID string) ([]model.Account, error) { // Changed from int64 to string
+	// This method doesn't exist in the repository interface, so we'll use GetByUser instead
+	accountPtrs, err := s.accountRepo.GetByUser(nil, userID) // Pass nil context for now
 	if err != nil {
 		return nil, fmt.Errorf("failed to get accounts: %w", err)
+	}
+	
+	// Convert []*model.Account to []model.Account
+	accounts := make([]model.Account, len(accountPtrs))
+	for i, accountPtr := range accountPtrs {
+		if accountPtr != nil {
+			accounts[i] = *accountPtr
+		}
 	}
 
 	return accounts, nil
 }
 
 // CreateAccount creates a new account for a user
-func (s *UserService) CreateAccount(userID int64, account *model.Account) error {
+func (s *UserService) CreateAccount(userID string, account *model.Account) error { // Changed from int64 to string
 	// Set user ID
 	account.UserID = userID
 
@@ -145,7 +153,7 @@ func (s *UserService) CreateAccount(userID int64, account *model.Account) error 
 }
 
 // GetUserByID retrieves a user by ID
-func (s *UserService) GetUserByID(id int64) (*model.User, error) {
+func (s *UserService) GetUserByID(id string) (*model.User, error) { // Changed from int64 to string
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -163,7 +171,7 @@ func (s *UserService) generateAccountNumber() string {
 }
 
 // UpdateUserStatus updates a user's status
-func (s *UserService) UpdateUserStatus(userID int64, status string) error {
+func (s *UserService) UpdateUserStatus(userID string, status string) error { // Changed from int64 to string
 	// Get existing user
 	user, err := s.userRepo.GetByID(userID)
 	if err != nil {
@@ -171,7 +179,7 @@ func (s *UserService) UpdateUserStatus(userID int64, status string) error {
 	}
 
 	// Update status
-	user.Status = status
+	user.AccountStatus = status // Fixed field name
 	user.UpdatedAt = time.Now()
 
 	// Update user

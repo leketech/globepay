@@ -106,11 +106,8 @@ func (s *SQSClient) ReceiveMessages(ctx context.Context, queueURL string, maxMes
 	for i, msg := range result.Messages {
 		attributes := make(map[string]string)
 		for key, value := range msg.Attributes {
-			if value != nil {
-				attributes[key] = *value
-			} else {
-				attributes[key] = ""
-			}
+			// Fix: Values are already strings, no need to dereference
+			attributes[key] = value
 		}
 
 		messages[i] = Message{

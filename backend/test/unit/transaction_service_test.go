@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"globepay/internal/domain"
+	"globepay/internal/domain/model"
 	"globepay/internal/service"
 	"globepay/test/mocks"
 
@@ -21,36 +22,39 @@ func TestTransactionService_CreateTransaction(t *testing.T) {
 	transactionService := service.NewTransactionService(mockTransactionRepo, mockAccountRepo)
 
 	// Test data for deposit transaction
-	transaction := &domain.Transaction{
-		UserID:          1,
-		AccountID:       1,
-		Type:            string(domain.TransactionDeposit),
+	transaction := &model.Transaction{
+		UserID:          "1",
+		AccountID:       "1",
+		Type:            string(model.TransactionDeposit),
 		Amount:          100.0,
 		Currency:        "USD",
 		Fee:             0.0,
 		Description:     "Test deposit",
 		ReferenceNumber: "DEP001",
+		Status:          string(domain.TransactionPending),
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
-	account := &domain.Account{
-		ID:      1,
-		UserID:  1,
-		Balance: 200.0,
+	account := &model.Account{
+		ID:       "1",
+		UserID:   "1",
+		Balance:  200.0,
 		Currency: "USD",
 	}
 
 	// Set up mock expectations
-	mockAccountRepo.On("GetByID", int64(1)).Return(account, nil)
-	mockTransactionRepo.On("Create", mock.AnythingOfType("*domain.Transaction")).Return(nil)
-	mockAccountRepo.On("UpdateBalance", int64(1), 300.0).Return(nil)
-	mockTransactionRepo.On("Update", mock.AnythingOfType("*domain.Transaction")).Return(nil)
+	mockAccountRepo.On("GetByID", "1").Return(account, nil)
+	mockTransactionRepo.On("Create", mock.AnythingOfType("*model.Transaction")).Return(nil)
+	mockAccountRepo.On("UpdateBalance", mock.Anything, "1", 300.0).Return(nil)
+	mockTransactionRepo.On("Update", mock.AnythingOfType("*model.Transaction")).Return(nil)
 
 	// Call the method under test
 	err := transactionService.CreateTransaction(transaction)
 
 	// Assertions
 	assert.NoError(t, err)
-	assert.Equal(t, "processed", transaction.Status)
+	assert.Equal(t, string(domain.TransactionProcessed), transaction.Status)
 	assert.WithinDuration(t, time.Now(), transaction.CreatedAt, time.Second)
 	assert.WithinDuration(t, time.Now(), transaction.UpdatedAt, time.Second)
 
@@ -68,13 +72,13 @@ func TestTransactionService_GetTransactions(t *testing.T) {
 	transactionService := service.NewTransactionService(mockTransactionRepo, mockAccountRepo)
 
 	// Test data
-	userID := int64(1)
-	expectedTransactions := []domain.Transaction{
+	userID := "1"
+	expectedTransactions := []model.Transaction{
 		{
-			ID:              1,
-			UserID:          1,
-			AccountID:       1,
-			Type:            string(domain.TransactionDeposit),
+			ID:              "1",
+			UserID:          "1",
+			AccountID:       "1",
+			Type:            string(model.TransactionDeposit),
 			Status:          "processed",
 			Amount:          100.0,
 			Currency:        "USD",
@@ -88,7 +92,12 @@ func TestTransactionService_GetTransactions(t *testing.T) {
 	}
 
 	// Set up mock expectations
-	mockTransactionRepo.On("GetByUserID", userID).Return(expectedTransactions, nil)
+	// Convert []model.Transaction to []*model.Transaction for mock
+	transactionPtrs := make([]*model.Transaction, len(expectedTransactions))
+	for i := range expectedTransactions {
+		transactionPtrs[i] = &expectedTransactions[i]
+	}
+	mockTransactionRepo.On("GetByUser", mock.Anything, userID, 100, 0).Return(transactionPtrs, nil)
 
 	// Call the method under test
 	transactions, err := transactionService.GetTransactions(userID)
@@ -111,17 +120,17 @@ func TestTransactionService_GetTransactionHistory(t *testing.T) {
 	transactionService := service.NewTransactionService(mockTransactionRepo, mockAccountRepo)
 
 	// Test data
-	userID := int64(1)
-	allTransactions := []domain.Transaction{
-		{ID: 1, UserID: 1, Amount: 100.0},
-		{ID: 2, UserID: 1, Amount: 200.0},
-		{ID: 3, UserID: 1, Amount: 300.0},
-		{ID: 4, UserID: 1, Amount: 400.0},
-		{ID: 5, UserID: 1, Amount: 500.0},
+	userID := "1"
+	allTransactions := []*model.Transaction{
+		{ID: "1", UserID: "1", Amount: 100.0},
+		{ID: "2", UserID: "1", Amount: 200.0},
+		{ID: "3", UserID: "1", Amount: 300.0},
+		{ID: "4", UserID: "1", Amount: 400.0},
+		{ID: "5", UserID: "1", Amount: 500.0},
 	}
 
 	// Set up mock expectations
-	mockTransactionRepo.On("GetByUserID", userID).Return(allTransactions, nil)
+	mockTransactionRepo.On("GetByUser", mock.Anything, userID, 1000, 0).Return(allTransactions, nil)
 
 	// Test cases
 	tests := []struct {

@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"globepay/internal/domain"
+	"globepay/internal/domain/model"
 	"globepay/internal/repository"
 )
 
@@ -48,8 +49,9 @@ func (s *AuthService) Login(email, password string) (string, error) {
 		return "", domain.ErrInvalidCredentials
 	}
 
-	// Compare password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	// Compare password using the model's CheckPassword method
+	valid, err := user.CheckPassword(password)
+	if err != nil || !valid {
 		return "", domain.ErrInvalidCredentials
 	}
 
@@ -71,23 +73,36 @@ func (s *AuthService) Login(email, password string) (string, error) {
 // Register creates a new user
 func (s *AuthService) Register(user *domain.User) error {
 	// Check if user already exists
-	_, err := s.userRepo.GetByEmail(user.Email)
-	if err == nil {
+	existingUser, err := s.userRepo.GetByEmail(user.Email)
+	if err == nil && existingUser != nil {
 		return domain.ErrUserAlreadyExists
 	}
 
-	// Hash password
-	hashedPassword, err := s.HashPassword(user.Password)
-	if err != nil {
+	// Create a model.User from domain.User
+	modelUser := &model.User{
+		ID:            user.ID,
+		Email:         user.Email,
+		FirstName:     user.FirstName,
+		LastName:      user.LastName,
+		PhoneNumber:   user.PhoneNumber,
+		DateOfBirth:   user.DateOfBirth,
+		Country:       user.Country,
+		KYCStatus:     user.KYCStatus,
+		AccountStatus: user.AccountStatus,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+
+	// Set password using the model's SetPassword method
+	if err := modelUser.SetPassword(user.PasswordHash); err != nil { // Using PasswordHash field
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
-	user.Password = hashedPassword
 
 	// Set default status
-	user.Status = "active"
+	modelUser.AccountStatus = "active"
 
 	// Create user
-	if err := s.userRepo.Create(user); err != nil {
+	if err := s.userRepo.Create(modelUser); err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
 	}
 
@@ -115,13 +130,13 @@ func (s *AuthService) RefreshToken(tokenString string) (string, error) {
 	}
 
 	// Get user ID from claims
-	userID, ok := claims["user_id"].(float64)
+	userID, ok := claims["user_id"].(string) // Changed from float64 to string
 	if !ok {
 		return "", fmt.Errorf("invalid user ID in token")
 	}
 
 	// Get user
-	user, err := s.userRepo.GetByID(int64(userID))
+	user, err := s.userRepo.GetByID(userID)
 	if err != nil {
 		return "", fmt.Errorf("failed to get user: %w", err)
 	}
@@ -177,7 +192,7 @@ func (s *AuthService) HashPassword(password string) (string, error) {
 }
 
 // GeneratePasswordResetToken generates a password reset token
-func (s *AuthService) GeneratePasswordResetToken(userID int64) (string, error) {
+func (s *AuthService) GeneratePasswordResetToken(userID string) (string, error) { // Changed from int64 to string
 	// Create a token with user ID and timestamp
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
@@ -193,11 +208,11 @@ func (s *AuthService) GeneratePasswordResetToken(userID int64) (string, error) {
 }
 
 // ValidatePasswordResetToken validates a password reset token
-func (s *AuthService) ValidatePasswordResetToken(encodedToken string) (int64, error) {
+func (s *AuthService) ValidatePasswordResetToken(encodedToken string) (string, error) { // Changed from int64 to string
 	// Decode the token
 	tokenString, err := base64.URLEncoding.DecodeString(encodedToken)
 	if err != nil {
-		return 0, fmt.Errorf("invalid token format")
+		return "", fmt.Errorf("invalid token format")
 	}
 
 	// Parse token
@@ -209,26 +224,26 @@ func (s *AuthService) ValidatePasswordResetToken(encodedToken string) (int64, er
 		return []byte(s.jwtSecret), nil
 	})
 	if err != nil {
-		return 0, fmt.Errorf("invalid token: %w", err)
+		return "", fmt.Errorf("invalid token: %w", err)
 	}
 
 	// Validate token
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return 0, fmt.Errorf("invalid token")
+		return "", fmt.Errorf("invalid token")
 	}
 
 	// Get user ID from claims
-	userID, ok := claims["user_id"].(float64)
+	userID, ok := claims["user_id"].(string) // Changed from float64 to string
 	if !ok {
-		return 0, fmt.Errorf("invalid user ID in token")
+		return "", fmt.Errorf("invalid user ID in token")
 	}
 
 	// Check if token is expired
 	exp, ok := claims["exp"].(float64)
 	if !ok || time.Now().Unix() > int64(exp) {
-		return 0, fmt.Errorf("token expired")
+		return "", fmt.Errorf("token expired")
 	}
 
-	return int64(userID), nil
+	return userID, nil // Changed from int64(userID) to userID
 }
