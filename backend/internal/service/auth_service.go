@@ -97,7 +97,7 @@ func (s *AuthService) Register(user *domain.User) error {
 	}
 
 	// Set password using the model's SetPassword method
-	if err := modelUser.SetPassword(user.Password); err != nil { // Using the password parameter instead of PasswordHash
+	if err := modelUser.SetPassword(user.PasswordHash); err != nil { // Using the password parameter instead of PasswordHash
 		fmt.Printf("Failed to hash password: %v\n", err)
 		return fmt.Errorf("failed to hash password: %w", err)
 	}

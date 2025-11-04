@@ -33,6 +33,10 @@ func TestUser_SetPassword(t *testing.T) {
 func TestUser_CheckPassword(t *testing.T) {
 	user := NewUser("test@example.com", "password123", "John", "Doe")
 	
+	// Set a password first
+	err := user.SetPassword("password123")
+	assert.NoError(t, err)
+	
 	// Test correct password
 	match, err := user.CheckPassword("password123")
 	assert.NoError(t, err)

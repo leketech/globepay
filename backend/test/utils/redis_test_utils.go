@@ -3,7 +3,6 @@ package utils
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"github.com/go-redis/redis/v8"

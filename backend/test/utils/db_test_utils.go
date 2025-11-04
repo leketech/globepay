@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"testing"
 
 	// PostgreSQL driver
 	_ "github.com/lib/pq"
