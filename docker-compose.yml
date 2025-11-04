@@ -105,6 +105,7 @@ services:
       - "9091:9090"
     volumes:
       - ./monitoring/prometheus/prometheus-config.yaml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/prometheus-rules.yaml:/etc/prometheus/alerts.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
