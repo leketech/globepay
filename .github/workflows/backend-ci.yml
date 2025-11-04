@@ -68,7 +68,7 @@ jobs:
         working-directory: ./backend
         run: |
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@v2.6.1
-          golangci-lint run --timeout=5m
+          golangci-lint run --timeout=5m --verbose
       
       - name: Run tests
         working-directory: ./backend
