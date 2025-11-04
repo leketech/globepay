@@ -7,7 +7,7 @@ import (
 
 	"globepay/internal/domain/model"
 	"globepay/internal/domain/service"
-	"globepay/internal/repository/mocks"
+	"globepay/test/mocks"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
