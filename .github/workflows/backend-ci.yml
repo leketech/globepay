@@ -64,14 +64,21 @@ jobs:
         working-directory: ./backend
         run: go mod download
       
-      - name: Install golangci-lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.61.0
-          sudo mv ./bin/golangci-lint /usr/local/bin/
-
       - name: Run golangci-lint
-        working-directory: ./backend
-        run: golangci-lint run ./...
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.61.0
+          working-directory: ./backend
+          args: --timeout=5m
+      
+      # - name: Install golangci-lint
+      #   run: |
+      #     curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.61.0
+      #     sudo mv ./bin/golangci-lint /usr/local/bin/
+
+      # - name: Run golangci-lint
+      #   working-directory: ./backend
+      #   run: golangci-lint run ./...
       
       - name: Run tests
         working-directory: ./backend
