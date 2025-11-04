@@ -12,6 +12,9 @@ import (
 // MetricsMiddleware collects metrics for HTTP requests
 func MetricsMiddleware(m *metrics.Metrics) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Store metrics in context for handlers to access
+		c.Set("metrics", m)
+		
 		// Increment in-flight requests
 		m.HTTPRequestsInFlight.Inc()
 		defer m.HTTPRequestsInFlight.Dec()

@@ -7,6 +7,7 @@ import (
 
 	"globepay/internal/domain/model"
 	"globepay/internal/domain/service"
+	"globepay/internal/infrastructure/metrics"
 	"globepay/internal/utils"
 
 	"github.com/gin-gonic/gin"
@@ -149,6 +150,14 @@ func CreateTransfer(c *gin.Context, serviceFactory *service.ServiceFactory) {
 		}
 		utils.InternalServerError(c, "TRANSFER_CREATION_FAILED", "Failed to create transfer")
 		return
+	}
+
+	// Increment transfer metrics
+	if metricsInterface, exists := c.Get("metrics"); exists {
+		if m, ok := metricsInterface.(*metrics.Metrics); ok {
+			m.TransfersTotal.Inc()
+			m.TransferAmountTotal.Add(transfer.SourceAmount)
+		}
 	}
 
 	c.JSON(http.StatusCreated, transfer)

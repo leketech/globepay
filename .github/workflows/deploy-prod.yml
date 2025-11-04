@@ -2,7 +2,7 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [ main, staging ]
+    branches: [main, staging]
   workflow_dispatch:
 
 jobs:
@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup kubectl
-      uses: azure/setup-kubectl@v3
+      uses: azure/setup-kubectl@v4
       with:
         version: 'v1.28.0'
 

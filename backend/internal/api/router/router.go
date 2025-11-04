@@ -20,6 +20,7 @@ func SetupRoutes(r *gin.Engine, serviceFactory *service.ServiceFactory, metrics 
 		c.Next()
 	})
 	r.Use(middleware.CORS())
+	r.Use(middleware.MetricsMiddleware(metrics))
 	fmt.Println("CORS middleware applied")
 
 	// Root endpoint

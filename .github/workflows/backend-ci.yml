@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, develop, staging]
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, staging]
 
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: globepay-backend
-  GO_VERSION: '1.21'
+  GO_VERSION: '1.25'
 
 jobs:
   test:

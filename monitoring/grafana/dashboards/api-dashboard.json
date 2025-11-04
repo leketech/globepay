@@ -115,6 +115,66 @@
             }
           }
         }
+      },
+      {
+        "id": 5,
+        "type": "graph",
+        "title": "Database Connections",
+        "gridPos": {
+          "x": 0,
+          "y": 12,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "pg_stat_database_numbackends",
+            "legendFormat": "{{datname}}",
+            "refId": "A"
+          }
+        ],
+        "xaxis": {
+          "mode": "time"
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": "Connections"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "type": "graph",
+        "title": "Redis Memory Usage",
+        "gridPos": {
+          "x": 12,
+          "y": 12,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "redis_memory_used_bytes",
+            "legendFormat": "Used Memory",
+            "refId": "A"
+          }
+        ],
+        "xaxis": {
+          "mode": "time"
+        },
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": "Memory"
+          },
+          {
+            "format": "short"
+          }
+        ]
       }
     ]
   }

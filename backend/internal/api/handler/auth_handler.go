@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"globepay/internal/domain/service"
+	"globepay/internal/infrastructure/metrics"
 	"globepay/internal/utils"
 
 	"github.com/gin-gonic/gin"
@@ -44,8 +48,16 @@ type ResetPasswordRequest struct {
 
 // Login handles user login
 func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
+	// Log the raw request body for debugging
+	body, _ := c.GetRawData()
+	fmt.Printf("Raw request body: %s\n", string(body))
+	
+	// Reset the body for binding
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		fmt.Printf("JSON binding error: %v\n", err)
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
 		return
 	}
@@ -63,13 +75,28 @@ func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
 		return
 	}
 
+	// Increment successful login metric
+	if metricsInterface, exists := c.Get("metrics"); exists {
+		if m, ok := metricsInterface.(*metrics.Metrics); ok {
+			m.UsersRegisteredTotal.Inc()
+		}
+	}
+
 	c.JSON(http.StatusOK, resp)
 }
 
 // Register handles user registration
 func Register(c *gin.Context, serviceFactory *service.ServiceFactory) {
+	// Log the raw request body for debugging
+	body, _ := c.GetRawData()
+	fmt.Printf("Raw request body: %s\n", string(body))
+	
+	// Reset the body for binding
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		fmt.Printf("JSON binding error: %v\n", err)
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
 		return
 	}
@@ -91,6 +118,13 @@ func Register(c *gin.Context, serviceFactory *service.ServiceFactory) {
 		}
 		utils.InternalServerError(c, "REGISTRATION_FAILED", "Failed to register user")
 		return
+	}
+
+	// Increment successful registration metric
+	if metricsInterface, exists := c.Get("metrics"); exists {
+		if m, ok := metricsInterface.(*metrics.Metrics); ok {
+			m.UsersRegisteredTotal.Inc()
+		}
 	}
 
 	c.JSON(http.StatusCreated, resp)

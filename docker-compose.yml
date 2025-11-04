@@ -19,6 +19,16 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: globepay-postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/globepay?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      - postgres
+
   redis:
     image: redis:7-alpine
     container_name: globepay-redis
@@ -31,6 +41,16 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: globepay-redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+    depends_on:
+      - redis
 
   backend:
     build:
@@ -45,26 +65,36 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/globepay?sslmode=disable
       - REDIS_URL=redis://redis:6379/0
       - JWT_SECRET=dev-secret-key-change-in-production
-    volumes:
-      - ./backend:/app
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
 
-  frontend:
+  migrate:
     build:
-      context: ./frontend
+      context: ./backend
       dockerfile: Dockerfile.dev
+    container_name: globepay-migrate
+    command: ["./migrate", "up"]
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/globepay?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    image: node:20-alpine
     container_name: globepay-frontend
     ports:
       - "3000:3000"
     environment:
       - VITE_API_URL=http://backend:8080
       - VITE_ENVIRONMENT=development
+    working_dir: /app
     volumes:
       - ./frontend:/app
+    command: sh -c "npm install --legacy-peer-deps && npm run dev"
     depends_on:
       - backend
 

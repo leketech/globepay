@@ -182,6 +182,10 @@ Globepay is a production-ready fintech application that enables seamless money t
 
 ## 📦 Prerequisites
 
+### Windows Users (WSL)
+
+For Windows users, we recommend using WSL2 for development. See [WSL Development Guide](docs/wsl-development.md) for detailed instructions.
+
 ### Required Software
 
 | Software | Version | Purpose |
@@ -602,6 +606,22 @@ The workflows in `.github/workflows/` will automatically run on:
 # Trigger deployment manually
 gh workflow run deploy-prod.yml
 ```
+
+### Environment Promotion Process
+
+Changes are promoted from development to production using an automated process:
+
+```bash
+# Deploy to all environments (dev -> staging -> prod)
+make deploy-all
+
+# Deploy to specific environments
+make deploy-dev
+make deploy-staging
+make deploy-prod
+```
+
+See [Environment Promotion Documentation](docs/environment-promotion.md) for detailed information.
 
 ---
 

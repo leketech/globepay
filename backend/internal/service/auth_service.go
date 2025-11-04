@@ -72,9 +72,12 @@ func (s *AuthService) Login(email, password string) (string, error) {
 
 // Register creates a new user
 func (s *AuthService) Register(user *domain.User) error {
+	fmt.Printf("Registering user: %+v\n", user)
+	
 	// Check if user already exists
 	existingUser, err := s.userRepo.GetByEmail(user.Email)
 	if err == nil && existingUser != nil {
+		fmt.Printf("User already exists: %+v\n", existingUser)
 		return domain.ErrUserAlreadyExists
 	}
 
@@ -94,18 +97,23 @@ func (s *AuthService) Register(user *domain.User) error {
 	}
 
 	// Set password using the model's SetPassword method
-	if err := modelUser.SetPassword(user.PasswordHash); err != nil { // Using PasswordHash field
+	if err := modelUser.SetPassword(user.Password); err != nil { // Using the password parameter instead of PasswordHash
+		fmt.Printf("Failed to hash password: %v\n", err)
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	// Set default status
 	modelUser.AccountStatus = "active"
 
+	fmt.Printf("Creating user in database: %+v\n", modelUser)
+	
 	// Create user
 	if err := s.userRepo.Create(modelUser); err != nil {
+		fmt.Printf("Failed to create user in database: %v\n", err)
 		return fmt.Errorf("failed to create user: %w", err)
 	}
 
+	fmt.Printf("User created successfully: %+v\n", modelUser)
 	return nil
 }
 

@@ -57,7 +57,23 @@ Access the services at:
 
 ## Staging Environment Deployment
 
-### 1. Infrastructure Setup
+### 1. Docker Compose Deployment (Recommended)
+
+For a simpler staging deployment using Docker Compose:
+
+```bash
+# Option 1: Using the deployment script
+./scripts/deploy-staging.sh
+
+# Option 2: Using Makefile target
+make deploy-staging-docker
+```
+
+This will:
+1. Load environment variables from `.env.staging`
+2. Build and start all services using `docker-compose.staging.yml`
+
+### 2. Infrastructure Setup
 
 ```bash
 # Navigate to staging environment
@@ -73,7 +89,7 @@ terraform plan
 terraform apply
 ```
 
-### 2. Application Deployment
+### 3. Application Deployment
 
 ```bash
 # Build and push Docker images
@@ -86,7 +102,21 @@ kubectl apply -f k8s/argocd/application-staging.yaml
 
 ## Production Environment Deployment
 
-### 1. Infrastructure Deployment
+### 1. Docker Compose Deployment (For Testing Only)
+
+For testing purposes, you can deploy to a production-like environment using Docker Compose:
+
+```bash
+# Option 1: Using the deployment script
+./scripts/deploy-prod.sh
+
+# Option 2: Using Makefile target
+make deploy-prod-docker
+```
+
+> ⚠️ **Warning**: This Docker Compose deployment is for testing purposes only. For actual production deployments, use the Kubernetes deployment method described below.
+
+### 2. Infrastructure Deployment
 
 #### Step 1: Setup Terraform Backend
 

@@ -4,7 +4,7 @@ help: ## Show this help message
 	@echo 'Usage: make [target]'
 	@echo ''
 	@echo 'Available targets:'
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-25s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 setup: ## Setup development environment
 	@./scripts/setup-dev-environment.sh
@@ -55,6 +55,12 @@ lint-frontend: ## Lint frontend code
 
 lint: lint-backend lint-frontend ## Lint all code
 
+deploy-staging-docker: ## Deploy to staging using Docker Compose
+	@./scripts/deploy-staging.sh
+
+deploy-prod-docker: ## Deploy to production using Docker Compose (testing only)
+	@./scripts/deploy-prod.sh
+
 deploy-dev: ## Deploy to development
 	@kubectl apply -k k8s/overlays/dev
 
@@ -63,6 +69,18 @@ deploy-staging: ## Deploy to staging
 
 deploy-prod: ## Deploy to production
 	@kubectl apply -k k8s/overlays/prod
+
+deploy-prod-k8s: ## Deploy to production using Kubernetes (build, push, deploy)
+	@./scripts/deploy-to-k8s.sh prod latest
+
+deploy-staging-k8s: ## Deploy to staging using Kubernetes (build, push, deploy)
+	@./scripts/deploy-to-k8s.sh staging latest
+
+deploy-dev-k8s: ## Deploy to development using Kubernetes (build, push, deploy)
+	@./scripts/deploy-to-k8s.sh dev latest
+
+deploy-all: ## Deploy to all environments (dev -> staging -> prod)
+	@./scripts/promote-changes.sh all
 
 clean: ## Clean up development environment
 	@docker-compose down -v

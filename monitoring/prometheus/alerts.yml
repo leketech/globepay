@@ -51,3 +51,23 @@ groups:
     annotations:
       summary: "High memory usage detected"
       description: "Memory usage is {{ $value | humanizePercentage }} of limit"
+
+  - alert: DatabaseDown
+    expr: |
+      pg_up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Database is down"
+      description: "PostgreSQL database is not responding"
+
+  - alert: RedisDown
+    expr: |
+      redis_up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Redis is down"
+      description: "Redis cache is not responding"

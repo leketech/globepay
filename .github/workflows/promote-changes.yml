@@ -1,0 +1,62 @@
+name: Promote Changes Across Environments
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment (dev, staging, prod, all)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod
+        - all
+  push:
+    branches: [main, develop, staging]
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'all' }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v4
+      with:
+        version: 'v1.28.0'
+
+    - name: Check if KUBECONFIG secret exists
+      id: check_kubeconfig
+      run: |
+        if [ "${{ secrets.KUBECONFIG }}" != "" ]; then
+          echo "kubeconfig_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "kubeconfig_exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Set up Kubeconfig
+      if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+
+    - name: Make script executable
+      run: chmod +x ./scripts/promote-changes.sh
+
+    - name: Promote changes
+      if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
+      run: |
+        ./scripts/promote-changes.sh ${{ github.event.inputs.environment || 'all' }}
+
+    - name: Notify on success
+      if: success()
+      run: |
+        echo "Changes successfully promoted to ${{ github.event.inputs.environment || 'all' }} environment(s)"
+
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "Failed to promote changes to ${{ github.event.inputs.environment || 'all' }} environment(s)"

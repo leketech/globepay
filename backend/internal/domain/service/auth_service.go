@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"globepay/internal/domain/model"
@@ -59,37 +60,45 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 
 // Register creates a new user and returns JWT tokens
 func (s *AuthService) Register(ctx context.Context, email, password, firstName, lastName string) (*LoginResponse, error) {
+	fmt.Printf("Registering user: email=%s, firstName=%s, lastName=%s\n", email, firstName, lastName)
+	
 	// Hash password
 	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
+		fmt.Printf("Failed to hash password: %v\n", err)
 		return nil, err
 	}
 	
 	// Create user model
-	user := &model.User{
-		Email:        email,
-		PasswordHash: hashedPassword,
-		FirstName:    firstName,
-		LastName:     lastName,
-		AccountStatus: "active",
-		KYCStatus:    "pending",
-	}
+	user := model.NewUser(email, password, firstName, lastName)
+	user.PasswordHash = hashedPassword // Override with our hashed password
+	
+	fmt.Printf("Creating user in database: %+v\n", user)
 	
 	// Create user
 	err = s.userService.CreateUser(ctx, user)
 	if err != nil {
+		fmt.Printf("Failed to create user in database: %v\n", err)
+		// Check if it's a conflict error (user already exists)
+		if err.Error() == fmt.Sprintf("user with email %s already exists", email) {
+			return nil, &ConflictError{Message: err.Error()}
+		}
 		return nil, err
 	}
+	
+	fmt.Printf("User created successfully: %+v\n", user)
 	
 	// Generate access token
 	accessToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, s.jwtExpire)
 	if err != nil {
+		fmt.Printf("Failed to generate access token: %v\n", err)
 		return nil, err
 	}
 	
 	// Generate refresh token
 	refreshToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, 7*24*time.Hour)
 	if err != nil {
+		fmt.Printf("Failed to generate refresh token: %v\n", err)
 		return nil, err
 	}
 	
