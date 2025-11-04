@@ -67,9 +67,8 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v1.64.0
           working-directory: ./backend
-          go-version: ${{ env.GO_VERSION }}
       
       - name: Run tests
         working-directory: ./backend
