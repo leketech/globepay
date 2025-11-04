@@ -1,0 +1,69 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: kube-system/aws-load-balancer-serving-cert
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"admissionregistration.k8s.io/v1","kind":"ValidatingWebhookConfiguration","metadata":{"annotations":{"cert-manager.io/inject-ca-from":"kube-system/aws-load-balancer-serving-cert"},"creationTimestamp":"2025-11-03T10:23:45Z","generation":1,"labels":{"app.kubernetes.io/name":"aws-load-balancer-controller"},"name":"aws-load-balancer-webhook","resourceVersion":"528618","uid":"a6d160a4-94d3-4214-a2a5-5eb347247f30"},"webhooks":[{"admissionReviewVersions":["v1beta1"],"clientConfig":{"caBundle":"LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURNRENDQWhpZ0F3SUJBZ0lSQU1wUzRsVk5WQU9jWGZVSjhKamtJNTh3RFFZSktvWklodmNOQVFFTEJRQXcKQURBZUZ3MHlOVEV4TURNeE1EUTVNRGRhRncweU5qQXlNREV4TURRNU1EZGFNQUF3Z2dFaU1BMEdDU3FHU0liMwpEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUNSVVMxTDJyc251QVZBUFBnK0plaGxKZW42QlhXVmZwaXMrbWg3CkNEeFVFZGlnSm1mT0dTS3NQeW1TSWFnTTg3UWVSdWhqS2FnNWd1bUlvWVNNdlZBWUdWSDlqZDFDd0FwTVkrTUgKRUhWS3A5dHRhMFVWcjZVYnZEcU9aL1l5S0d6WnpUY0QvSlUxd2NzZmNXV0JVd042bXh1d0I4TXlrWWQxeVJLLwp5Vlh6b2JqTE9rcUJvNytjbXlrNHhTTEtPVmU3Z0ppYTIwbXY3WVJsazRYdjNuQUJUUFVYN0I1NkhmSDhabVpZCkl1VDk1YVUvdC9JZmp2MnQ2WFdOUFBMOW00UCtNbHROLy9tU0tpbW02L2Z4a2pJSWlTeXFGcHRTdVlhRkFhbUwKbzhudWdCWTQwOG1BMEZQMlNrQVd3dTdWWUhYVzUxNGNPaEI4a01GVDFmSlRlTVFGQWdNQkFBR2pnYVF3Z2FFdwpEZ1lEVlIwUEFRSC9CQVFEQWdXZ01Bd0dBMVVkRXdFQi93UUNNQUF3Z1lBR0ExVWRFUUVCL3dSMk1IU0NNV0YzCmN5MXNiMkZrTFdKaGJHRnVZMlZ5TFhkbFltaHZiMnN0YzJWeWRtbGpaUzVyZFdKbExYTjVjM1JsYlM1emRtT0MKUDJGM2N5MXNiMkZrTFdKaGJHRnVZMlZ5TFhkbFltaHZiMnN0YzJWeWRtbGpaUzVyZFdKbExYTjVjM1JsYlM1egpkbU11WTJ4MWMzUmxjaTVzYjJOaGJEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFGMGdZdlFBK2M0WkJFd1VhCmllVVhxcjFpcnU0c1FqUzUrc0lrSU5uc2VUUjJZdnNZRkJrdGg3amx0RndEN1JkcVIzZ1RFR2ZkeDRPT3p4R3oKQWpwU2duQ3RsRkdqQlcvTVVWczJwd3ZJYW9YcTd3WFNGY3FXODh0UTEzUlJObFlpS1pSQ1c0bmszKzRoakI1UQo5aHhzd3pFWDB4d1pMMlpVMFhyTTg3aURMeXdraHVWdjB2b0k4Umt3alpScXE0RFpFV0RHZUhkOXFhdG9wVmxpCmx6NDJtTk5EMGc0WlBTOHNlTzhvQU8ybC9iSTBkYzB0WUo0cWZyK2Z0RWxxZWNnOTlhc0hydDRKUFY3amVqdkYKNnBTWXMvTnkrUFVFNjZNeFA3R2ZOTUN1WVlqc21zWm1rd2VoeExodkp0K3dNeHNGVlZJVnM4TjA1UHdEWTJ3RwpUeHVUY2c9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==","service":{"name":"aws-load-balancer-webhook-service","namespace":"kube-system","path":"/validate-elbv2-k8s-aws-v1beta1-targetgroupbinding","port":443}},"failurePolicy":"Fail","matchPolicy":"Equivalent","name":"vtargetgroupbinding.elbv2.k8s.aws","namespaceSelector":{},"objectSelector":{},"rules":[{"apiGroups":["elbv2.k8s.aws"],"apiVersions":["v1beta1"],"operations":["CREATE","UPDATE"],"resources":["targetgroupbindings"],"scope":"*"}],"sideEffects":"None","timeoutSeconds":10},{"admissionReviewVersions":["v1beta1"],"clientConfig":{"caBundle":"LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURNRENDQWhpZ0F3SUJBZ0lSQU1wUzRsVk5WQU9jWGZVSjhKamtJNTh3RFFZSktvWklodmNOQVFFTEJRQXcKQURBZUZ3MHlOVEV4TURNeE1EUTVNRGRhRncweU5qQXlNREV4TURRNU1EZGFNQUF3Z2dFaU1BMEdDU3FHU0liMwpEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUNSVVMxTDJyc251QVZBUFBnK0plaGxKZW42QlhXVmZwaXMrbWg3CkNEeFVFZGlnSm1mT0dTS3NQeW1TSWFnTTg3UWVSdWhqS2FnNWd1bUlvWVNNdlZBWUdWSDlqZDFDd0FwTVkrTUgKRUhWS3A5dHRhMFVWcjZVYnZEcU9aL1l5S0d6WnpUY0QvSlUxd2NzZmNXV0JVd042bXh1d0I4TXlrWWQxeVJLLwp5Vlh6b2JqTE9rcUJvNytjbXlrNHhTTEtPVmU3Z0ppYTIwbXY3WVJsazRYdjNuQUJUUFVYN0I1NkhmSDhabVpZCkl1VDk1YVUvdC9JZmp2MnQ2WFdOUFBMOW00UCtNbHROLy9tU0tpbW02L2Z4a2pJSWlTeXFGcHRTdVlhRkFhbUwKbzhudWdCWTQwOG1BMEZQMlNrQVd3dTdWWUhYVzUxNGNPaEI4a01GVDFmSlRlTVFGQWdNQkFBR2pnYVF3Z2FFdwpEZ1lEVlIwUEFRSC9CQVFEQWdXZ01Bd0dBMVVkRXdFQi93UUNNQUF3Z1lBR0ExVWRFUUVCL3dSMk1IU0NNV0YzCmN5MXNiMkZrTFdKaGJHRnVZMlZ5TFhkbFltaHZiMnN0YzJWeWRtbGpaUzVyZFdKbExYTjVjM1JsYlM1emRtT0MKUDJGM2N5MXNiMkZrTFdKaGJHRnVZMlZ5TFhkbFltaHZiMnN0YzJWeWRtbGpaUzVyZFdKbExYTjVjM1JsYlM1egpkbU11WTJ4MWMzUmxjaTVzYjJOaGJEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFGMGdZdlFBK2M0WkJFd1VhCmllVVhxcjFpcnU0c1FqUzUrc0lrSU5uc2VUUjJZdnNZRkJrdGg3amx0RndEN1JkcVIzZ1RFR2ZkeDRPT3p4R3oKQWpwU2duQ3RsRkdqQlcvTVVWczJwd3ZJYW9YcTd3WFNGY3FXODh0UTEzUlJObFlpS1pSQ1c0bmszKzRoakI1UQo5aHhzd3pFWDB4d1pMMlpVMFhyTTg3aURMeXdraHVWdjB2b0k4Umt3alpScXE0RFpFV0RHZUhkOXFhdG9wVmxpCmx6NDJtTk5EMGc0WlBTOHNlTzhvQU8ybC9iSTBkYzB0WUo0cWZyK2Z0RWxxZWNnOTlhc0hydDRKUFY3amVqdkYKNnBTWXMvTnkrUFVFNjZNeFA3R2ZOTUN1WVlqc21zWm1rd2VoeExodkp0K3dNeHNGVlZJVnM4TjA1UHdEWTJ3RwpUeHVUY2c9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==","service":{"name":"aws-load-balancer-webhook-service","namespace":"kube-system","path":"/validate-networking-v1-ingress","port":443}},"failurePolicy":"Fail","matchPolicy":"Equivalent","name":"vingress.elbv2.k8s.aws","namespaceSelector":{},"objectSelector":{},"rules":[{"apiGroups":["networking.k8s.io"],"apiVersions":["v1"],"operations":["CREATE","UPDATE"],"resources":["ingresses"],"scope":"*"}],"sideEffects":"None","timeoutSeconds":10}]}
+  creationTimestamp: "2025-11-03T10:23:45Z"
+  generation: 2
+  labels:
+    app.kubernetes.io/name: aws-load-balancer-controller
+  name: aws-load-balancer-webhook
+  resourceVersion: "554268"
+  uid: a6d160a4-94d3-4214-a2a5-5eb347247f30
+webhooks:
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURNRENDQWhpZ0F3SUJBZ0lSQU1wUzRsVk5WQU9jWGZVSjhKamtJNTh3RFFZSktvWklodmNOQVFFTEJRQXcKQURBZUZ3MHlOVEV4TURNeE1EUTVNRGRhRncweU5qQXlNREV4TURRNU1EZGFNQUF3Z2dFaU1BMEdDU3FHU0liMwpEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUNSVVMxTDJyc251QVZBUFBnK0plaGxKZW42QlhXVmZwaXMrbWg3CkNEeFVFZGlnSm1mT0dTS3NQeW1TSWFnTTg3UWVSdWhqS2FnNWd1bUlvWVNNdlZBWUdWSDlqZDFDd0FwTVkrTUgKRUhWS3A5dHRhMFVWcjZVYnZEcU9aL1l5S0d6WnpUY0QvSlUxd2NzZmNXV0JVd042bXh1d0I4TXlrWWQxeVJLLwp5Vlh6b2JqTE9rcUJvNytjbXlrNHhTTEtPVmU3Z0ppYTIwbXY3WVJsazRYdjNuQUJUUFVYN0I1NkhmSDhabVpZCkl1VDk1YVUvdC9JZmp2MnQ2WFdOUFBMOW00UCtNbHROLy9tU0tpbW02L2Z4a2pJSWlTeXFGcHRTdVlhRkFhbUwKbzhudWdCWTQwOG1BMEZQMlNrQVd3dTdWWUhYVzUxNGNPaEI4a01GVDFmSlRlTVFGQWdNQkFBR2pnYVF3Z2FFdwpEZ1lEVlIwUEFRSC9CQVFEQWdXZ01Bd0dBMVVkRXdFQi93UUNNQUF3Z1lBR0ExVWRFUUVCL3dSMk1IU0NNV0YzCmN5MXNiMkZrTFdKaGJHRnVZMlZ5TFhkbFltaHZiMnN0YzJWeWRtbGpaUzVyZFdKbExYTjVjM1JsYlM1emRtT0MKUDJGM2N5MXNiMkZrTFdKaGJHRnVZMlZ5TFhkbFltaHZiMnN0YzJWeWRtbGpaUzVyZFdKbExYTjVjM1JsYlM1egpkbU11WTJ4MWMzUmxjaTVzYjJOaGJEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFGMGdZdlFBK2M0WkJFd1VhCmllVVhxcjFpcnU0c1FqUzUrc0lrSU5uc2VUUjJZdnNZRkJrdGg3amx0RndEN1JkcVIzZ1RFR2ZkeDRPT3p4R3oKQWpwU2duQ3RsRkdqQlcvTVVWczJwd3ZJYW9YcTd3WFNGY3FXODh0UTEzUlJObFlpS1pSQ1c0bmszKzRoakI1UQo5aHhzd3pFWDB4d1pMMlpVMFhyTTg3aURMeXdraHVWdjB2b0k4Umt3alpScXE0RFpFV0RHZUhkOXFhdG9wVmxpCmx6NDJtTk5EMGc0WlBTOHNlTzhvQU8ybC9iSTBkYzB0WUo0cWZyK2Z0RWxxZWNnOTlhc0hydDRKUFY3amVqdkYKNnBTWXMvTnkrUFVFNjZNeFA3R2ZOTUN1WVlqc21zWm1rd2VoeExodkp0K3dNeHNGVlZJVnM4TjA1UHdEWTJ3RwpUeHVUY2c9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    service:
+      name: aws-load-balancer-webhook-service
+      namespace: kube-system
+      path: /validate-elbv2-k8s-aws-v1beta1-targetgroupbinding
+      port: 443
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: vtargetgroupbinding.elbv2.k8s.aws
+  namespaceSelector: {}
+  objectSelector: {}
+  rules:
+  - apiGroups:
+    - elbv2.k8s.aws
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - targetgroupbindings
+    scope: '*'
+  sideEffects: None
+  timeoutSeconds: 10
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURNRENDQWhpZ0F3SUJBZ0lSQU1wUzRsVk5WQU9jWGZVSjhKamtJNTh3RFFZSktvWklodmNOQVFFTEJRQXcKQURBZUZ3MHlOVEV4TURNeE1EUTVNRGRhRncweU5qQXlNREV4TURRNU1EZGFNQUF3Z2dFaU1BMEdDU3FHU0liMwpEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUNSVVMxTDJyc251QVZBUFBnK0plaGxKZW42QlhXVmZwaXMrbWg3CkNEeFVFZGlnSm1mT0dTS3NQeW1TSWFnTTg3UWVSdWhqS2FnNWd1bUlvWVNNdlZBWUdWSDlqZDFDd0FwTVkrTUgKRUhWS3A5dHRhMFVWcjZVYnZEcU9aL1l5S0d6WnpUY0QvSlUxd2NzZmNXV0JVd042bXh1d0I4TXlrWWQxeVJLLwp5Vlh6b2JqTE9rcUJvNytjbXlrNHhTTEtPVmU3Z0ppYTIwbXY3WVJsazRYdjNuQUJUUFVYN0I1NkhmSDhabVpZCkl1VDk1YVUvdC9JZmp2MnQ2WFdOUFBMOW00UCtNbHROLy9tU0tpbW02L2Z4a2pJSWlTeXFGcHRTdVlhRkFhbUwKbzhudWdCWTQwOG1BMEZQMlNrQVd3dTdWWUhYVzUxNGNPaEI4a01GVDFmSlRlTVFGQWdNQkFBR2pnYVF3Z2FFdwpEZ1lEVlIwUEFRSC9CQVFEQWdXZ01Bd0dBMVVkRXdFQi93UUNNQUF3Z1lBR0ExVWRFUUVCL3dSMk1IU0NNV0YzCmN5MXNiMkZrTFdKaGJHRnVZMlZ5TFhkbFltaHZiMnN0YzJWeWRtbGpaUzVyZFdKbExYTjVjM1JsYlM1emRtT0MKUDJGM2N5MXNiMkZrTFdKaGJHRnVZMlZ5TFhkbFltaHZiMnN0YzJWeWRtbGpaUzVyZFdKbExYTjVjM1JsYlM1egpkbU11WTJ4MWMzUmxjaTVzYjJOaGJEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFGMGdZdlFBK2M0WkJFd1VhCmllVVhxcjFpcnU0c1FqUzUrc0lrSU5uc2VUUjJZdnNZRkJrdGg3amx0RndEN1JkcVIzZ1RFR2ZkeDRPT3p4R3oKQWpwU2duQ3RsRkdqQlcvTVVWczJwd3ZJYW9YcTd3WFNGY3FXODh0UTEzUlJObFlpS1pSQ1c0bmszKzRoakI1UQo5aHhzd3pFWDB4d1pMMlpVMFhyTTg3aURMeXdraHVWdjB2b0k4Umt3alpScXE0RFpFV0RHZUhkOXFhdG9wVmxpCmx6NDJtTk5EMGc0WlBTOHNlTzhvQU8ybC9iSTBkYzB0WUo0cWZyK2Z0RWxxZWNnOTlhc0hydDRKUFY3amVqdkYKNnBTWXMvTnkrUFVFNjZNeFA3R2ZOTUN1WVlqc21zWm1rd2VoeExodkp0K3dNeHNGVlZJVnM4TjA1UHdEWTJ3RwpUeHVUY2c9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    service:
+      name: aws-load-balancer-webhook-service
+      namespace: kube-system
+      path: /validate-networking-v1-ingress
+      port: 443
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: vingress.elbv2.k8s.aws
+  namespaceSelector: {}
+  objectSelector: {}
+  rules:
+  - apiGroups:
+    - networking.k8s.io
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - ingresses
+    scope: '*'
+  sideEffects: None
+  timeoutSeconds: 10

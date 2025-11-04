@@ -1,0 +1,1 @@
+[{"op": "add", "path": "/spec/rules/1", "value": {"host": "www.globepay.space", "http": {"paths": [{"backend": {"service": {"name": "frontend", "port": {"number": 80}}}, "path": "/", "pathType": "Prefix"}]}}}]
