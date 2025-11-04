@@ -1,0 +1,14 @@
+{
+  "spec": {
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "name": "frontend",
+            "image": "907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:latest"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: globepay-backend-prod:apps/Deployment:globepay-prod/backend
+    deployment.kubernetes.io/revision: "23"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"globepay-backend-prod:apps/Deployment:globepay-prod/backend"},"labels":{"app":"backend"},"name":"backend","namespace":"globepay-prod"},"spec":{"replicas":5,"selector":{"matchLabels":{"app":"backend"}},"template":{"metadata":{"labels":{"app":"backend"}},"spec":{"containers":[{"env":[{"name":"ENVIRONMENT","value":"production"},{"name":"DATABASE_URL","valueFrom":{"secretKeyRef":{"key":"database-url","name":"backend-secrets-hbft66k4g7"}}},{"name":"REDIS_URL","valueFrom":{"secretKeyRef":{"key":"redis-url","name":"backend-secrets-hbft66k4g7"}}},{"name":"JWT_SECRET","valueFrom":{"secretKeyRef":{"key":"jwt-secret","name":"backend-secrets-hbft66k4g7"}}}],"image":"907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:v1.0.0","livenessProbe":{"httpGet":{"path":"/health","port":"http"},"initialDelaySeconds":60,"periodSeconds":10,"timeoutSeconds":5},"name":"backend","ports":[{"containerPort":8080,"name":"http"},{"containerPort":9090,"name":"metrics"}],"readinessProbe":{"httpGet":{"path":"/health/ready","port":"http"},"initialDelaySeconds":30,"periodSeconds":5,"timeoutSeconds":5},"resources":{"limits":{"cpu":"4000m","memory":"4Gi"},"requests":{"cpu":"1000m","memory":"1Gi"}}}]}}}}
+  creationTimestamp: "2025-11-01T20:51:26Z"
+  generation: 35
+  labels:
+    app: backend
+  name: backend
+  namespace: globepay-prod
+  resourceVersion: "892679"
+  uid: a6b0fc7d-cedd-4542-b29f-b5012ce4c6ce
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 5
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2025-11-03T08:30:38+01:00"
+      creationTimestamp: null
+      labels:
+        app: backend
+    spec:
+      containers:
+      - env:
+        - name: ENVIRONMENT
+          value: production
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: database-url
+              name: backend-secrets-hbft66k4g7
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              key: redis-url
+              name: backend-secrets-hbft66k4g7
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: jwt-secret
+              name: backend-secrets-hbft66k4g7
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: backend
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health/ready
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: "4"
+            memory: 4Gi
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: ecr-regcred
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 4
+  conditions:
+  - lastTransitionTime: "2025-11-03T07:24:07Z"
+    lastUpdateTime: "2025-11-03T07:24:07Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2025-11-04T13:30:04Z"
+    lastUpdateTime: "2025-11-04T13:35:11Z"
+    message: ReplicaSet "backend-5cf4d85697" is progressing.
+    reason: ReplicaSetUpdated
+    status: "True"
+    type: Progressing
+  observedGeneration: 35
+  readyReplicas: 4
+  replicas: 7
+  unavailableReplicas: 3
+  updatedReplicas: 3
