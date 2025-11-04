@@ -65,10 +65,10 @@ jobs:
         run: go mod download
       
       - name: Run golangci-lint
-        working-directory: ./backend
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.50.0
-          $(go env GOPATH)/bin/golangci-lint run
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: ./backend
       
       - name: Run tests
         working-directory: ./backend
