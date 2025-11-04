@@ -69,6 +69,7 @@ jobs:
         with:
           version: latest
           working-directory: ./backend
+          go-version: ${{ env.GO_VERSION }}
       
       - name: Run tests
         working-directory: ./backend
