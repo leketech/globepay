@@ -52,6 +52,7 @@ const filterEmptyFields = <T extends object>(obj: T): Partial<T> => {
       filtered[key] = obj[key];
     }
   }
+  console.log('Filtered data:', filtered);
   return filtered;
 };
 
@@ -85,25 +86,33 @@ interface UserPreferences {
 // Auth API
 export const authApi = {
   login: async (email: string, password: string) => {
+    // Ensure we're sending properly formatted JSON
+    const body = JSON.stringify({ email, password });
+    console.log('Login request body:', body);
     return apiRequest('/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: body,
     });
   },
 
   register: async (userData: RegisterUserData) => {
     // Filter out empty optional fields
     const filteredData = filterEmptyFields(userData);
+    // Ensure we're sending properly formatted JSON
+    const body = JSON.stringify(filteredData);
+    console.log('Register request body:', body);
     return apiRequest('/v1/auth/register', {
       method: 'POST',
-      body: JSON.stringify(filteredData),
+      body: body,
     });
   },
 
   refreshToken: async (refreshToken: string) => {
+    // Ensure we're sending properly formatted JSON
+    const body = JSON.stringify({ refreshToken });
     return apiRequest('/v1/auth/refresh', {
       method: 'POST',
-      body: JSON.stringify({ refreshToken }),
+      body: body,
     });
   },
 };

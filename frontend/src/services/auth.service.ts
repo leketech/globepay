@@ -50,8 +50,10 @@ export const authService = {
   },
 
   async signup(data: SignupRequest): Promise<AuthResponse> {
+    console.log('AuthService signup called with data:', data);
     // Using the authApi.register function directly
     const response = await authApi.register(data);
+    console.log('AuthService signup response:', response);
     if (response.token) {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));

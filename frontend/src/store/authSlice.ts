@@ -79,9 +79,12 @@ export const signup = createAsyncThunk(
   'auth/signup',
   async (userData: SignupRequest, { rejectWithValue }) => {
     try {
+      console.log('authSlice signup called with userData:', userData);
       const response = await authService.signup(userData);
+      console.log('authSlice signup response:', response);
       return response;
     } catch (error: unknown) {
+      console.error('Signup error in authSlice:', error);
       if (error instanceof Error) {
         return rejectWithValue(error.message || 'Signup failed');
       }

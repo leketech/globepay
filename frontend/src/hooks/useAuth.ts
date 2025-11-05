@@ -10,6 +10,7 @@ export const useAuth = () => {
 
   const handleLogin = useCallback(
     (credentials: LoginRequest) => {
+      console.log('useAuth login called with credentials:', credentials);
       return dispatch(login(credentials));
     },
     [dispatch]
@@ -17,6 +18,7 @@ export const useAuth = () => {
 
   const handleSignup = useCallback(
     (userData: SignupRequest) => {
+      console.log('useAuth signup called with userData:', userData);
       return dispatch(signup(userData));
     },
     [dispatch]
