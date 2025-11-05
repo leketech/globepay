@@ -98,8 +98,16 @@ export const authApi = {
   register: async (userData: RegisterUserData) => {
     // Filter out empty optional fields
     const filteredData = filterEmptyFields(userData);
-    // Ensure we're sending properly formatted JSON
-    const body = JSON.stringify(filteredData);
+    // Ensure we're sending properly formatted JSON with correct field names
+    const body = JSON.stringify({
+      email: filteredData.email,
+      password: filteredData.password,
+      firstName: filteredData.firstName,
+      lastName: filteredData.lastName,
+      phoneNumber: filteredData.phoneNumber,
+      dateOfBirth: filteredData.dateOfBirth,
+      country: filteredData.country
+    });
     console.log('Register request body:', body);
     return apiRequest('/v1/auth/register', {
       method: 'POST',

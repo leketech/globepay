@@ -6,8 +6,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies with more verbose output
+RUN npm ci --verbose || npm install --verbose
 
 # Copy source code
 COPY . .
@@ -20,15 +20,8 @@ ARG VITE_ENVIRONMENT
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_ENVIRONMENT=$VITE_ENVIRONMENT
 
-# Copy environment files
-COPY .env.production .env.production
-
 # Build application with production environment
-RUN if [ "$VITE_ENVIRONMENT" = "production" ]; then \
-        npm run build; \
-    else \
-        npm run build; \
-    fi
+RUN npm run build
 
 # Production stage
 FROM nginx:alpine

@@ -5,22 +5,14 @@ import { AuthState, User } from '../types';
 interface ApiUser {
   id: string;
   email: string;
-  first_name?: string;
-  firstName?: string;
-  last_name?: string;
-  lastName?: string;
-  phone_number?: string;
+  firstName: string;
+  lastName: string;
   phoneNumber?: string;
-  date_of_birth?: string;
   dateOfBirth?: string;
   country?: string;
-  kyc_status?: string;
   kycStatus?: string;
-  account_status?: string;
   accountStatus?: string;
-  created_at?: string;
   createdAt?: string;
-  updated_at?: string;
   updatedAt?: string;
 }
 
@@ -31,15 +23,15 @@ const mapApiUserToUser = (apiUser: ApiUser): User => {
   const user: User = {
     id: apiUser.id,
     email: apiUser.email,
-    firstName: apiUser.first_name || apiUser.firstName || '',
-    lastName: apiUser.last_name || apiUser.lastName || '',
-    phoneNumber: apiUser.phone_number || apiUser.phoneNumber || '',
-    dateOfBirth: apiUser.date_of_birth || apiUser.dateOfBirth || '',
+    firstName: apiUser.firstName || '',
+    lastName: apiUser.lastName || '',
+    phoneNumber: apiUser.phoneNumber || '',
+    dateOfBirth: apiUser.dateOfBirth || '',
     country: apiUser.country || '',
-    kycStatus: apiUser.kyc_status || apiUser.kycStatus || '',
-    accountStatus: apiUser.account_status || apiUser.accountStatus || '',
-    createdAt: apiUser.created_at || apiUser.createdAt || '',
-    updatedAt: apiUser.updated_at || apiUser.updatedAt || '',
+    kycStatus: apiUser.kycStatus || '',
+    accountStatus: apiUser.accountStatus || '',
+    createdAt: apiUser.createdAt || '',
+    updatedAt: apiUser.updatedAt || '',
   };
 
   console.log('Mapped user:', user);
