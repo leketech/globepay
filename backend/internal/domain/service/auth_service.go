@@ -62,21 +62,13 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 func (s *AuthService) Register(ctx context.Context, email, password, firstName, lastName string) (*LoginResponse, error) {
 	fmt.Printf("Registering user: email=%s, firstName=%s, lastName=%s\n", email, firstName, lastName)
 	
-	// Hash password
-	hashedPassword, err := utils.HashPassword(password)
-	if err != nil {
-		fmt.Printf("Failed to hash password: %v\n", err)
-		return nil, err
-	}
-	
-	// Create user model
+	// Create user model (password will be hashed in the model)
 	user := model.NewUser(email, password, firstName, lastName)
-	user.PasswordHash = hashedPassword // Override with our hashed password
 	
 	fmt.Printf("Creating user in database: %+v\n", user)
 	
 	// Create user
-	err = s.userService.CreateUser(ctx, user)
+	err := s.userService.CreateUser(ctx, user)
 	if err != nil {
 		fmt.Printf("Failed to create user in database: %v\n", err)
 		// Check if it's a conflict error (user already exists)

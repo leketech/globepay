@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"globepay/internal/domain/service"
@@ -48,13 +46,6 @@ type ResetPasswordRequest struct {
 
 // Login handles user login
 func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
-	// Log the raw request body for debugging
-	body, _ := c.GetRawData()
-	fmt.Printf("Raw request body: %s\n", string(body))
-	
-	// Reset the body for binding
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-	
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		fmt.Printf("JSON binding error: %v\n", err)
@@ -81,7 +72,7 @@ func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	// Increment successful login metric
 	if metricsInterface, exists := c.Get("metrics"); exists {
 		if m, ok := metricsInterface.(*metrics.Metrics); ok {
-			m.UsersRegisteredTotal.Inc()
+			m.LoginAttemptsTotal.Inc()
 		}
 	}
 
@@ -90,13 +81,6 @@ func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
 
 // Register handles user registration
 func Register(c *gin.Context, serviceFactory *service.ServiceFactory) {
-	// Log the raw request body for debugging
-	body, _ := c.GetRawData()
-	fmt.Printf("Raw request body: %s\n", string(body))
-	
-	// Reset the body for binding
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-	
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		fmt.Printf("JSON binding error: %v\n", err)

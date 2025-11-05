@@ -11,6 +11,7 @@ type Metrics struct {
 	HTTPRequestDuration  *prometheus.HistogramVec
 	HTTPRequestsInFlight prometheus.Gauge
 	UsersRegisteredTotal prometheus.Counter
+	LoginAttemptsTotal   prometheus.Counter
 	TransfersTotal       prometheus.Counter
 	TransferAmountTotal  prometheus.Counter
 }
@@ -36,6 +37,11 @@ func NewMetrics() *Metrics {
 		UsersRegisteredTotal: promauto.NewCounter(prometheus.CounterOpts{
 			Name: "users_registered_total",
 			Help: "Total number of registered users",
+		}),
+
+		LoginAttemptsTotal: promauto.NewCounter(prometheus.CounterOpts{
+			Name: "login_attempts_total",
+			Help: "Total number of login attempts",
 		}),
 
 		TransfersTotal: promauto.NewCounter(prometheus.CounterOpts{

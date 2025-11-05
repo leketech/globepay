@@ -27,7 +27,7 @@ type User struct {
 
 // NewUser creates a new user instance
 func NewUser(email, password, firstName, lastName string) *User {
-	return &User{
+	user := &User{
 		ID:            uuid.New().String(),
 		Email:         email,
 		FirstName:     firstName,
@@ -37,6 +37,16 @@ func NewUser(email, password, firstName, lastName string) *User {
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}
+	
+	// Hash the password
+	if password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err == nil {
+			user.PasswordHash = string(hashedPassword)
+		}
+	}
+	
+	return user
 }
 
 // NewUserWithDetails creates a new user instance with additional details
