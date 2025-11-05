@@ -76,7 +76,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile.dev
     container_name: globepay-migrate
-    command: ["go", "run", "cmd/migration/main.go", "up"]
+    command: ["/migrate", "up"]
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/globepay?sslmode=disable
     depends_on:

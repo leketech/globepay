@@ -9,6 +9,7 @@ namespace: globepay-prod
 patches:
 - path: ./patches/backend-deployment.yaml
 - path: ./patches/backend-resources.yaml
+- path: ./patches/frontend-deployment.yaml
 
 secretGenerator:
 - name: backend-secrets

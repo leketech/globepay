@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: frontend
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:latest
+        env:
+        - name: VITE_API_URL
+          value: "https://api-staging.globepay.space"
+        - name: VITE_ENVIRONMENT
+          value: "staging"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

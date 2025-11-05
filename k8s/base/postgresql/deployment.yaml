@@ -21,7 +21,7 @@ spec:
         - containerPort: 5432
         env:
         - name: POSTGRES_DB
-          value: "globepay_prod"
+          value: "globepay"
         - name: POSTGRES_USER
           value: "globepay"
         - name: POSTGRES_PASSWORD

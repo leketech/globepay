@@ -28,7 +28,7 @@ FRONTEND_IMAGE="$ECR_REGISTRY/globepay-frontend:$FRONTEND_TAG"
 case $ENVIRONMENT in
     "prod")
         BACKEND_PATCH_FILE="k8s/overlays/prod/patches/backend-deployment.yaml"
-        FRONTEND_PATCH_FILE="k8s/overlays/frontend-prod/patches/frontend-deployment.yaml"
+        FRONTEND_PATCH_FILE="k8s/overlays/prod/patches/frontend-deployment.yaml"
         ;;
     "staging")
         BACKEND_PATCH_FILE="k8s/overlays/staging/patches/backend-deployment.yaml"

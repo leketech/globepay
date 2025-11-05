@@ -20,8 +20,15 @@ ARG VITE_ENVIRONMENT
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_ENVIRONMENT=$VITE_ENVIRONMENT
 
-# Build application
-RUN npm run build
+# Copy environment files
+COPY .env.production .env.production
+
+# Build application with production environment
+RUN if [ "$VITE_ENVIRONMENT" = "production" ]; then \
+        npm run build; \
+    else \
+        npm run build; \
+    fi
 
 # Production stage
 FROM nginx:alpine
