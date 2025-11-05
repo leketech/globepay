@@ -23,13 +23,17 @@ func SetupRoutes(r *gin.Engine, serviceFactory *service.ServiceFactory, metrics 
 	r.Use(middleware.MetricsMiddleware(metrics))
 	fmt.Println("CORS middleware applied")
 
+	// Create health handler with health service
+	healthService := serviceFactory.GetHealthService()
+	healthHandler := handler.NewHealthHandler(healthService)
+
 	// Root endpoint
 	r.GET("/", handler.RootHandler)
 	fmt.Println("Registered root endpoint")
 
 	// Health check endpoints
-	r.GET("/health", handler.HealthCheck)
-	r.GET("/health/ready", handler.ReadinessCheck)
+	r.GET("/health", healthHandler.HealthCheck)
+	r.GET("/health/ready", healthHandler.ReadyCheck)
 	fmt.Println("Registered health endpoints")
 
 	// Metrics endpoint

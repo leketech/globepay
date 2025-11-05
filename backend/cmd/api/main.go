@@ -32,29 +32,43 @@ func main() {
 	// Initialize logger
 	logger := logger.NewLogger(cfg.LogLevel, cfg.Debug)
 	logger.Info("Starting Globepay API server")
+	logger.Infof("Server configuration: Environment=%s, Port=%s, Debug=%t", cfg.Environment, cfg.ServerPort, cfg.Debug)
+	logger.Infof("Database URL: %s", cfg.DatabaseURL)
+	logger.Infof("Redis URL: %s", cfg.RedisURL)
 
 	// Initialize database
+	logger.Info("Connecting to database...")
 	db, err := database.NewConnection(cfg.DatabaseURL)
 	if err != nil {
 		logger.Fatalf("Failed to connect to database: %v", err)
+		os.Exit(1)
 	}
 	defer db.Close()
+	logger.Info("Database connection established")
 
 	// Initialize Redis cache
+	logger.Info("Connecting to Redis...")
 	redisClient, err := cache.NewRedisClient(cfg.RedisURL)
 	if err != nil {
 		logger.Fatalf("Failed to connect to Redis: %v", err)
+		os.Exit(1)
 	}
 	defer redisClient.Close()
+	logger.Info("Redis connection established")
 
 	// Load AWS configuration
+	logger.Info("Loading AWS configuration...")
 	awsConfig, err := awscfg.LoadDefaultConfig(context.TODO(), awscfg.WithRegion(cfg.AWSRegion))
 	if err != nil {
 		logger.Fatalf("Failed to load AWS configuration: %v", err)
+		os.Exit(1)
 	}
+	logger.Info("AWS configuration loaded")
 
 	// Initialize service factory
+	logger.Info("Initializing service factory...")
 	serviceFactory := service.NewServiceFactory(cfg, db, redisClient, awsConfig)
+	logger.Info("Service factory initialized")
 
 	// Initialize metrics
 	metrics := metrics.NewMetrics()
@@ -68,7 +82,9 @@ func main() {
 	r := gin.New()
 
 	// Setup routes
+	logger.Info("Setting up routes...")
 	router.SetupRoutes(r, serviceFactory, metrics)
+	logger.Info("Routes set up successfully")
 
 	// Start server
 	server := &http.Server{

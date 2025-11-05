@@ -58,3 +58,19 @@ func (h *HealthService) CheckAll(ctx context.Context) map[string]string {
 
 	return results
 }
+
+// CheckDatabaseSimple simple database connectivity check without context
+func (h *HealthService) CheckDatabaseSimple() bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	
+	return h.db.PingContext(ctx) == nil
+}
+
+// CheckRedisSimple simple Redis connectivity check without context
+func (h *HealthService) CheckRedisSimple() bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	
+	return h.cache.Ping(ctx) == nil
+}
