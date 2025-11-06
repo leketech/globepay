@@ -48,7 +48,7 @@ type ResetPasswordRequest struct {
 func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		fmt.Printf("JSON binding error: %v\n", err)
+		fmt.Printf("JSON binding error in login: %v\n", err)
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
 		return
 	}
@@ -57,7 +57,7 @@ func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	resp, err := authService.Login(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		// Log the error for debugging
-		fmt.Printf("Login error: %v\n", err)
+		fmt.Printf("Login error for user %s: %v\n", req.Email, err)
 		
 		// Check if it's an authentication error
 		if _, ok := err.(*service.AuthenticationError); ok {
@@ -65,7 +65,7 @@ func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
 			return
 		}
 		// Handle other errors as internal server errors
-		utils.InternalServerError(c, "LOGIN_FAILED", err.Error())
+		utils.InternalServerError(c, "LOGIN_FAILED", "Failed to login")
 		return
 	}
 
@@ -83,18 +83,18 @@ func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
 func Register(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		fmt.Printf("JSON binding error: %v\n", err)
+		fmt.Printf("JSON binding error in register: %v\n", err)
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
 		return
 	}
 
 	authService := serviceFactory.GetAuthService()
 	
-	// Use basic registration regardless of additional details
-	resp, err := authService.Register(c.Request.Context(), req.Email, req.Password, req.FirstName, req.LastName)
+	// Pass all user data to the service, not just basic fields
+	resp, err := authService.Register(c.Request.Context(), req.Email, req.Password, req.FirstName, req.LastName, req.PhoneNumber, req.DateOfBirth, req.Country)
 	if err != nil {
 		// Log the error for debugging
-		fmt.Printf("Registration error: %v\n", err)
+		fmt.Printf("Registration error for user %s: %v\n", req.Email, err)
 		
 		// Check if it's a conflict error (user already exists)
 		if _, ok := err.(*service.ConflictError); ok {
@@ -106,6 +106,7 @@ func Register(c *gin.Context, serviceFactory *service.ServiceFactory) {
 			utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
 			return
 		}
+		// Handle other errors as internal server errors
 		utils.InternalServerError(c, "REGISTRATION_FAILED", "Failed to register user")
 		return
 	}

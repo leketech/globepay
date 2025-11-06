@@ -33,10 +33,9 @@ func (r *UserRepo) Create(user *model.User) error {
 	query := `
 		INSERT INTO users (id, email, password_hash, first_name, last_name, phone_number, date_of_birth, country_code, kyc_status, account_status, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-		RETURNING id
 	`
 
-	now := time.Now()
+	now := time.Now().UTC()
 	user.CreatedAt = now
 	user.UpdatedAt = now
 
@@ -51,7 +50,8 @@ func (r *UserRepo) Create(user *model.User) error {
 		countryCode = &user.Country
 	}
 
-	return r.db.QueryRowContext(context.Background(), query, user.ID, user.Email, user.PasswordHash, user.FirstName, user.LastName, user.PhoneNumber, dateOfBirth, countryCode, user.KYCStatus, user.AccountStatus, user.CreatedAt, user.UpdatedAt).Scan(&user.ID)
+	_, err = r.db.ExecContext(context.Background(), query, user.ID, user.Email, user.PasswordHash, user.FirstName, user.LastName, user.PhoneNumber, dateOfBirth, countryCode, user.KYCStatus, user.AccountStatus, user.CreatedAt, user.UpdatedAt)
+	return err
 }
 
 // emailExists checks if a user with the given email already exists
@@ -81,6 +81,13 @@ func (r *UserRepo) GetByID(id string) (*model.User, error) {
 		&user.ID, &user.Email, &user.PasswordHash, &user.FirstName, &user.LastName,
 		&user.PhoneNumber, &dateOfBirth, &countryCode, &user.KYCStatus, &user.AccountStatus, &user.CreatedAt, &user.UpdatedAt,
 	)
+	// Ensure timestamps are in UTC
+	if !user.CreatedAt.IsZero() {
+		user.CreatedAt = user.CreatedAt.UTC()
+	}
+	if !user.UpdatedAt.IsZero() {
+		user.UpdatedAt = user.UpdatedAt.UTC()
+	}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
@@ -116,6 +123,13 @@ func (r *UserRepo) GetByEmail(email string) (*model.User, error) {
 		&user.ID, &user.Email, &user.PasswordHash, &user.FirstName, &user.LastName,
 		&user.PhoneNumber, &dateOfBirth, &countryCode, &user.KYCStatus, &user.AccountStatus, &user.CreatedAt, &user.UpdatedAt,
 	)
+	// Ensure timestamps are in UTC
+	if !user.CreatedAt.IsZero() {
+		user.CreatedAt = user.CreatedAt.UTC()
+	}
+	if !user.UpdatedAt.IsZero() {
+		user.UpdatedAt = user.UpdatedAt.UTC()
+	}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
@@ -143,7 +157,7 @@ func (r *UserRepo) Update(user *model.User) error {
 		WHERE id = $11
 	`
 
-	user.UpdatedAt = time.Now()
+	user.UpdatedAt = time.Now().UTC()
 	
 	// Handle nullable fields
 	var dateOfBirth *time.Time

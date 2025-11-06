@@ -1,0 +1,9 @@
+{
+  "email": "testuser2@example.com",
+  "password": "securepassword123",
+  "firstName": "Test",
+  "lastName": "User",
+  "phoneNumber": "+1234567890",
+  "dateOfBirth": "1990-01-01",
+  "country": "US"
+}

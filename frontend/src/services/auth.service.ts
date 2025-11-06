@@ -11,6 +11,8 @@ export interface SignupRequest {
   firstName: string;
   lastName: string;
   phoneNumber?: string;
+  dateOfBirth?: string;
+  country?: string;
 }
 
 export interface AuthResponse {

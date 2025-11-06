@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"globepay/internal/domain/model"
@@ -30,25 +31,34 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 	// Get user by email
 	user, err := s.userService.GetUserByEmail(ctx, email)
 	if err != nil {
+		fmt.Printf("User not found for email %s: %v\n", email, err)
 		return nil, &AuthenticationError{Message: "Invalid email or password"}
 	}
 	
 	// Verify password
 	match, err := utils.CheckPassword(password, user.PasswordHash)
-	if err != nil || !match {
+	if err != nil {
+		fmt.Printf("Error checking password for user %s: %v\n", email, err)
+		return nil, &AuthenticationError{Message: "Invalid email or password"}
+	}
+	
+	if !match {
+		fmt.Printf("Invalid password for user %s\n", email)
 		return nil, &AuthenticationError{Message: "Invalid email or password"}
 	}
 	
 	// Generate access token
 	accessToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, s.jwtExpire)
 	if err != nil {
-		return nil, err
+		fmt.Printf("Failed to generate access token for user %s: %v\n", email, err)
+		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
 	
 	// Generate refresh token (longer expiration)
 	refreshToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, 7*24*time.Hour)
 	if err != nil {
-		return nil, err
+		fmt.Printf("Failed to generate refresh token for user %s: %v\n", email, err)
+		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 	
 	return &LoginResponse{
@@ -59,11 +69,22 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 }
 
 // Register creates a new user and returns JWT tokens
-func (s *AuthService) Register(ctx context.Context, email, password, firstName, lastName string) (*LoginResponse, error) {
-	fmt.Printf("Registering user: email=%s, firstName=%s, lastName=%s\n", email, firstName, lastName)
+func (s *AuthService) Register(ctx context.Context, email, password, firstName, lastName, phoneNumber, dateOfBirth, country string) (*LoginResponse, error) {
+	fmt.Printf("Registering user: email=%s, firstName=%s, lastName=%s, phoneNumber=%s, dateOfBirth=%s, country=%s\n", email, firstName, lastName, phoneNumber, dateOfBirth, country)
 	
-	// Create user model (password will be hashed in the model)
-	user := model.NewUser(email, password, firstName, lastName)
+	// Parse date of birth if provided
+	var dob time.Time
+	if dateOfBirth != "" {
+		var err error
+		dob, err = time.Parse("2006-01-02", dateOfBirth)
+		if err != nil {
+			fmt.Printf("Failed to parse date of birth: %v\n", err)
+			// Continue without date of birth if parsing fails
+		}
+	}
+	
+	// Create user model with all details (password will be hashed in the model)
+	user := model.NewUserWithDetails(email, password, firstName, lastName, phoneNumber, country, dob)
 	
 	fmt.Printf("Creating user in database: %+v\n", user)
 	
@@ -72,10 +93,11 @@ func (s *AuthService) Register(ctx context.Context, email, password, firstName, 
 	if err != nil {
 		fmt.Printf("Failed to create user in database: %v\n", err)
 		// Check if it's a conflict error (user already exists)
-		if err.Error() == fmt.Sprintf("user with email %s already exists", email) {
-			return nil, &ConflictError{Message: err.Error()}
+		if strings.Contains(err.Error(), "user with email") && strings.Contains(err.Error(), "already exists") {
+			return nil, &ConflictError{Message: "User with this email already exists"}
 		}
-		return nil, err
+		// Return a more generic error for other database issues
+		return nil, fmt.Errorf("failed to register user: %w", err)
 	}
 	
 	fmt.Printf("User created successfully: %+v\n", user)
@@ -84,14 +106,14 @@ func (s *AuthService) Register(ctx context.Context, email, password, firstName, 
 	accessToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, s.jwtExpire)
 	if err != nil {
 		fmt.Printf("Failed to generate access token: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
 	
 	// Generate refresh token
 	refreshToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, 7*24*time.Hour)
 	if err != nil {
 		fmt.Printf("Failed to generate refresh token: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 	
 	return &LoginResponse{
