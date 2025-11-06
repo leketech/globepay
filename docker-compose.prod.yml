@@ -73,7 +73,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      - VITE_API_URL=http://backend:8080
+      - VITE_API_URL=https://api.globepay.space
       - VITE_ENVIRONMENT=production
     depends_on:
       - backend

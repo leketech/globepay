@@ -1,13 +1,16 @@
 // Simple API service for Globepay
 import { Transfer } from '../types';
 
-const API_BASE_URL = '/api'; // Use relative path to leverage Vite proxy
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '/api';
 
 // Helper function for API requests
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
-  // For health checks, we need to use the full URL
   const isHealthCheck = endpoint.startsWith('/health');
-  const url = isHealthCheck ? `http://localhost:8080${endpoint}` : `${API_BASE_URL}${endpoint}`;
+  let url = `${API_BASE_URL}${endpoint}`;
+
+  if (isHealthCheck && import.meta.env.DEV) {
+    url = `http://localhost:8080${endpoint}`;
+  }
 
   const config: RequestInit = {
     headers: {
@@ -20,22 +23,26 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   try {
     console.log(`Making API request to: ${url}`, config);
     const response = await fetch(url, config);
-
+    
     console.log(`API response status: ${response.status}`);
 
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = data;
       console.error('API request failed:', {
         status: response.status,
         statusText: response.statusText,
         errorData,
       });
-      throw new Error(
-        `HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`
-      );
+      throw { 
+        status: response.status, 
+        message: errorData?.error || response.statusText, 
+        details: errorData 
+      };
     }
 
-    const data = await response.json();
     console.log('API response data:', data);
     return data;
   } catch (error) {
