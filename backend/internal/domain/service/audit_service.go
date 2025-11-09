@@ -41,16 +41,20 @@ func (s *AuditService) LogUserAction(ctx context.Context, userID, action, tableN
 		if err != nil {
 			return err
 		}
-		json.Unmarshal(oldBytes, &auditLog.OldValues)
+		if err := json.Unmarshal(oldBytes, &auditLog.OldValues); err != nil {
+			log.Printf("Failed to unmarshal old values: %v", err)
+		}
 	}
-
+	
 	// Convert new values to map
 	if newValues != nil {
 		newBytes, err := json.Marshal(newValues)
 		if err != nil {
 			return err
 		}
-		json.Unmarshal(newBytes, &auditLog.NewValues)
+		if err := json.Unmarshal(newBytes, &auditLog.NewValues); err != nil {
+			log.Printf("Failed to unmarshal new values: %v", err)
+		}
 	}
 
 	return s.auditRepo.Create(ctx, auditLog)

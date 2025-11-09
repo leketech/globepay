@@ -28,10 +28,13 @@ func TracingMiddleware(tracer opentracing.Tracer) gin.HandlerFunc {
 		c.Next()
 		
 		// Set status code tag
-		ext.HTTPStatusCode.Set(span, uint16(c.Writer.Status()))
+		statusCode := c.Writer.Status()
+		if statusCode >= 0 && statusCode <= 65535 {
+			ext.HTTPStatusCode.Set(span, uint16(statusCode))
+		}
 		
 		// Mark as error if status is 5xx
-		if c.Writer.Status() >= 500 {
+		if statusCode >= 500 {
 			ext.Error.Set(span, true)
 		}
 	}

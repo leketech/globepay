@@ -88,8 +88,9 @@ func main() {
 
 	// Start server
 	server := &http.Server{
-		Addr:    ":" + cfg.ServerPort,
-		Handler: r,
+		Addr:              ":" + cfg.ServerPort,
+		Handler:           r,
+		ReadHeaderTimeout: 5 * time.Second, // Add timeout to prevent Slowloris attacks
 	}
 
 	// Run server in a goroutine

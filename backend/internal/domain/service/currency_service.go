@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
-	"globepay/internal/domain/model"
-	"globepay/internal/repository"
+	"globepay/internal/domain"
 )
 
 // CurrencyService provides currency-related functionality
@@ -50,10 +50,43 @@ type ExchangeRateAPIResponse struct {
 
 // GetExchangeRate retrieves the exchange rate between two currencies from ExchangeRate-API.com
 func (s *CurrencyService) GetExchangeRate(ctx context.Context, fromCurrency, toCurrency string, amount float64) (*ExchangeRateResponse, error) {
+	// Validate currency codes (should be 3-letter ISO codes)
+	if len(fromCurrency) != 3 || len(toCurrency) != 3 {
+		// Fallback to mock data if currency codes are invalid
+		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil
+	}
+	
+	// Convert to uppercase for consistency
+	fromCurrency = strings.ToUpper(fromCurrency)
+	toCurrency = strings.ToUpper(toCurrency)
+	
+	// Validate that currencies are in our supported list
+	supportedCurrencies := map[string]bool{
+		"USD": true, "EUR": true, "GBP": true, "JPY": true, "NGN": true,
+		"CAD": true, "AUD": true, "CHF": true, "CNY": true, "INR": true,
+	}
+	
+	if !supportedCurrencies[fromCurrency] || !supportedCurrencies[toCurrency] {
+		// Fallback to mock data if currencies are not supported
+		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil
+	}
+	
 	// Try to get real exchange rate from ExchangeRate-API.com (free, no API key required)
 	url := fmt.Sprintf("https://api.exchangerate-api.com/v4/latest/%s", fromCurrency)
 	
-	resp, err := http.Get(url)
+	// Create HTTP client with timeout to prevent hanging requests
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	
+	// Make request with context for cancellation
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		// Fallback to mock data if request creation fails
+		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil
+	}
+	
+	resp, err := client.Do(req)
 	if err != nil {
 		// Fallback to mock data if API call fails
 		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil

@@ -5,6 +5,7 @@ import (
 	"globepay/internal/domain/model"
 	"globepay/internal/repository"
 	"globepay/internal/utils"
+	"log"
 	"time"
 )
 
@@ -129,7 +130,9 @@ func (s *MoneyRequestService) PayRequest(
 	if err := s.accountRepo.UpdateBalance(ctx, requesterAccount.ID, requesterAccount.Balance); err != nil {
 		// Rollback payer's account update
 		payerAccount.Balance += request.Amount
-		s.accountRepo.UpdateBalance(ctx, payerAccount.ID, payerAccount.Balance)
+		if rollbackErr := s.accountRepo.UpdateBalance(ctx, payerAccount.ID, payerAccount.Balance); rollbackErr != nil {
+			log.Printf("Failed to rollback payer account update: %v", rollbackErr)
+		}
 		return err
 	}
 	
@@ -138,9 +141,13 @@ func (s *MoneyRequestService) PayRequest(
 	if err := s.moneyRequestRepo.UpdateStatus(ctx, requestID, string(model.MoneyRequestPaid), &now); err != nil {
 		// Rollback both account updates
 		payerAccount.Balance += request.Amount
-		s.accountRepo.UpdateBalance(ctx, payerAccount.ID, payerAccount.Balance)
+		if rollbackErr := s.accountRepo.UpdateBalance(ctx, payerAccount.ID, payerAccount.Balance); rollbackErr != nil {
+			log.Printf("Failed to rollback payer account update: %v", rollbackErr)
+		}
 		requesterAccount.Balance -= request.Amount
-		s.accountRepo.UpdateBalance(ctx, requesterAccount.ID, requesterAccount.Balance)
+		if rollbackErr := s.accountRepo.UpdateBalance(ctx, requesterAccount.ID, requesterAccount.Balance); rollbackErr != nil {
+			log.Printf("Failed to rollback requester account update: %v", rollbackErr)
+		}
 		return err
 	}
 	

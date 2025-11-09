@@ -35,7 +35,9 @@ func NewTestRedis() *TestRedis {
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
 		log.Printf("Failed to ping test Redis: %v", err)
-		client.Close()
+		if closeErr := client.Close(); closeErr != nil {
+			log.Printf("Failed to close Redis client: %v", closeErr)
+		}
 		return nil
 	}
 
@@ -46,7 +48,9 @@ func NewTestRedis() *TestRedis {
 // Close closes the test Redis connection
 func (tr *TestRedis) Close() {
 	if tr != nil && tr.Client != nil {
-		tr.Client.Close()
+		if err := tr.Client.Close(); err != nil {
+			log.Printf("Failed to close Redis connection: %v", err)
+		}
 		log.Println("Test Redis connection closed")
 	}
 }

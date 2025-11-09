@@ -38,7 +38,9 @@ func NewTestDB() *TestDB {
 	// Test the connection
 	if err := db.Ping(); err != nil {
 		log.Printf("Failed to ping test database: %v", err)
-		db.Close()
+		if closeErr := db.Close(); closeErr != nil {
+			log.Printf("Failed to close database connection: %v", closeErr)
+		}
 		return nil
 	}
 
@@ -53,7 +55,9 @@ func NewTestDB() *TestDB {
 // Close closes the test database connection
 func (tdb *TestDB) Close() {
 	if tdb != nil && tdb.DB != nil {
-		tdb.DB.Close()
+		if err := tdb.DB.Close(); err != nil {
+			log.Printf("Failed to close database connection: %v", err)
+		}
 		log.Println("Test database connection closed")
 	}
 }
