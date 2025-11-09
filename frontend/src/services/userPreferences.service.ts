@@ -1,5 +1,23 @@
 import { userApi } from './api';
 
+// Define the API preferences interface that matches what the backend expects
+interface ApiPreferences {
+  notifications?: {
+    email: boolean;
+    sms: boolean;
+  };
+  email_notifications?: boolean;
+  push_notifications?: boolean;
+  sms_notifications?: boolean;
+  transaction_alerts?: boolean;
+  security_alerts?: boolean;
+  marketing_emails?: boolean;
+  two_factor_enabled?: boolean;
+  language?: string;
+  timezone?: string;
+  [key: string]: boolean | string | { email: boolean; sms: boolean } | undefined;
+}
+
 export interface UserPreferences {
   id: string;
   user_id: string;
@@ -40,36 +58,10 @@ export const userPreferencesService = {
 
   async updateUserPreferences(
     token: string,
-    preferences: Partial<UserPreferences>
+    preferences: ApiPreferences
   ): Promise<UserPreferences> {
-    // Map our preferences to the API's expected format
-    const apiPreferences: { [key: string]: any } = {};
-
-    // Map boolean fields directly
-    if (preferences.email_notifications !== undefined) {
-      apiPreferences.email_notifications = preferences.email_notifications;
-    }
-    if (preferences.push_notifications !== undefined) {
-      apiPreferences.push_notifications = preferences.push_notifications;
-    }
-    if (preferences.sms_notifications !== undefined) {
-      apiPreferences.sms_notifications = preferences.sms_notifications;
-    }
-    if (preferences.transaction_alerts !== undefined) {
-      apiPreferences.transaction_alerts = preferences.transaction_alerts;
-    }
-    if (preferences.security_alerts !== undefined) {
-      apiPreferences.security_alerts = preferences.security_alerts;
-    }
-    if (preferences.marketing_emails !== undefined) {
-      apiPreferences.marketing_emails = preferences.marketing_emails;
-    }
-    if (preferences.two_factor_enabled !== undefined) {
-      apiPreferences.two_factor_enabled = preferences.two_factor_enabled;
-    }
-
     try {
-      const response = await userApi.updateUserPreferences(token, apiPreferences);
+      const response = await userApi.updateUserPreferences(token, preferences);
       return response;
     } catch (error) {
       console.error('Failed to update user preferences:', error);

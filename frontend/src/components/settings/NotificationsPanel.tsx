@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { userPreferencesService, UserPreferences } from '../../services/userPreferences.service';
 
+// Define the API preferences interface
+interface ApiPreferences {
+  notifications?: {
+    email: boolean;
+    sms: boolean;
+  };
+  email_notifications?: boolean;
+  push_notifications?: boolean;
+  sms_notifications?: boolean;
+  transaction_alerts?: boolean;
+  security_alerts?: boolean;
+  marketing_emails?: boolean;
+  two_factor_enabled?: boolean;
+  language?: string;
+  timezone?: string;
+  [key: string]: boolean | string | { email: boolean; sms: boolean } | undefined;
+}
+
 interface NotificationsPanelProps {
   onBack: () => void;
 }
@@ -40,7 +58,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
       const token = localStorage.getItem('token') || '';
       if (token) {
         // Map our local preferences to the API's expected structure
-        const apiUpdates: { [key: string]: any } = {};
+        const apiUpdates: ApiPreferences = {};
         if (updates.email_notifications !== undefined || updates.sms_notifications !== undefined) {
           apiUpdates.notifications = {
             email: updates.email_notifications ?? emailNotifications,
