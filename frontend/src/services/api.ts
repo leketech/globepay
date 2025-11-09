@@ -23,7 +23,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   try {
     console.log(`Making API request to: ${url}`, config);
     const response = await fetch(url, config);
-    
+
     console.log(`API response status: ${response.status}`);
 
     const text = await response.text();
@@ -36,10 +36,10 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
         statusText: response.statusText,
         errorData,
       });
-      throw { 
-        status: response.status, 
-        message: errorData?.error || response.statusText, 
-        details: errorData 
+      throw {
+        status: response.status,
+        message: errorData?.error || response.statusText,
+        details: errorData,
       };
     }
 
@@ -113,7 +113,7 @@ export const authApi = {
       lastName: filteredData.lastName,
       phoneNumber: filteredData.phoneNumber,
       dateOfBirth: filteredData.dateOfBirth,
-      country: filteredData.country
+      country: filteredData.country,
     });
     console.log('Register request body:', body);
     return apiRequest('/v1/auth/register', {

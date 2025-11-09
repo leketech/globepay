@@ -202,7 +202,7 @@ const Transfer: React.FC = () => {
       setTimeout(() => {
         navigate('/dashboard');
       }, 1000);
-    } catch (err) {
+    } catch (error) {
       setError('Failed to create transfer');
     } finally {
       setLoading(false);

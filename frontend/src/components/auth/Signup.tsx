@@ -250,12 +250,12 @@ const Signup: React.FC = () => {
                           ? strengthColor === 'red'
                             ? 'bg-red-500'
                             : strengthColor === 'yellow'
-                            ? 'bg-yellow-500'
-                            : strengthColor === 'blue'
-                            ? 'bg-blue-500'
-                            : strengthColor === 'green'
-                            ? 'bg-green-500'
-                            : 'bg-gray-300'
+                              ? 'bg-yellow-500'
+                              : strengthColor === 'blue'
+                                ? 'bg-blue-500'
+                                : strengthColor === 'green'
+                                  ? 'bg-green-500'
+                                  : 'bg-gray-300'
                           : 'bg-border-light dark:bg-border-dark'
                       }`}
                     ></div>
@@ -265,12 +265,12 @@ const Signup: React.FC = () => {
                       strengthColor === 'red'
                         ? 'text-red-500'
                         : strengthColor === 'yellow'
-                        ? 'text-yellow-500'
-                        : strengthColor === 'blue'
-                        ? 'text-blue-500'
-                        : strengthColor === 'green'
-                        ? 'text-green-500'
-                        : 'text-gray-500'
+                          ? 'text-yellow-500'
+                          : strengthColor === 'blue'
+                            ? 'text-blue-500'
+                            : strengthColor === 'green'
+                              ? 'text-green-500'
+                              : 'text-gray-500'
                     } pl-2`}
                   >
                     {strengthText}

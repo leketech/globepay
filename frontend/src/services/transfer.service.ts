@@ -72,14 +72,14 @@ export const transferService = {
         from === 'USD' && to === 'EUR'
           ? 0.85
           : from === 'EUR' && to === 'USD'
-          ? 1.18
-          : from === 'USD' && to === 'GBP'
-          ? 0.75
-          : from === 'GBP' && to === 'USD'
-          ? 1.33
-          : from === 'USD' && to === 'NGN'
-          ? 1580.0
-          : 1.0; // Default 1:1 rate
+            ? 1.18
+            : from === 'USD' && to === 'GBP'
+              ? 0.75
+              : from === 'GBP' && to === 'USD'
+                ? 1.33
+                : from === 'USD' && to === 'NGN'
+                  ? 1580.0
+                  : 1.0; // Default 1:1 rate
 
       const fee = this.calculateFee(amount);
       const convertedAmount = (amount - fee) * mockRate;
@@ -119,7 +119,7 @@ export const transferService = {
     const token = localStorage.getItem('token') || '';
     
     // Map TransferRequest to Transfer for the API call
-    const transferData: any = {
+    const transferData: Partial<TransferType> = {
       recipientName: data.recipientName,
       recipientCountry: data.recipientCountry,
       recipientBankName: data.recipientBankName,
@@ -144,7 +144,7 @@ export const transferService = {
     };
     
     // Using the transferApi.createTransfer function directly
-    return transferApi.createTransfer(token, transferData);
+    return transferApi.createTransfer(token, transferData as TransferType);
   },
 
   async getTransfer(id: string): Promise<Transfer> {

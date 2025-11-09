@@ -14,6 +14,16 @@ export interface UserPreferences {
   updated_at: string;
 }
 
+// Define the preferences update interface to match the API
+interface UserPreferencesUpdate {
+  language?: string;
+  timezone?: string;
+  notifications?: {
+    email: boolean;
+    sms: boolean;
+  };
+}
+
 export const userPreferencesService = {
   async getUserPreferences(token: string): Promise<UserPreferences> {
     try {
@@ -40,10 +50,10 @@ export const userPreferencesService = {
 
   async updateUserPreferences(
     token: string,
-    preferences: Partial<UserPreferences>
+    preferences: Partial<UserPreferencesUpdate>
   ): Promise<UserPreferences> {
     try {
-      const response = await userApi.updateUserPreferences(token, preferences as any);
+      const response = await userApi.updateUserPreferences(token, preferences);
       return response;
     } catch (error) {
       console.error('Failed to update user preferences:', error);
