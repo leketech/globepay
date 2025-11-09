@@ -14,16 +14,6 @@ export interface UserPreferences {
   updated_at: string;
 }
 
-// Define the preferences update interface to match the API
-interface UserPreferencesUpdate {
-  language?: string;
-  timezone?: string;
-  notifications?: {
-    email: boolean;
-    sms: boolean;
-  };
-}
-
 export const userPreferencesService = {
   async getUserPreferences(token: string): Promise<UserPreferences> {
     try {
@@ -50,10 +40,36 @@ export const userPreferencesService = {
 
   async updateUserPreferences(
     token: string,
-    preferences: Partial<UserPreferencesUpdate>
+    preferences: Partial<UserPreferences>
   ): Promise<UserPreferences> {
+    // Map our preferences to the API's expected format
+    const apiPreferences: any = {};
+    
+    // Map boolean fields directly
+    if (preferences.email_notifications !== undefined) {
+      apiPreferences.email_notifications = preferences.email_notifications;
+    }
+    if (preferences.push_notifications !== undefined) {
+      apiPreferences.push_notifications = preferences.push_notifications;
+    }
+    if (preferences.sms_notifications !== undefined) {
+      apiPreferences.sms_notifications = preferences.sms_notifications;
+    }
+    if (preferences.transaction_alerts !== undefined) {
+      apiPreferences.transaction_alerts = preferences.transaction_alerts;
+    }
+    if (preferences.security_alerts !== undefined) {
+      apiPreferences.security_alerts = preferences.security_alerts;
+    }
+    if (preferences.marketing_emails !== undefined) {
+      apiPreferences.marketing_emails = preferences.marketing_emails;
+    }
+    if (preferences.two_factor_enabled !== undefined) {
+      apiPreferences.two_factor_enabled = preferences.two_factor_enabled;
+    }
+
     try {
-      const response = await userApi.updateUserPreferences(token, preferences);
+      const response = await userApi.updateUserPreferences(token, apiPreferences);
       return response;
     } catch (error) {
       console.error('Failed to update user preferences:', error);

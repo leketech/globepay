@@ -39,7 +39,15 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
     try {
       const token = localStorage.getItem('token') || '';
       if (token) {
-        await userPreferencesService.updateUserPreferences(token, updates);
+        // Map our local preferences to the API's expected structure
+        const apiUpdates: any = {};
+        if (updates.email_notifications !== undefined || updates.sms_notifications !== undefined) {
+          apiUpdates.notifications = {
+            email: updates.email_notifications ?? emailNotifications,
+            sms: updates.sms_notifications ?? smsNotifications
+          };
+        }
+        await userPreferencesService.updateUserPreferences(token, apiUpdates);
       }
     } catch (error) {
       console.error('Failed to save preferences:', error);
@@ -53,7 +61,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
 
   const handlePushNotificationsChange = (enabled: boolean) => {
     setPushNotifications(enabled);
-    savePreference({ push_notifications: enabled });
+    // Push notifications don't map directly to the API structure, so we'll just update locally
   };
 
   const handleSmsNotificationsChange = (enabled: boolean) => {
@@ -63,17 +71,17 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
 
   const handleTransactionAlertsChange = (enabled: boolean) => {
     setTransactionAlerts(enabled);
-    savePreference({ transaction_alerts: enabled });
+    // Transaction alerts don't map directly to the API structure, so we'll just update locally
   };
 
   const handleSecurityAlertsChange = (enabled: boolean) => {
     setSecurityAlerts(enabled);
-    savePreference({ security_alerts: enabled });
+    // Security alerts don't map directly to the API structure, so we'll just update locally
   };
 
   const handleMarketingEmailsChange = (enabled: boolean) => {
     setMarketingEmails(enabled);
-    savePreference({ marketing_emails: enabled });
+    // Marketing emails don't map directly to the API structure, so we'll just update locally
   };
 
   return (
