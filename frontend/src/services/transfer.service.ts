@@ -117,7 +117,7 @@ export const transferService = {
   async createTransfer(data: TransferRequest): Promise<TransferType> {
     // Get token from localStorage
     const token = localStorage.getItem('token') || '';
-    
+
     // Map TransferRequest to Transfer for the API call
     const transferData: Partial<TransferType> = {
       recipientName: data.recipientName,
@@ -142,7 +142,7 @@ export const transferService = {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    
+
     // Using the transferApi.createTransfer function directly
     return transferApi.createTransfer(token, transferData as TransferType);
   },

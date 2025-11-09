@@ -203,6 +203,7 @@ const Transfer: React.FC = () => {
         navigate('/dashboard');
       }, 1000);
     } catch (error) {
+      console.error('Failed to create transfer:', error);
       setError('Failed to create transfer');
     } finally {
       setLoading(false);
