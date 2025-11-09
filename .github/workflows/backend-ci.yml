@@ -89,9 +89,10 @@ jobs:
           flags: backend
       
       - name: Run security scan
-        uses: securego/gosec@master
-        with:
-          args: ./backend/...
+        working-directory: ./backend
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@v2.15.0
+          gosec ./...
   
   build:
     name: Build and Push
