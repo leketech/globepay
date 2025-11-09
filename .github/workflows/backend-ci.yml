@@ -67,7 +67,7 @@ jobs:
       - name: Install golangci-lint
         working-directory: ./backend
         run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
       
       - name: Run golangci-lint
         working-directory: ./backend
@@ -250,8 +250,8 @@ jobs:
       - name: Run integration tests
         run: |
           # Run comprehensive integration tests
-          cd backend/test/integration
-          go test -v ./... -tags=integration
+          cd backend
+          go test -v ./test/integration/... -tags=integration
 
   deploy-prod:
     name: Deploy to Production

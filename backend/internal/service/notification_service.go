@@ -112,7 +112,7 @@ func (s *NotificationService) SendPushNotification(userID string, title, message
 func (s *NotificationService) SendTransferNotification(transfer *domain.Transfer) error {
 	// In a real implementation, you would fetch user details and format a proper message
 	// For now, we'll just log the transfer notification
-	log.Printf("Sending transfer notification for transfer ID %s", transfer.ID) // Changed from %d to %s
+	log.Printf("Sending transfer notification for transfer ID %d", transfer.ID)
 
 	// Example implementation:
 	// message := fmt.Sprintf("Your transfer of %.2f %s has been %s", 

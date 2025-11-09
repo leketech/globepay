@@ -1,9 +1,9 @@
-package test
+package unit
 
 import (
 	"testing"
 
-	"globepay/internal/domain"
+	"globepay/internal/domain/model"
 	"globepay/internal/service"
 	"globepay/test/mocks"
 
@@ -20,29 +20,24 @@ func TestUserServiceSimple(t *testing.T) {
 	userService := service.NewUserService(mockUserRepo, mockAccountRepo)
 
 	// Test data
-	email := "test@example.com"
-	firstName := "John"
-	lastName := "Doe"
+	userID := "1" // Changed from int64 to string
 
-	// Set up mock expectations
-	mockUserRepo.On("GetByEmail", email).Return(nil, nil) // User doesn't exist
-	mockUserRepo.On("Create", mock.AnythingOfType("*domain.User")).Return(nil)
-
-	// This is a simplified test - in reality, we would need to handle password hashing
-	// but for now we're just testing the structure
-	user := &domain.User{
-		Email:     email,
-		FirstName: firstName,
-		LastName:  lastName,
+	// Create a test account
+	account := &model.Account{
+		UserID:   userID,
+		Currency: "USD",
+		Balance:  100.0,
 	}
 
+	// Set up mock expectations
+	mockAccountRepo.On("Create", mock.AnythingOfType("*model.Account")).Return(nil)
+
 	// Call the method under test
-	err := userService.CreateAccount(1, user)
+	err := userService.CreateAccount(userID, account) // Changed to match the correct method signature
 
 	// Assertions
 	assert.NoError(t, err)
 
 	// Verify mock expectations
-	mockUserRepo.AssertExpectations(t)
 	mockAccountRepo.AssertExpectations(t)
 }

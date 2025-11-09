@@ -1,7 +1,8 @@
 package mocks
 
 import (
-	"globepay/internal/domain"
+	"context"
+	"globepay/internal/domain/model"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -9,40 +10,67 @@ type AccountRepositoryMock struct {
 	mock.Mock
 }
 
-func (m *AccountRepositoryMock) Create(account *domain.Account) error {
+func (m *AccountRepositoryMock) Create(account *model.Account) error {
 	args := m.Called(account)
 	return args.Error(0)
 }
 
-func (m *AccountRepositoryMock) GetByID(id int64) (*domain.Account, error) {
+func (m *AccountRepositoryMock) GetByID(id string) (*model.Account, error) {
 	args := m.Called(id)
 	result := args.Get(0)
 	if result == nil {
 		return nil, args.Error(1)
 	}
-	return result.(*domain.Account), args.Error(1)
+	return result.(*model.Account), args.Error(1)
 }
 
-func (m *AccountRepositoryMock) GetByUserID(userID int64) ([]domain.Account, error) {
-	args := m.Called(userID)
+func (m *AccountRepositoryMock) GetByUser(ctx context.Context, userID string) ([]*model.Account, error) {
+	args := m.Called(ctx, userID)
 	result := args.Get(0)
 	if result == nil {
 		return nil, args.Error(1)
 	}
-	return result.([]domain.Account), args.Error(1)
+	return result.([]*model.Account), args.Error(1)
 }
 
-func (m *AccountRepositoryMock) Update(account *domain.Account) error {
+func (m *AccountRepositoryMock) GetByNumber(ctx context.Context, accountNumber string) (*model.Account, error) {
+	args := m.Called(ctx, accountNumber)
+	result := args.Get(0)
+	if result == nil {
+		return nil, args.Error(1)
+	}
+	return result.(*model.Account), args.Error(1)
+}
+
+func (m *AccountRepositoryMock) GetByUserAndCurrency(ctx context.Context, userID, currency string) (*model.Account, error) {
+	args := m.Called(ctx, userID, currency)
+	result := args.Get(0)
+	if result == nil {
+		return nil, args.Error(1)
+	}
+	return result.(*model.Account), args.Error(1)
+}
+
+func (m *AccountRepositoryMock) Update(account *model.Account) error {
 	args := m.Called(account)
 	return args.Error(0)
 }
 
-func (m *AccountRepositoryMock) UpdateBalance(id int64, balance float64) error {
-	args := m.Called(id, balance)
+func (m *AccountRepositoryMock) UpdateBalance(ctx context.Context, id string, balance float64) error {
+	args := m.Called(ctx, id, balance)
 	return args.Error(0)
 }
 
-func (m *AccountRepositoryMock) Delete(id int64) error {
+func (m *AccountRepositoryMock) Delete(id string) error {
 	args := m.Called(id)
 	return args.Error(0)
+}
+
+func (m *AccountRepositoryMock) GetAll() ([]model.Account, error) {
+	args := m.Called()
+	result := args.Get(0)
+	if result == nil {
+		return nil, args.Error(1)
+	}
+	return result.([]model.Account), args.Error(1)
 }

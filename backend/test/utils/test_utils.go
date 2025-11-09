@@ -27,6 +27,11 @@ func LoadUsersFixture() ([]domain.User, error) {
 		return nil, fmt.Errorf("invalid fixture path: %s", fixturePath)
 	}
 
+	// Additional security check: ensure the file has a .json extension
+	if filepath.Ext(fixturePath) != ".json" {
+		return nil, fmt.Errorf("invalid file extension: %s", fixturePath)
+	}
+
 	// Read the file
 	data, err := os.ReadFile(fixturePath)
 	if err != nil {
@@ -60,6 +65,11 @@ func LoadAccountsFixture() ([]domain.Account, error) {
 		return nil, fmt.Errorf("invalid fixture path: %s", fixturePath)
 	}
 
+	// Additional security check: ensure the file has a .json extension
+	if filepath.Ext(fixturePath) != ".json" {
+		return nil, fmt.Errorf("invalid file extension: %s", fixturePath)
+	}
+
 	// Read the file
 	data, err := os.ReadFile(fixturePath)
 	if err != nil {
@@ -91,6 +101,11 @@ func LoadTransfersFixture() ([]domain.Transfer, error) {
 	expectedDir := filepath.Join(wd, "fixtures")
 	if !strings.HasPrefix(fixturePath, expectedDir) {
 		return nil, fmt.Errorf("invalid fixture path: %s", fixturePath)
+	}
+
+	// Additional security check: ensure the file has a .json extension
+	if filepath.Ext(fixturePath) != ".json" {
+		return nil, fmt.Errorf("invalid file extension: %s", fixturePath)
 	}
 
 	// Read the file

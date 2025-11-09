@@ -8,7 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"globepay/internal/domain"
+	"globepay/internal/domain/model"
+	"globepay/internal/repository"
 )
 
 // CurrencyService provides currency-related functionality
@@ -36,7 +37,7 @@ func (s *CurrencyService) GetCurrencyByCode(ctx context.Context, code string) (*
 // ExchangeRateAPIResponse represents the response from ExchangeRate.host API
 type ExchangeRateAPIResponse struct {
 	Success bool `json:"success"`
-	Query struct {
+	Query   struct {
 		From   string  `json:"from"`
 		To     string  `json:"to"`
 		Amount float64 `json:"amount"`
@@ -55,37 +56,37 @@ func (s *CurrencyService) GetExchangeRate(ctx context.Context, fromCurrency, toC
 		// Fallback to mock data if currency codes are invalid
 		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil
 	}
-	
+
 	// Convert to uppercase for consistency
 	fromCurrency = strings.ToUpper(fromCurrency)
 	toCurrency = strings.ToUpper(toCurrency)
-	
+
 	// Validate that currencies are in our supported list
 	supportedCurrencies := map[string]bool{
 		"USD": true, "EUR": true, "GBP": true, "JPY": true, "NGN": true,
 		"CAD": true, "AUD": true, "CHF": true, "CNY": true, "INR": true,
 	}
-	
+
 	if !supportedCurrencies[fromCurrency] || !supportedCurrencies[toCurrency] {
 		// Fallback to mock data if currencies are not supported
 		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil
 	}
-	
+
 	// Try to get real exchange rate from ExchangeRate-API.com (free, no API key required)
 	url := fmt.Sprintf("https://api.exchangerate-api.com/v4/latest/%s", fromCurrency)
-	
+
 	// Create HTTP client with timeout to prevent hanging requests
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
-	
+
 	// Make request with context for cancellation
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		// Fallback to mock data if request creation fails
 		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil
 	}
-	
+
 	resp, err := client.Do(req)
 	if err != nil {
 		// Fallback to mock data if API call fails
@@ -105,7 +106,7 @@ func (s *CurrencyService) GetExchangeRate(ctx context.Context, fromCurrency, toC
 		Date  string             `json:"date"`
 		Rates map[string]float64 `json:"rates"`
 	}
-	
+
 	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
 		// Fallback to mock data if JSON parsing fails
 		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil
@@ -120,24 +121,24 @@ func (s *CurrencyService) GetExchangeRate(ctx context.Context, fromCurrency, toC
 
 	// Calculate fee
 	fee := calculateTransferFee(amount)
-	
+
 	// Calculate converted amount
 	convertedAmount := (amount - fee) * rate
-	
+
 	// Parse timestamp
 	timestamp, err := time.Parse("2006-01-02", apiResponse.Date)
 	if err != nil {
 		timestamp = time.Now()
 	}
-	
+
 	return &ExchangeRateResponse{
 		FromCurrency:    fromCurrency,
 		ToCurrency:      toCurrency,
-		Rate:           rate,
-		Fee:            fee,
-		Amount:         amount,
+		Rate:            rate,
+		Fee:             fee,
+		Amount:          amount,
 		ConvertedAmount: convertedAmount,
-		Timestamp:      timestamp,
+		Timestamp:       timestamp,
 	}, nil
 }
 
@@ -152,25 +153,25 @@ func (s *CurrencyService) getMockExchangeRate(fromCurrency, toCurrency string, a
 		"JPY": {"USD": 0.0091, "EUR": 0.0078, "GBP": 0.0068, "NGN": 14.36},
 		"NGN": {"USD": 0.00063, "EUR": 0.00054, "GBP": 0.00047, "JPY": 0.0696},
 	}
-	
+
 	rate := 1.0
 	if fromRates, ok := rates[fromCurrency]; ok {
 		if r, ok := fromRates[toCurrency]; ok {
 			rate = r
 		}
 	}
-	
+
 	fee := calculateTransferFee(amount)
 	convertedAmount := (amount - fee) * rate
-	
+
 	return &ExchangeRateResponse{
 		FromCurrency:    fromCurrency,
 		ToCurrency:      toCurrency,
-		Rate:           rate,
-		Fee:            fee,
-		Amount:         amount,
+		Rate:            rate,
+		Fee:             fee,
+		Amount:          amount,
 		ConvertedAmount: convertedAmount,
-		Timestamp:      time.Now(),
+		Timestamp:       time.Now(),
 	}
 }
 
@@ -178,13 +179,13 @@ func (s *CurrencyService) getMockExchangeRate(fromCurrency, toCurrency string, a
 func calculateTransferFee(amount float64) float64 {
 	// In a real implementation, this would use a more complex fee structure
 	// based on amount, currency, destination, etc.
-	
+
 	// 2.5% fee with minimum of $1
 	fee := amount * 0.025
 	if fee < 1.0 {
 		fee = 1.0
 	}
-	
+
 	return fee
 }
 

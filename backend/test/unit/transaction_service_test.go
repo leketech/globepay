@@ -23,6 +23,7 @@ func TestTransactionService_CreateTransaction(t *testing.T) {
 
 	// Test data for deposit transaction
 	transaction := &model.Transaction{
+		ID:              "1",
 		UserID:          "1",
 		AccountID:       "1",
 		Type:            string(model.TransactionDeposit),
@@ -48,6 +49,7 @@ func TestTransactionService_CreateTransaction(t *testing.T) {
 	mockTransactionRepo.On("Create", mock.AnythingOfType("*model.Transaction")).Return(nil)
 	mockAccountRepo.On("UpdateBalance", mock.Anything, "1", 300.0).Return(nil)
 	mockTransactionRepo.On("Update", mock.AnythingOfType("*model.Transaction")).Return(nil)
+	mockTransactionRepo.On("GetByID", "1").Return(transaction, nil)
 
 	// Call the method under test
 	err := transactionService.CreateTransaction(transaction)
