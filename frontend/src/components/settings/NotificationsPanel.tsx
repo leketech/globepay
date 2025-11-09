@@ -40,11 +40,11 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ onBack }) => {
       const token = localStorage.getItem('token') || '';
       if (token) {
         // Map our local preferences to the API's expected structure
-        const apiUpdates: any = {};
+        const apiUpdates: { [key: string]: any } = {};
         if (updates.email_notifications !== undefined || updates.sms_notifications !== undefined) {
           apiUpdates.notifications = {
             email: updates.email_notifications ?? emailNotifications,
-            sms: updates.sms_notifications ?? smsNotifications
+            sms: updates.sms_notifications ?? smsNotifications,
           };
         }
         await userPreferencesService.updateUserPreferences(token, apiUpdates);

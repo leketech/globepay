@@ -43,8 +43,8 @@ export const userPreferencesService = {
     preferences: Partial<UserPreferences>
   ): Promise<UserPreferences> {
     // Map our preferences to the API's expected format
-    const apiPreferences: any = {};
-    
+    const apiPreferences: { [key: string]: any } = {};
+
     // Map boolean fields directly
     if (preferences.email_notifications !== undefined) {
       apiPreferences.email_notifications = preferences.email_notifications;
