@@ -19,14 +19,7 @@ func NewTestRedis() *TestRedis {
 	host := getEnv("TEST_REDIS_HOST", "localhost")
 	port := getEnv("TEST_REDIS_PORT", "6379")
 	password := getEnv("TEST_REDIS_PASSWORD", "")
-	db := getEnv("TEST_REDIS_DB", "0")
-
-	// Parse database number
-	// dbNum, err := strconv.Atoi(db)
-	// if err != nil {
-	// 	log.Printf("Failed to parse Redis database number: %v", err)
-	// 	return nil
-	// }
+	// db := getEnv("TEST_REDIS_DB", "0")  // Comment out unused variable
 
 	// Create Redis client
 	client := redis.NewClient(&redis.Options{
