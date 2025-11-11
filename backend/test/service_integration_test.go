@@ -1,9 +1,9 @@
 package test
 
 import (
-	"testing"
 	"globepay/internal/domain"
 	"globepay/internal/service"
+	"testing"
 )
 
 func TestExchangeRateService(t *testing.T) {

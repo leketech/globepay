@@ -5,19 +5,19 @@ import (
 	"time"
 
 	"globepay/internal/domain"
-	"globepay/internal/repository"
 	"globepay/internal/domain/model"
+	"globepay/internal/repository"
 )
 
 // UserServiceInterface defines the interface for user service
 type UserServiceInterface interface {
-	GetProfile(userID string) (*model.User, error) // Changed from int64 to string
-	UpdateProfile(userID string, user *model.User) error // Changed from int64 to string
-	GetVerificationStatus(userID string) (*UserVerification, error) // Changed from int64 to string
+	GetProfile(userID string) (*model.User, error)                          // Changed from int64 to string
+	UpdateProfile(userID string, user *model.User) error                    // Changed from int64 to string
+	GetVerificationStatus(userID string) (*UserVerification, error)         // Changed from int64 to string
 	SubmitVerification(userID string, verification *UserVerification) error // Changed from int64 to string
-	GetAccounts(userID string) ([]model.Account, error) // Changed from int64 to string
-	CreateAccount(userID string, account *model.Account) error // Changed from int64 to string
-	GetUserByID(id string) (*model.User, error) // Changed from int64 to string
+	GetAccounts(userID string) ([]model.Account, error)                     // Changed from int64 to string
+	CreateAccount(userID string, account *model.Account) error              // Changed from int64 to string
+	GetUserByID(id string) (*model.User, error)                             // Changed from int64 to string
 }
 
 // UserVerification represents user verification status
@@ -118,7 +118,7 @@ func (s *UserService) GetAccounts(userID string) ([]model.Account, error) { // C
 	if err != nil {
 		return nil, fmt.Errorf("failed to get accounts: %w", err)
 	}
-	
+
 	// Convert []*model.Account to []model.Account
 	accounts := make([]model.Account, len(accountPtrs))
 	for i, accountPtr := range accountPtrs {

@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"globepay/internal/domain"
-	"globepay/internal/repository"
 	"globepay/internal/domain/model"
+	"globepay/internal/repository"
 )
 
 // TransactionServiceInterface defines the interface for transaction service
 type TransactionServiceInterface interface {
-	GetTransactions(userID string) ([]model.Transaction, error) // Changed from int64 to string
+	GetTransactions(userID string) ([]model.Transaction, error)          // Changed from int64 to string
 	GetTransactionByID(transactionID string) (*model.Transaction, error) // Changed from int64 to string
 	CreateTransaction(transaction *model.Transaction) error
 	GetTransactionHistory(userID string, limit, offset int) ([]model.Transaction, error) // Changed from int64 to string
@@ -40,7 +40,7 @@ func (s *TransactionService) GetTransactions(userID string) ([]model.Transaction
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transactions: %w", err)
 	}
-	
+
 	// Convert []*model.Transaction to []model.Transaction
 	result := make([]model.Transaction, len(transactions))
 	for i, t := range transactions {

@@ -73,7 +73,7 @@ func (s *AuthService) Login(email, password string) (string, error) {
 // Register creates a new user
 func (s *AuthService) Register(user *domain.User) error {
 	fmt.Printf("Registering user: %+v\n", user)
-	
+
 	// Check if user already exists
 	existingUser, err := s.userRepo.GetByEmail(user.Email)
 	if err == nil && existingUser != nil {
@@ -107,7 +107,7 @@ func (s *AuthService) Register(user *domain.User) error {
 	modelUser.AccountStatus = "active"
 
 	fmt.Printf("Creating user in database: %+v\n", modelUser)
-	
+
 	// Create user
 	if err := s.userRepo.Create(modelUser); err != nil {
 		fmt.Printf("Failed to create user in database: %v\n", err)

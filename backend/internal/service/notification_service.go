@@ -15,8 +15,8 @@ type NotificationServiceInterface interface {
 	SendTransferNotification(transfer *domain.Transfer) error
 	SendTransactionNotification(transaction *domain.Transaction) error
 	SendVerificationNotification(userID string, verificationType string) error // Changed from int64 to string
-	SendWelcomeNotification(userID string, email string) error // Changed from int64 to string
-	SendSecurityAlert(userID string, alertType, details string) error // Changed from int64 to string
+	SendWelcomeNotification(userID string, email string) error                 // Changed from int64 to string
+	SendSecurityAlert(userID string, alertType, details string) error          // Changed from int64 to string
 }
 
 // NotificationService implements NotificationServiceInterface
@@ -115,9 +115,9 @@ func (s *NotificationService) SendTransferNotification(transfer *domain.Transfer
 	log.Printf("Sending transfer notification for transfer ID %d", transfer.ID)
 
 	// Example implementation:
-	// message := fmt.Sprintf("Your transfer of %.2f %s has been %s", 
+	// message := fmt.Sprintf("Your transfer of %.2f %s has been %s",
 	//     transfer.Amount, transfer.Currency, transfer.Status)
-	// 
+	//
 	// // Send to sender
 	// if err := s.SendEmail(sender.Email, "Transfer Update", message); err != nil {
 	//     return fmt.Errorf("failed to send email to sender: %w", err)
@@ -138,9 +138,9 @@ func (s *NotificationService) SendTransactionNotification(transaction *domain.Tr
 	log.Printf("Sending transaction notification for transaction ID %s", transaction.ID)
 
 	// Example implementation:
-	// message := fmt.Sprintf("Your transaction of %.2f %s has been %s", 
+	// message := fmt.Sprintf("Your transaction of %.2f %s has been %s",
 	//     transaction.Amount, transaction.Currency, transaction.Status)
-	// 
+	//
 	// if err := s.SendEmail(user.Email, "Transaction Update", message); err != nil {
 	//     return fmt.Errorf("failed to send email: %w", err)
 	// }
@@ -219,7 +219,7 @@ func (s *NotificationService) SendSecurityAlert(userID string, alertType, detail
 
 	// Example implementation:
 	// message := fmt.Sprintf("Security Alert: %s\n\nDetails: %s\n\nIf this wasn't you, please contact support immediately.", alertType, details)
-	// 
+	//
 	// if err := s.SendEmail(user.Email, "Security Alert", message); err != nil {
 	//     return fmt.Errorf("failed to send security alert: %w", err)
 	// }

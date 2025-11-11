@@ -33,7 +33,7 @@ func TestAuthService_Register(t *testing.T) {
 
 	// Set up mock expectations
 	mockUserRepo.On("GetByEmail", "test@example.com").Return(nil, domain.ErrUserNotFound)
-	
+
 	// Update mock expectation to match the actual method signature
 	mockUserRepo.On("Create", mock.AnythingOfType("*model.User")).Return(nil)
 
@@ -70,7 +70,7 @@ func TestAuthService_Login(t *testing.T) {
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}
-	
+
 	// Set password using the model's SetPassword method
 	modelUser.SetPassword(password)
 

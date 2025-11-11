@@ -11,10 +11,10 @@ import (
 func LoggingMiddleware(logger *logrus.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
-		
+
 		// Process request
 		c.Next()
-		
+
 		// Log request details
 		logger.WithFields(logrus.Fields{
 			"method":     c.Request.Method,

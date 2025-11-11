@@ -1,8 +1,8 @@
 package unit
 
 import (
-	"testing"
 	"globepay/internal/domain"
+	"testing"
 )
 
 func TestUserCreation(t *testing.T) {

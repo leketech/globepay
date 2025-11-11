@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"time"
 	"globepay/internal/domain/model"
+	"time"
 )
 
 // UserPreferencesRepo implements UserPreferencesRepository

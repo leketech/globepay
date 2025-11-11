@@ -30,14 +30,14 @@ func (r *AuditRepo) Create(ctx context.Context, auditLog *model.AuditLog) error 
 	// Convert maps to JSON
 	var oldValuesJSON, newValuesJSON []byte
 	var err error
-	
+
 	if auditLog.OldValues != nil {
 		oldValuesJSON, err = json.Marshal(auditLog.OldValues)
 		if err != nil {
 			return err
 		}
 	}
-	
+
 	if auditLog.NewValues != nil {
 		newValuesJSON, err = json.Marshal(auditLog.NewValues)
 		if err != nil {
@@ -70,29 +70,29 @@ func (r *AuditRepo) GetByUser(ctx context.Context, userID string, limit, offset 
 			OldValues: make(map[string]interface{}),
 			NewValues: make(map[string]interface{}),
 		}
-		
+
 		var oldValuesJSON, newValuesJSON []byte
-		
+
 		err := rows.Scan(
 			&auditLog.ID, &auditLog.UserID, &auditLog.Action, &auditLog.TableName, &auditLog.RecordID, &oldValuesJSON, &newValuesJSON, &auditLog.IPAddress, &auditLog.UserAgent, &auditLog.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		// Convert JSON to maps
 		if len(oldValuesJSON) > 0 {
 			if err := json.Unmarshal(oldValuesJSON, &auditLog.OldValues); err != nil {
 				log.Printf("Failed to unmarshal old values: %v", err)
 			}
 		}
-		
+
 		if len(newValuesJSON) > 0 {
 			if err := json.Unmarshal(newValuesJSON, &auditLog.NewValues); err != nil {
 				log.Printf("Failed to unmarshal new values: %v", err)
 			}
 		}
-		
+
 		auditLogs = append(auditLogs, auditLog)
 	}
 
@@ -125,29 +125,29 @@ func (r *AuditRepo) GetByAction(ctx context.Context, action string, limit, offse
 			OldValues: make(map[string]interface{}),
 			NewValues: make(map[string]interface{}),
 		}
-		
+
 		var oldValuesJSON, newValuesJSON []byte
-		
+
 		err := rows.Scan(
 			&auditLog.ID, &auditLog.UserID, &auditLog.Action, &auditLog.TableName, &auditLog.RecordID, &oldValuesJSON, &newValuesJSON, &auditLog.IPAddress, &auditLog.UserAgent, &auditLog.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		// Convert JSON to maps
 		if len(oldValuesJSON) > 0 {
 			if err := json.Unmarshal(oldValuesJSON, &auditLog.OldValues); err != nil {
 				log.Printf("Failed to unmarshal old values: %v", err)
 			}
 		}
-		
+
 		if len(newValuesJSON) > 0 {
 			if err := json.Unmarshal(newValuesJSON, &auditLog.NewValues); err != nil {
 				log.Printf("Failed to unmarshal new values: %v", err)
 			}
 		}
-		
+
 		auditLogs = append(auditLogs, auditLog)
 	}
 
@@ -180,23 +180,23 @@ func (r *AuditRepo) GetByTable(ctx context.Context, tableName string, limit, off
 			OldValues: make(map[string]interface{}),
 			NewValues: make(map[string]interface{}),
 		}
-		
+
 		var oldValuesJSON, newValuesJSON []byte
-		
+
 		err := rows.Scan(
 			&auditLog.ID, &auditLog.UserID, &auditLog.Action, &auditLog.TableName, &auditLog.RecordID, &oldValuesJSON, &newValuesJSON, &auditLog.IPAddress, &auditLog.UserAgent, &auditLog.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		// Convert JSON to maps
 		if len(oldValuesJSON) > 0 {
 			if err := json.Unmarshal(oldValuesJSON, &auditLog.OldValues); err != nil {
 				log.Printf("Failed to unmarshal old values: %v", err)
 			}
 		}
-		
+
 		if len(newValuesJSON) > 0 {
 			if err := json.Unmarshal(newValuesJSON, &auditLog.NewValues); err != nil {
 				log.Printf("Failed to unmarshal new values: %v", err)

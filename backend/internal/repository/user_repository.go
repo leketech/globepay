@@ -76,7 +76,7 @@ func (r *UserRepo) GetByID(id string) (*model.User, error) {
 	user := &model.User{}
 	var dateOfBirth *time.Time
 	var countryCode *string
-	
+
 	err := r.db.QueryRowContext(context.Background(), query, id).Scan(
 		&user.ID, &user.Email, &user.PasswordHash, &user.FirstName, &user.LastName,
 		&user.PhoneNumber, &dateOfBirth, &countryCode, &user.KYCStatus, &user.AccountStatus, &user.CreatedAt, &user.UpdatedAt,
@@ -99,7 +99,7 @@ func (r *UserRepo) GetByID(id string) (*model.User, error) {
 	if dateOfBirth != nil {
 		user.DateOfBirth = *dateOfBirth
 	}
-	
+
 	if countryCode != nil {
 		user.Country = *countryCode
 	}
@@ -118,7 +118,7 @@ func (r *UserRepo) GetByEmail(email string) (*model.User, error) {
 	user := &model.User{}
 	var dateOfBirth *time.Time
 	var countryCode *string
-	
+
 	err := r.db.QueryRowContext(context.Background(), query, email).Scan(
 		&user.ID, &user.Email, &user.PasswordHash, &user.FirstName, &user.LastName,
 		&user.PhoneNumber, &dateOfBirth, &countryCode, &user.KYCStatus, &user.AccountStatus, &user.CreatedAt, &user.UpdatedAt,
@@ -141,7 +141,7 @@ func (r *UserRepo) GetByEmail(email string) (*model.User, error) {
 	if dateOfBirth != nil {
 		user.DateOfBirth = *dateOfBirth
 	}
-	
+
 	if countryCode != nil {
 		user.Country = *countryCode
 	}
@@ -158,7 +158,7 @@ func (r *UserRepo) Update(user *model.User) error {
 	`
 
 	user.UpdatedAt = time.Now().UTC()
-	
+
 	// Handle nullable fields
 	var dateOfBirth *time.Time
 	if !user.DateOfBirth.IsZero() {
@@ -227,7 +227,7 @@ func (r *UserRepo) GetAll() ([]model.User, error) {
 		var user model.User
 		var dateOfBirth *time.Time
 		var countryCode *string
-		
+
 		err := rows.Scan(
 			&user.ID, &user.Email, &user.PasswordHash, &user.FirstName, &user.LastName,
 			&user.PhoneNumber, &dateOfBirth, &countryCode, &user.KYCStatus, &user.AccountStatus, &user.CreatedAt, &user.UpdatedAt,
@@ -235,16 +235,16 @@ func (r *UserRepo) GetAll() ([]model.User, error) {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		// Handle nullable fields
 		if dateOfBirth != nil {
 			user.DateOfBirth = *dateOfBirth
 		}
-		
+
 		if countryCode != nil {
 			user.Country = *countryCode
 		}
-		
+
 		users = append(users, user)
 	}
 

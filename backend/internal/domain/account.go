@@ -38,11 +38,11 @@ const (
 
 // AccountBalanceHistory represents the history of account balance changes
 type AccountBalanceHistory struct {
-	ID        int64     `json:"id" db:"id"`
-	AccountID int64     `json:"account_id" db:"account_id"`
-	OldBalance float64  `json:"old_balance" db:"old_balance"`
-	NewBalance float64  `json:"new_balance" db:"new_balance"`
-	ChangeAmount float64 `json:"change_amount" db:"change_amount"`
-	Reason    string    `json:"reason" db:"reason"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	ID           int64     `json:"id" db:"id"`
+	AccountID    int64     `json:"account_id" db:"account_id"`
+	OldBalance   float64   `json:"old_balance" db:"old_balance"`
+	NewBalance   float64   `json:"new_balance" db:"new_balance"`
+	ChangeAmount float64   `json:"change_amount" db:"change_amount"`
+	Reason       string    `json:"reason" db:"reason"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
 }

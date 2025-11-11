@@ -68,7 +68,7 @@ func main() {
 func runMigrationsUp(db *sql.DB) error {
 	// In a real implementation, you would use a migration library like migrate
 	// For this example, we'll just run a simple migration
-	
+
 	// Create users table
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (

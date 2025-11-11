@@ -8,13 +8,13 @@ import (
 )
 
 type Config struct {
-	Environment string         `mapstructure:"environment"`
-	ServiceName string         `mapstructure:"service_name"`
-	Server      ServerConfig   `mapstructure:"server"`
-	Database    DatabaseConfig `mapstructure:"database"`
-	Redis       RedisConfig    `mapstructure:"redis"`
-	JWT         JWTConfig      `mapstructure:"jwt"`
-	AWS         AWSConfig      `mapstructure:"aws"`
+	Environment   string              `mapstructure:"environment"`
+	ServiceName   string              `mapstructure:"service_name"`
+	Server        ServerConfig        `mapstructure:"server"`
+	Database      DatabaseConfig      `mapstructure:"database"`
+	Redis         RedisConfig         `mapstructure:"redis"`
+	JWT           JWTConfig           `mapstructure:"jwt"`
+	AWS           AWSConfig           `mapstructure:"aws"`
 	Observability ObservabilityConfig `mapstructure:"observability"`
 }
 
@@ -26,16 +26,16 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	Host            string `mapstructure:"host"`
-	Port            int    `mapstructure:"port"`
-	User            string `mapstructure:"user"`
-	Password        string `mapstructure:"password"`
-	DBName          string `mapstructure:"db_name"`
-	SSLMode         string `mapstructure:"ssl_mode"`
-	MaxOpenConns    int    `mapstructure:"max_open_conns"`
-	MaxIdleConns    int    `mapstructure:"max_idle_conns"`
+	Host            string        `mapstructure:"host"`
+	Port            int           `mapstructure:"port"`
+	User            string        `mapstructure:"user"`
+	Password        string        `mapstructure:"password"`
+	DBName          string        `mapstructure:"db_name"`
+	SSLMode         string        `mapstructure:"ssl_mode"`
+	MaxOpenConns    int           `mapstructure:"max_open_conns"`
+	MaxIdleConns    int           `mapstructure:"max_idle_conns"`
 	ConnMaxLifetime time.Duration `mapstructure:"conn_max_lifetime"`
-	MigrationsPath  string `mapstructure:"migrations_path"`
+	MigrationsPath  string        `mapstructure:"migrations_path"`
 }
 
 type RedisConfig struct {
@@ -51,17 +51,17 @@ type JWTConfig struct {
 }
 
 type AWSConfig struct {
-	Region          string `mapstructure:"region"`
-	S3Bucket        string `mapstructure:"s3_bucket"`
-	SQSQueueURL     string `mapstructure:"sqs_queue_url"`
-	SESFromEmail    string `mapstructure:"ses_from_email"`
+	Region       string `mapstructure:"region"`
+	S3Bucket     string `mapstructure:"s3_bucket"`
+	SQSQueueURL  string `mapstructure:"sqs_queue_url"`
+	SESFromEmail string `mapstructure:"ses_from_email"`
 }
 
 type ObservabilityConfig struct {
-	PrometheusPort    int    `mapstructure:"prometheus_port"`
-	JaegerEndpoint    string `mapstructure:"jaeger_endpoint"`
-	LogLevel          string `mapstructure:"log_level"`
-	EnableTracing     bool   `mapstructure:"enable_tracing"`
+	PrometheusPort int    `mapstructure:"prometheus_port"`
+	JaegerEndpoint string `mapstructure:"jaeger_endpoint"`
+	LogLevel       string `mapstructure:"log_level"`
+	EnableTracing  bool   `mapstructure:"enable_tracing"`
 }
 
 func LoadConfig() (*Config, error) {

@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"globepay/internal/domain"
-	"globepay/internal/repository"
 	"globepay/internal/domain/model"
+	"globepay/internal/repository"
 )
 
 // TransferServiceInterface defines the interface for transfer service
 type TransferServiceInterface interface {
-	GetTransfers(userID string) ([]model.Transfer, error) // Changed from int64 to string
+	GetTransfers(userID string) ([]model.Transfer, error)       // Changed from int64 to string
 	GetTransferByID(transferID string) (*model.Transfer, error) // Changed from int64 to string
 	CreateTransfer(transfer *model.Transfer) error
 	GetExchangeRates() ([]domain.ExchangeRate, error)
@@ -43,7 +43,7 @@ func (s *TransferService) GetTransfers(userID string) ([]model.Transfer, error) 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transfers: %w", err)
 	}
-	
+
 	// Convert []*model.Transfer to []model.Transfer
 	result := make([]model.Transfer, len(transfers))
 	for i, t := range transfers {

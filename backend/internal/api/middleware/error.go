@@ -20,10 +20,10 @@ func ErrorHandler(logger *logrus.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Set request time for error responses
 		c.Set("request_time", time.Now())
-		
+
 		// Process request
 		c.Next()
-		
+
 		// Handle any errors that occurred
 		if len(c.Errors) > 0 {
 			// Log the error
@@ -33,7 +33,7 @@ func ErrorHandler(logger *logrus.Logger) gin.HandlerFunc {
 					"meta":  err.Meta,
 				}).Error("Request error")
 			}
-			
+
 			// Return the last error
 			lastError := c.Errors.Last()
 			c.JSON(http.StatusInternalServerError, Error{

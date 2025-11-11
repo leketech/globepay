@@ -91,10 +91,10 @@ func (s *SESClient) Close() error {
 // SendTemplatedEmail sends an email using a template
 func (s *SESClient) SendTemplatedEmail(ctx context.Context, from string, to []string, templateName string, templateData string) (string, error) {
 	input := &ses.SendTemplatedEmailInput{
-		Source:               aws.String(from),
-		Destination:          &types.Destination{ToAddresses: to},
-		Template:             aws.String(templateName),
-		TemplateData:         aws.String(templateData),
+		Source:       aws.String(from),
+		Destination:  &types.Destination{ToAddresses: to},
+		Template:     aws.String(templateName),
+		TemplateData: aws.String(templateData),
 	}
 
 	result, err := s.client.SendTemplatedEmail(ctx, input)

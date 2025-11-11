@@ -20,67 +20,67 @@ type KYCServiceInterface interface {
 
 // KYCApplication represents a KYC application
 type KYCApplication struct {
-	UserID        int64     `json:"user_id"`
-	Level         int       `json:"level"`
-	Status        string    `json:"status"`
-	SubmittedAt   time.Time `json:"submitted_at"`
-	ReviewedAt    time.Time `json:"reviewed_at"`
-	ReviewerID    *int64    `json:"reviewer_id"`
-	ReviewNotes   string    `json:"review_notes"`
-	IdentityDoc   *IdentityDocument `json:"identity_doc"`
-	AddressDoc    *AddressDocument  `json:"address_doc"`
-	IncomeDoc     *IncomeDocument   `json:"income_doc"`
+	UserID      int64             `json:"user_id"`
+	Level       int               `json:"level"`
+	Status      string            `json:"status"`
+	SubmittedAt time.Time         `json:"submitted_at"`
+	ReviewedAt  time.Time         `json:"reviewed_at"`
+	ReviewerID  *int64            `json:"reviewer_id"`
+	ReviewNotes string            `json:"review_notes"`
+	IdentityDoc *IdentityDocument `json:"identity_doc"`
+	AddressDoc  *AddressDocument  `json:"address_doc"`
+	IncomeDoc   *IncomeDocument   `json:"income_doc"`
 }
 
 // KYCStatus represents the KYC status of a user
 type KYCStatus struct {
-	UserID      int64  `json:"user_id"`
-	Level       int    `json:"level"`
-	Status      string `json:"status"`
+	UserID      int64     `json:"user_id"`
+	Level       int       `json:"level"`
+	Status      string    `json:"status"`
 	LastChecked time.Time `json:"last_checked"`
 }
 
 // IdentityDocument represents an identity document
 type IdentityDocument struct {
-	ID           int64  `json:"id"`
-	UserID       int64  `json:"user_id"`
-	DocumentType string `json:"document_type"` // passport, driver_license, id_card
-	DocumentNumber string `json:"document_number"`
-	IssueDate    time.Time `json:"issue_date"`
-	ExpiryDate   time.Time `json:"expiry_date"`
-	FrontImageURL string `json:"front_image_url"`
-	BackImageURL  string `json:"back_image_url"`
-	SelfieImageURL string `json:"selfie_image_url"`
-	Verified     bool   `json:"verified"`
-	VerifiedAt   time.Time `json:"verified_at"`
-	VerifiedBy   *int64 `json:"verified_by"`
+	ID             int64     `json:"id"`
+	UserID         int64     `json:"user_id"`
+	DocumentType   string    `json:"document_type"` // passport, driver_license, id_card
+	DocumentNumber string    `json:"document_number"`
+	IssueDate      time.Time `json:"issue_date"`
+	ExpiryDate     time.Time `json:"expiry_date"`
+	FrontImageURL  string    `json:"front_image_url"`
+	BackImageURL   string    `json:"back_image_url"`
+	SelfieImageURL string    `json:"selfie_image_url"`
+	Verified       bool      `json:"verified"`
+	VerifiedAt     time.Time `json:"verified_at"`
+	VerifiedBy     *int64    `json:"verified_by"`
 }
 
 // AddressDocument represents an address document
 type AddressDocument struct {
-	ID           int64  `json:"id"`
-	UserID       int64  `json:"user_id"`
-	DocumentType string `json:"document_type"` // utility_bill, bank_statement, lease_agreement
+	ID           int64     `json:"id"`
+	UserID       int64     `json:"user_id"`
+	DocumentType string    `json:"document_type"` // utility_bill, bank_statement, lease_agreement
 	DocumentDate time.Time `json:"document_date"`
-	Address      string `json:"address"`
-	ImageURL     string `json:"image_url"`
-	Verified     bool   `json:"verified"`
+	Address      string    `json:"address"`
+	ImageURL     string    `json:"image_url"`
+	Verified     bool      `json:"verified"`
 	VerifiedAt   time.Time `json:"verified_at"`
-	VerifiedBy   *int64 `json:"verified_by"`
+	VerifiedBy   *int64    `json:"verified_by"`
 }
 
 // IncomeDocument represents an income document
 type IncomeDocument struct {
-	ID           int64  `json:"id"`
-	UserID       int64  `json:"user_id"`
-	DocumentType string `json:"document_type"` // payslip, tax_return, bank_statement
+	ID           int64     `json:"id"`
+	UserID       int64     `json:"user_id"`
+	DocumentType string    `json:"document_type"` // payslip, tax_return, bank_statement
 	DocumentDate time.Time `json:"document_date"`
-	IncomeAmount float64 `json:"income_amount"`
-	Currency     string `json:"currency"`
-	ImageURL     string `json:"image_url"`
-	Verified     bool   `json:"verified"`
+	IncomeAmount float64   `json:"income_amount"`
+	Currency     string    `json:"currency"`
+	ImageURL     string    `json:"image_url"`
+	Verified     bool      `json:"verified"`
 	VerifiedAt   time.Time `json:"verified_at"`
-	VerifiedBy   *int64 `json:"verified_by"`
+	VerifiedBy   *int64    `json:"verified_by"`
 }
 
 // KYCService implements KYCServiceInterface

@@ -56,14 +56,14 @@ func UpdateUserPreferences(c *gin.Context, serviceFactory *service.ServiceFactor
 	}
 
 	userService := serviceFactory.GetUserService()
-	
+
 	// Get existing preferences or create new ones
 	preferences, err := userService.GetUserPreferences(c.Request.Context(), userID.(string))
 	if err != nil {
 		// Create new preferences if they don't exist
 		preferences = model.NewUserPreferences(userID.(string))
 	}
-	
+
 	// Update preferences with request data
 	preferences.EmailNotifications = req.EmailNotifications
 	preferences.PushNotifications = req.PushNotifications

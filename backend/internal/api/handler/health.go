@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"globepay/internal/domain/service"
 	"github.com/gin-gonic/gin"
+	"globepay/internal/domain/service"
 )
 
 // HealthHandler handles health check requests
@@ -33,17 +33,17 @@ func (h *HealthHandler) ReadyCheck(c *gin.Context) {
 	// Check if all dependencies are ready
 	dbStatus := "unknown"
 	redisStatus := "unknown"
-	
+
 	if h.healthService != nil {
 		dbOk := h.healthService.CheckDatabaseSimple()
 		redisOk := h.healthService.CheckRedisSimple()
-		
+
 		if dbOk {
 			dbStatus = "ok"
 		} else {
 			dbStatus = "error"
 		}
-		
+
 		if redisOk {
 			redisStatus = "ok"
 		} else {

@@ -37,7 +37,7 @@ func NewUser(email, password, firstName, lastName string) *User {
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}
-	
+
 	// Hash the password
 	if password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -45,7 +45,7 @@ func NewUser(email, password, firstName, lastName string) *User {
 			user.PasswordHash = string(hashedPassword)
 		}
 	}
-	
+
 	return user
 }
 

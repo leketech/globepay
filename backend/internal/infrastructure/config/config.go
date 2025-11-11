@@ -10,27 +10,27 @@ import (
 
 // Config holds application configuration
 type Config struct {
-	Environment     string
-	ServerPort      string
-	JWTSecret       string
-	JWTExpiration   time.Duration
-	DatabaseURL     string
-	RedisURL        string
-	AWSRegion       string
-	LogLevel        logrus.Level
-	Debug           bool
+	Environment   string
+	ServerPort    string
+	JWTSecret     string
+	JWTExpiration time.Duration
+	DatabaseURL   string
+	RedisURL      string
+	AWSRegion     string
+	LogLevel      logrus.Level
+	Debug         bool
 }
 
 // LoadConfig loads configuration from environment variables
 func LoadConfig() (*Config, error) {
 	config := &Config{
-		Environment:     getEnv("ENVIRONMENT", "development"),
-		ServerPort:      getEnv("SERVER_PORT", "8080"),
-		JWTSecret:       getEnv("JWT_SECRET", "secret"),
-		DatabaseURL:     getEnv("DATABASE_URL", ""),
-		RedisURL:        getEnv("REDIS_URL", ""),
-		AWSRegion:       getEnv("AWS_REGION", "us-east-1"),
-		Debug:           getEnvAsBool("DEBUG", false),
+		Environment: getEnv("ENVIRONMENT", "development"),
+		ServerPort:  getEnv("SERVER_PORT", "8080"),
+		JWTSecret:   getEnv("JWT_SECRET", "secret"),
+		DatabaseURL: getEnv("DATABASE_URL", ""),
+		RedisURL:    getEnv("REDIS_URL", ""),
+		AWSRegion:   getEnv("AWS_REGION", "us-east-1"),
+		Debug:       getEnvAsBool("DEBUG", false),
 	}
 
 	// Parse JWT expiration

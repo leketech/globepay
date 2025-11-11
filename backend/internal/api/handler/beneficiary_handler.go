@@ -69,7 +69,7 @@ func CreateBeneficiary(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	}
 
 	beneficiaryService := serviceFactory.GetBeneficiaryService()
-	
+
 	// Create beneficiary model
 	beneficiary := &model.Beneficiary{
 		UserID:      userID.(string),
@@ -123,7 +123,7 @@ func UpdateBeneficiary(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	}
 
 	beneficiaryService := serviceFactory.GetBeneficiaryService()
-	
+
 	// Get existing beneficiary
 	beneficiary, err := beneficiaryService.GetBeneficiaryByID(c.Request.Context(), beneficiaryID)
 	if err != nil {
@@ -188,7 +188,7 @@ func DeleteBeneficiary(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	}
 
 	beneficiaryService := serviceFactory.GetBeneficiaryService()
-	
+
 	// Get existing beneficiary
 	beneficiary, err := beneficiaryService.GetBeneficiaryByID(c.Request.Context(), beneficiaryID)
 	if err != nil {

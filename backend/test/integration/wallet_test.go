@@ -62,11 +62,11 @@ func TestWalletAddMoney(t *testing.T) {
 
 	// Prepare request body
 	requestBody := map[string]interface{}{
-		"amount":        100.0,
+		"amount":         100.0,
 		"payment_method": "card",
-		"card_number":   "4111111111111111",
-		"expiry_date":   "12/25",
-		"cvv":          "123",
+		"card_number":    "4111111111111111",
+		"expiry_date":    "12/25",
+		"cvv":            "123",
 	}
 
 	// Convert to JSON
@@ -135,7 +135,7 @@ func TestWalletRequestMoney(t *testing.T) {
 	_ = requester
 	recipient := createTestUser(t, serviceFactory)
 	_ = recipient
-	
+
 	// Prepare request body for user request
 	requestBody := map[string]interface{}{
 		"amount":       50.0,

@@ -22,7 +22,7 @@ func GetTransactions(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	// Get pagination parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	
+
 	// Ensure reasonable limits
 	if limit > 100 {
 		limit = 100
@@ -30,7 +30,7 @@ func GetTransactions(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	if page < 1 {
 		page = 1
 	}
-	
+
 	offset := (page - 1) * limit
 
 	transactionService := serviceFactory.GetTransactionService()

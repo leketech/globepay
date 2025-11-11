@@ -14,11 +14,11 @@ func TestExchangeRateService_GetExchangeRate(t *testing.T) {
 
 	// Test cases
 	tests := []struct {
-		name          string
-		fromCurrency  string
-		toCurrency    string
-		expectedRate  float64
-		expectError   bool
+		name         string
+		fromCurrency string
+		toCurrency   string
+		expectedRate float64
+		expectError  bool
 	}{
 		{
 			name:         "USD to EUR",
@@ -70,36 +70,36 @@ func TestExchangeRateService_ConvertAmount(t *testing.T) {
 
 	// Test cases
 	tests := []struct {
-		name          string
-		amount        float64
-		fromCurrency  string
-		toCurrency    string
+		name           string
+		amount         float64
+		fromCurrency   string
+		toCurrency     string
 		expectedAmount float64
-		expectError   bool
+		expectError    bool
 	}{
 		{
-			name:          "USD to EUR conversion",
-			amount:        100.0,
-			fromCurrency:  "USD",
-			toCurrency:    "EUR",
+			name:           "USD to EUR conversion",
+			amount:         100.0,
+			fromCurrency:   "USD",
+			toCurrency:     "EUR",
 			expectedAmount: 85.0, // 100 * 0.85
-			expectError:   false,
+			expectError:    false,
 		},
 		{
-			name:          "Same currency conversion",
-			amount:        100.0,
-			fromCurrency:  "USD",
-			toCurrency:    "USD",
+			name:           "Same currency conversion",
+			amount:         100.0,
+			fromCurrency:   "USD",
+			toCurrency:     "USD",
 			expectedAmount: 100.0, // Same currency
-			expectError:   false,
+			expectError:    false,
 		},
 		{
-			name:          "Unsupported conversion",
-			amount:        100.0,
-			fromCurrency:  "USD",
-			toCurrency:    "XYZ",
+			name:           "Unsupported conversion",
+			amount:         100.0,
+			fromCurrency:   "USD",
+			toCurrency:     "XYZ",
 			expectedAmount: 0,
-			expectError:   true,
+			expectError:    true,
 		},
 	}
 

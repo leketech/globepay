@@ -58,7 +58,7 @@ func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	if err != nil {
 		// Log the error for debugging
 		fmt.Printf("Login error for user %s: %v\n", req.Email, err)
-		
+
 		// Check if it's an authentication error
 		if _, ok := err.(*service.AuthenticationError); ok {
 			utils.Unauthorized(c, "INVALID_CREDENTIALS", "Invalid email or password")
@@ -89,13 +89,13 @@ func Register(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	}
 
 	authService := serviceFactory.GetAuthService()
-	
+
 	// Pass all user data to the service, not just basic fields
 	resp, err := authService.Register(c.Request.Context(), req.Email, req.Password, req.FirstName, req.LastName, req.PhoneNumber, req.DateOfBirth, req.Country)
 	if err != nil {
 		// Log the error for debugging
 		fmt.Printf("Registration error for user %s: %v\n", req.Email, err)
-		
+
 		// Check if it's a conflict error (user already exists)
 		if _, ok := err.(*service.ConflictError); ok {
 			utils.BadRequest(c, "USER_EXISTS", "User with this email already exists")
@@ -134,7 +134,7 @@ func RefreshToken(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	if err != nil {
 		// Log the error for debugging
 		fmt.Printf("Refresh token error: %v\n", err)
-		
+
 		// Check if it's an authentication error
 		if _, ok := err.(*service.AuthenticationError); ok {
 			utils.Unauthorized(c, "INVALID_TOKEN", "Invalid refresh token")

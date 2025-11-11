@@ -12,13 +12,13 @@ import (
 // AuthMiddleware handles JWT authentication
 func AuthMiddleware(secret string) gin.HandlerFunc {
 	fmt.Printf("AuthMiddleware created with secret: %s\n", secret)
-	
+
 	return func(c *gin.Context) {
 		fmt.Printf("AuthMiddleware called with secret: %s\n", secret)
-		
+
 		authHeader := c.GetHeader("Authorization")
 		fmt.Printf("Authorization header: %s\n", authHeader)
-		
+
 		if authHeader == "" {
 			fmt.Println("Authorization header is missing")
 			c.JSON(http.StatusUnauthorized, gin.H{

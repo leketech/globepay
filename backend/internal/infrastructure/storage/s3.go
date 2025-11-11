@@ -228,7 +228,7 @@ func (s *S3Client) GetObjectMetadata(ctx context.Context, bucketName, key string
 // CopyObject copies an object from one location to another in S3
 func (s *S3Client) CopyObject(ctx context.Context, sourceBucket, sourceKey, destBucket, destKey string) error {
 	copySource := fmt.Sprintf("%s/%s", sourceBucket, sourceKey)
-	
+
 	// Ensure the source key is properly URL encoded
 	if strings.Contains(sourceKey, " ") || strings.Contains(sourceKey, "+") {
 		copySource = fmt.Sprintf("%s/%s", sourceBucket, strings.ReplaceAll(sourceKey, " ", "%20"))

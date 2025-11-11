@@ -19,7 +19,7 @@ type RedisTestSuite struct {
 func (suite *RedisTestSuite) SetupSuite() {
 	// Initialize test Redis
 	suite.redisClient = utils.NewTestRedis()
-	
+
 	// Skip if no Redis connection
 	if suite.redisClient == nil {
 		suite.T().Skip("Skipping Redis tests - no test Redis instance configured")

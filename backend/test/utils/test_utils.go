@@ -20,7 +20,7 @@ func LoadUsersFixture() ([]domain.User, error) {
 
 	// Construct the path to the fixtures file
 	fixturePath := filepath.Join(wd, "fixtures", "users.json")
-	
+
 	// Validate that the path is within the expected directory
 	expectedDir := filepath.Join(wd, "fixtures")
 	if !strings.HasPrefix(fixturePath, expectedDir) {
@@ -59,7 +59,7 @@ func LoadAccountsFixture() ([]domain.Account, error) {
 
 	// Construct the path to the fixtures file
 	fixturePath := filepath.Join(wd, "fixtures", "accounts.json")
-	
+
 	// Validate that the path is within the expected directory
 	expectedDir := filepath.Join(wd, "fixtures")
 	if !strings.HasPrefix(fixturePath, expectedDir) {
@@ -98,7 +98,7 @@ func LoadTransfersFixture() ([]domain.Transfer, error) {
 
 	// Construct the path to the fixtures file
 	fixturePath := filepath.Join(wd, "fixtures", "transfers.json")
-	
+
 	// Validate that the path is within the expected directory
 	expectedDir := filepath.Join(wd, "fixtures")
 	if !strings.HasPrefix(fixturePath, expectedDir) {

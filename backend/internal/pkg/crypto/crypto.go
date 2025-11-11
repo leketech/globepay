@@ -29,7 +29,7 @@ func NewCrypto(secretKey string) *Crypto {
 func (c *Crypto) Encrypt(plaintext string) (string, error) {
 	// Convert string to []byte
 	plaintextBytes := []byte(plaintext)
-	
+
 	// Create a new AES cipher
 	block, err := aes.NewCipher(c.encryptionKey)
 	if err != nil {
@@ -131,7 +131,7 @@ func (c *Crypto) MaskString(input string, visibleChars int) string {
 	if len(input) <= visibleChars*2 {
 		return "***"
 	}
-	
+
 	start := input[:visibleChars]
 	end := input[len(input)-visibleChars:]
 	return start + "***" + end

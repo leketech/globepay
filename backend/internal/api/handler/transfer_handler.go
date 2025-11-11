@@ -15,22 +15,22 @@ import (
 
 // CreateTransferRequest represents the create transfer request body
 type CreateTransferRequest struct {
-	RecipientName        string  `json:"recipientName" binding:"required"`
-	RecipientEmail       string  `json:"recipientEmail,omitempty"`
-	RecipientCountry     string  `json:"recipientCountry" binding:"required,len=2"`
-	RecipientBankName    string  `json:"recipientBankName" binding:"required"`
-	RecipientAccountNo   string  `json:"recipientAccountNumber" binding:"required"`
-	RecipientSwiftCode   string  `json:"recipientSwiftCode,omitempty"`
-	SourceCurrency       string  `json:"sourceCurrency" binding:"required,len=3"`
-	DestCurrency         string  `json:"destCurrency" binding:"required,len=3"`
-	SourceAmount         float64 `json:"sourceAmount" binding:"required,gt=0"`
-	Purpose              string  `json:"purpose" binding:"required"`
+	RecipientName      string  `json:"recipientName" binding:"required"`
+	RecipientEmail     string  `json:"recipientEmail,omitempty"`
+	RecipientCountry   string  `json:"recipientCountry" binding:"required,len=2"`
+	RecipientBankName  string  `json:"recipientBankName" binding:"required"`
+	RecipientAccountNo string  `json:"recipientAccountNumber" binding:"required"`
+	RecipientSwiftCode string  `json:"recipientSwiftCode,omitempty"`
+	SourceCurrency     string  `json:"sourceCurrency" binding:"required,len=3"`
+	DestCurrency       string  `json:"destCurrency" binding:"required,len=3"`
+	SourceAmount       float64 `json:"sourceAmount" binding:"required,gt=0"`
+	Purpose            string  `json:"purpose" binding:"required"`
 }
 
 // GetTransfers handles getting user transfers
 func GetTransfers(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	fmt.Println("GetTransfers called")
-	
+
 	// Get user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -38,14 +38,14 @@ func GetTransfers(c *gin.Context, serviceFactory *service.ServiceFactory) {
 		utils.Unauthorized(c, "MISSING_USER_ID", "User ID not found in context")
 		return
 	}
-	
+
 	fmt.Printf("User ID from context: %v\n", userID)
 	fmt.Printf("User ID type: %T\n", userID)
 
 	// Get pagination parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	
+
 	// Ensure reasonable limits
 	if limit > 100 {
 		limit = 100
@@ -53,7 +53,7 @@ func GetTransfers(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	if page < 1 {
 		page = 1
 	}
-	
+
 	offset := (page - 1) * limit
 
 	transferService := serviceFactory.GetTransferService()
@@ -121,7 +121,7 @@ func CreateTransfer(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	}
 
 	transferService := serviceFactory.GetTransferService()
-	
+
 	// Create transfer model
 	transfer := &model.Transfer{
 		UserID:           userID.(string),
@@ -179,7 +179,7 @@ func CancelTransfer(c *gin.Context, serviceFactory *service.ServiceFactory) {
 	}
 
 	transferService := serviceFactory.GetTransferService()
-	
+
 	// Check if user owns this transfer
 	transfer, err := transferService.GetTransferByID(c.Request.Context(), transferID)
 	if err != nil {

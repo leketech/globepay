@@ -1,9 +1,9 @@
 package mocks
 
 import (
+	"github.com/stretchr/testify/mock"
 	"globepay/internal/domain/model"
 	"globepay/internal/service"
-	"github.com/stretchr/testify/mock"
 )
 
 type UserServiceMock struct {
