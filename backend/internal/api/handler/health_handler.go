@@ -36,7 +36,7 @@ func HealthCheck(c *gin.Context) {
 // ReadinessCheck handles readiness check requests
 func ReadinessCheck(c *gin.Context) {
 	// Get the service factory from the context
-	serviceFactory := c.MustGet("serviceFactory").(*service.ServiceFactory)
+	serviceFactory := c.MustGet("serviceFactory").(*service.Factory)
 
 	// Get the health service
 	healthService := serviceFactory.GetHealthService()

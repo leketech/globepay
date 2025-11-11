@@ -35,7 +35,7 @@ type UpdateBeneficiaryRequest struct {
 }
 
 // GetBeneficiaries handles getting user beneficiaries
-func GetBeneficiaries(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetBeneficiaries(c *gin.Context, serviceFactory *service.Factory) {
 	// Get user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -54,7 +54,7 @@ func GetBeneficiaries(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // CreateBeneficiary handles creating a new beneficiary
-func CreateBeneficiary(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func CreateBeneficiary(c *gin.Context, serviceFactory *service.Factory) {
 	var req CreateBeneficiaryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
@@ -102,7 +102,7 @@ func CreateBeneficiary(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // UpdateBeneficiary handles updating a beneficiary
-func UpdateBeneficiary(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func UpdateBeneficiary(c *gin.Context, serviceFactory *service.Factory) {
 	var req UpdateBeneficiaryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
@@ -173,7 +173,7 @@ func UpdateBeneficiary(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // DeleteBeneficiary handles deleting a beneficiary
-func DeleteBeneficiary(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func DeleteBeneficiary(c *gin.Context, serviceFactory *service.Factory) {
 	// Get user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {

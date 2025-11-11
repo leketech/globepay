@@ -28,7 +28,7 @@ type CreateTransferRequest struct {
 }
 
 // GetTransfers handles getting user transfers
-func GetTransfers(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetTransfers(c *gin.Context, serviceFactory *service.Factory) {
 	fmt.Println("GetTransfers called")
 
 	// Get user ID from context
@@ -75,7 +75,7 @@ func GetTransfers(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // GetTransfer handles getting a specific transfer
-func GetTransfer(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetTransfer(c *gin.Context, serviceFactory *service.Factory) {
 	// Get user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -106,7 +106,7 @@ func GetTransfer(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // CreateTransfer handles creating a new transfer
-func CreateTransfer(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func CreateTransfer(c *gin.Context, serviceFactory *service.Factory) {
 	var req CreateTransferRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
@@ -164,7 +164,7 @@ func CreateTransfer(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // CancelTransfer handles cancelling a transfer
-func CancelTransfer(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func CancelTransfer(c *gin.Context, serviceFactory *service.Factory) {
 	// Get user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -208,7 +208,7 @@ func CancelTransfer(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // GetPublicExchangeRates handles getting exchange rates without authentication
-func GetPublicExchangeRates(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetPublicExchangeRates(c *gin.Context, serviceFactory *service.Factory) {
 	from := c.Query("from")
 	to := c.Query("to")
 	amountStr := c.Query("amount")
@@ -235,7 +235,7 @@ func GetPublicExchangeRates(c *gin.Context, serviceFactory *service.ServiceFacto
 }
 
 // GetExchangeRates handles getting exchange rates (protected endpoint)
-func GetExchangeRates(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetExchangeRates(c *gin.Context, serviceFactory *service.Factory) {
 	from := c.Query("from")
 	to := c.Query("to")
 	amountStr := c.Query("amount")

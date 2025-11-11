@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, serviceFactory *service.ServiceFactory, metrics *metrics.Metrics) {
+func SetupRoutes(r *gin.Engine, serviceFactory *service.Factory, metrics *metrics.Metrics) {
 	fmt.Println("Setting up routes...")
 
 	// Apply CORS middleware to all routes

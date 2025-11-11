@@ -23,7 +23,7 @@ type CreateUserAccountRequest struct {
 }
 
 // GetUserProfile handles getting user profile
-func GetUserProfile(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetUserProfile(c *gin.Context, serviceFactory *service.Factory) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -42,7 +42,7 @@ func GetUserProfile(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // UpdateUserProfile handles updating user profile
-func UpdateUserProfile(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func UpdateUserProfile(c *gin.Context, serviceFactory *service.Factory) {
 	var req UpdateUserProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
@@ -85,7 +85,7 @@ func UpdateUserProfile(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // GetUserAccounts handles getting user accounts
-func GetUserAccounts(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetUserAccounts(c *gin.Context, serviceFactory *service.Factory) {
 	// Get user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -104,7 +104,7 @@ func GetUserAccounts(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // CreateUserAccount handles creating a new user account
-func CreateUserAccount(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func CreateUserAccount(c *gin.Context, serviceFactory *service.Factory) {
 	var req CreateUserAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())

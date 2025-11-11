@@ -11,7 +11,7 @@ import (
 )
 
 // GetTransactions handles getting user transactions
-func GetTransactions(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetTransactions(c *gin.Context, serviceFactory *service.Factory) {
 	// Get user ID from context
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -52,7 +52,7 @@ func GetTransactions(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // GetTransaction handles getting a specific transaction
-func GetTransaction(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetTransaction(c *gin.Context, serviceFactory *service.Factory) {
 	transactionID := c.Param("id")
 	if transactionID == "" {
 		utils.BadRequest(c, "MISSING_TRANSACTION_ID", "Transaction ID is required")

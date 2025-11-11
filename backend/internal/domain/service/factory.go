@@ -1,10 +1,27 @@
+package service
+
+import (
+	"database/sql"
+	"strconv"
+
+	infraconfig "globepay/internal/infrastructure/config"
+	"globepay/internal/config"
+	"globepay/internal/infrastructure/cache"
+	"globepay/internal/infrastructure/email"
+	"globepay/internal/infrastructure/sms"
+	"globepay/internal/repository"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/sirupsen/logrus"
+)
+
 // Factory creates and manages application services
 type Factory struct {
 	config              *config.Config
 	db                  *sql.DB
 	redisClient         *cache.RedisClient
 	awsConfig           aws.Config
-	repos               *RepositoryFactory
+	repos               *repository.RepositoryFactory
 	userService         *UserService
 	accountService      *AccountService
 	transferService     *TransferService
@@ -27,7 +44,7 @@ func NewFactory(
 	}
 
 	// Initialize repository factory
-	factory.repos = NewRepositoryFactory(db)
+	factory.repos = repository.NewRepositoryFactory(db)
 
 	return factory
 }
@@ -95,8 +112,8 @@ func (f *Factory) GetAuthService() *AuthService {
 	if f.authService == nil {
 		f.authService = NewAuthService(
 			f.GetUserService(),
-			f.config.JWTSecret,
-			f.config.JWTExpiration,
+			f.config.JWT.Secret,
+			f.config.JWT.Expiration,
 		)
 	}
 	return f.authService
@@ -122,12 +139,22 @@ func (f *Factory) GetCacheService() *CacheService {
 
 // GetConfigService returns the configuration service
 func (f *Factory) GetConfigService() *ConfigService {
-	return NewConfigService(f.config)
+	return NewConfigService(&infraconfig.Config{
+		Environment:   f.config.Environment,
+		ServerPort:    strconv.Itoa(f.config.Server.Port),
+		JWTSecret:     f.config.JWT.Secret,
+		JWTExpiration: f.config.JWT.Expiration,
+		DatabaseURL:   f.config.GetDatabaseDSN(),
+		RedisURL:      f.config.GetRedisAddress(),
+		AWSRegion:     f.config.AWS.Region,
+		LogLevel:      logrus.InfoLevel, // Default value
+		Debug:         f.config.IsDevelopment(),
+	})
 }
 
 // GetJWTSecret returns the JWT secret from the configuration
 func (f *Factory) GetJWTSecret() string {
-	return f.config.JWTSecret
+	return f.config.JWT.Secret
 }
 
 // GetConfig returns the application configuration

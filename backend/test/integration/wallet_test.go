@@ -48,7 +48,7 @@ func TestWalletAddMoney(t *testing.T) {
 	db := testDB.DB
 	// Create a default AWS config for testing
 	awsConfig := aws.Config{}
-	serviceFactory := service.NewServiceFactory(cfg, db, nil, awsConfig)
+	serviceFactory := service.NewFactory(cfg, db, nil, awsConfig)
 	metrics := metrics.NewMetrics()
 
 	// Create test router
@@ -122,7 +122,7 @@ func TestWalletRequestMoney(t *testing.T) {
 	db := testDB.DB
 	// Create a default AWS config for testing
 	awsConfig := aws.Config{}
-	serviceFactory := service.NewServiceFactory(cfg, db, nil, awsConfig)
+	serviceFactory := service.NewFactory(cfg, db, nil, awsConfig)
 	metrics := metrics.NewMetrics()
 
 	// Create test router
@@ -172,7 +172,7 @@ func TestWalletRequestMoney(t *testing.T) {
 }
 
 // Helper functions for creating test data
-func createTestUser(t *testing.T, serviceFactory *service.ServiceFactory) *model.User {
+func createTestUser(t *testing.T, serviceFactory *service.Factory) *model.User {
 	userService := serviceFactory.GetUserService()
 	user := model.NewUser(
 		fmt.Sprintf("test%d@example.com", time.Now().Unix()),
@@ -185,7 +185,7 @@ func createTestUser(t *testing.T, serviceFactory *service.ServiceFactory) *model
 	return user
 }
 
-func createTestAccount(t *testing.T, serviceFactory *service.ServiceFactory, userID, currency string) *model.Account {
+func createTestAccount(t *testing.T, serviceFactory *service.Factory, userID, currency string) *model.Account {
 	accountService := serviceFactory.GetAccountService()
 	account, err := accountService.CreateAccount(context.Background(), userID, currency)
 	assert.NoError(t, err)

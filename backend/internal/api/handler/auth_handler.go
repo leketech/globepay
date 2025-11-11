@@ -45,7 +45,7 @@ type ResetPasswordRequest struct {
 }
 
 // Login handles user login
-func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func Login(c *gin.Context, serviceFactory *service.Factory) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		fmt.Printf("JSON binding error in login: %v\n", err)
@@ -80,7 +80,7 @@ func Login(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // Register handles user registration
-func Register(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func Register(c *gin.Context, serviceFactory *service.Factory) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		fmt.Printf("JSON binding error in register: %v\n", err)
@@ -122,7 +122,7 @@ func Register(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // RefreshToken handles token refresh
-func RefreshToken(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func RefreshToken(c *gin.Context, serviceFactory *service.Factory) {
 	var req RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
@@ -148,7 +148,7 @@ func RefreshToken(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // ForgotPassword handles forgot password requests
-func ForgotPassword(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func ForgotPassword(c *gin.Context, serviceFactory *service.Factory) {
 	var req ForgotPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
@@ -167,7 +167,7 @@ func ForgotPassword(c *gin.Context, serviceFactory *service.ServiceFactory) {
 }
 
 // ResetPassword handles password reset
-func ResetPassword(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func ResetPassword(c *gin.Context, serviceFactory *service.Factory) {
 	var req ResetPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())

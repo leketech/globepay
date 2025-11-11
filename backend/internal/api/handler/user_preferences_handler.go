@@ -22,7 +22,7 @@ type UserPreferencesRequest struct {
 }
 
 // GetUserPreferences handles getting user preferences
-func GetUserPreferences(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func GetUserPreferences(c *gin.Context, serviceFactory *service.Factory) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -41,7 +41,7 @@ func GetUserPreferences(c *gin.Context, serviceFactory *service.ServiceFactory) 
 }
 
 // UpdateUserPreferences handles updating user preferences
-func UpdateUserPreferences(c *gin.Context, serviceFactory *service.ServiceFactory) {
+func UpdateUserPreferences(c *gin.Context, serviceFactory *service.Factory) {
 	var req UserPreferencesRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())

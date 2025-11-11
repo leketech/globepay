@@ -14,12 +14,12 @@ import (
 
 // WalletHandler handles wallet-related API requests
 type WalletHandler struct {
-	serviceFactory *service.ServiceFactory
+	serviceFactory *service.Factory
 	metrics        *metrics.Metrics
 }
 
 // NewWalletHandler creates a new wallet handler
-func NewWalletHandler(serviceFactory *service.ServiceFactory, metrics *metrics.Metrics) *WalletHandler {
+func NewWalletHandler(serviceFactory *service.Factory, metrics *metrics.Metrics) *WalletHandler {
 	return &WalletHandler{
 		serviceFactory: serviceFactory,
 		metrics:        metrics,
