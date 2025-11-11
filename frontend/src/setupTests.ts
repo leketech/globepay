@@ -7,7 +7,7 @@ import '@testing-library/jest-dom';
 // Mock browser APIs that are not available in JSDOM
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -22,7 +22,7 @@ Object.defineProperty(window, 'matchMedia', {
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
-  
+
   return {
     getItem(key: string) {
       return store[key] || null;
@@ -35,7 +35,7 @@ const localStorageMock = (() => {
     },
     clear() {
       store = {};
-    }
+    },
   };
 })();
 
@@ -61,7 +61,7 @@ Object.defineProperty(window, 'import', {
       env: {
         VITE_API_URL: 'http://localhost:8080',
         DEV: false,
-      }
-    }
-  }
+      },
+    },
+  },
 });

@@ -2,11 +2,12 @@
 import { Transfer } from '../types';
 
 // Use a default API base URL for testing environments
-const API_BASE_URL = typeof process !== 'undefined' && process.env.VITE_API_URL 
-  ? process.env.VITE_API_URL.replace(/\/$/, '') 
-  : (typeof window !== 'undefined' && window.location
-    ? '/api'
-    : 'http://localhost:8080');
+const API_BASE_URL =
+  typeof process !== 'undefined' && process.env.VITE_API_URL
+    ? process.env.VITE_API_URL.replace(/\/$/, '')
+    : typeof window !== 'undefined' && window.location
+      ? '/api'
+      : 'http://localhost:8080';
 
 // Helper function for API requests
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
