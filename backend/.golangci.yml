@@ -1,5 +1,4 @@
-version: v1.49.0
-
+version: v1.49
 run:
   go: '1.18'
   timeout: 5m
