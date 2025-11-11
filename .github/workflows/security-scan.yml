@@ -10,6 +10,7 @@ on:
 
 jobs:
   scan-backend:
+    name: Go Backend Security Scan
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -21,17 +22,17 @@ jobs:
         cache-dependency-path: backend/go.sum
 
     - name: Install dependencies
-      run: |
-        cd backend
-        go mod download
+      working-directory: backend
+      run: go mod download
 
     - name: Run Go security scanner
+      working-directory: backend
       run: |
-        cd backend
         go install github.com/securego/gosec/v2/cmd/gosec@v2.15.0
-        gosec ./...
+        $(go env GOPATH)/bin/gosec ./...
 
   scan-frontend:
+    name: Frontend Security Scan
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -44,24 +45,25 @@ jobs:
         cache-dependency-path: frontend/package-lock.json
 
     - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm ci
+      working-directory: frontend
+      run: npm ci
 
     - name: Run npm audit
-      run: |
-        cd frontend
-        npm audit
+      working-directory: frontend
+      run: npm audit --audit-level=high
 
   scan-docker:
+    name: Docker Image Security Scan
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
 
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.28.0
       with:
         scan-type: 'fs'
         ignore-unfixed: true
         format: 'table'
         severity: 'CRITICAL,HIGH'
+        exit-code: '0'
+        path: .

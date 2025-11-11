@@ -92,7 +92,13 @@ func (s *CurrencyService) GetExchangeRate(ctx context.Context, fromCurrency, toC
 		// Fallback to mock data if API call fails
 		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil
 	}
-	defer resp.Body.Close()
+	body := resp.Body
+	defer func() {
+		if closeErr := body.Close(); closeErr != nil {
+			// Log the error but don't fail the operation
+			fmt.Printf("Warning: failed to close response body: %v\n", closeErr)
+		}
+	}()
 
 	// Check if response is successful
 	if resp.StatusCode != http.StatusOK {
@@ -107,7 +113,7 @@ func (s *CurrencyService) GetExchangeRate(ctx context.Context, fromCurrency, toC
 		Rates map[string]float64 `json:"rates"`
 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
+	if err := json.NewDecoder(body).Decode(&apiResponse); err != nil {
 		// Fallback to mock data if JSON parsing fails
 		return s.getMockExchangeRate(fromCurrency, toCurrency, amount), nil
 	}

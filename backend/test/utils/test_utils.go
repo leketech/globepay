@@ -33,6 +33,7 @@ func LoadUsersFixture() ([]domain.User, error) {
 	}
 
 	// Read the file
+	// #nosec G304 - Path is validated to be within the fixtures directory and has .json extension
 	data, err := os.ReadFile(fixturePath)
 	if err != nil {
 		return nil, err
@@ -71,6 +72,7 @@ func LoadAccountsFixture() ([]domain.Account, error) {
 	}
 
 	// Read the file
+	// #nosec G304 - Path is validated to be within the fixtures directory and has .json extension
 	data, err := os.ReadFile(fixturePath)
 	if err != nil {
 		return nil, err
@@ -109,6 +111,7 @@ func LoadTransfersFixture() ([]domain.Transfer, error) {
 	}
 
 	// Read the file
+	// #nosec G304 - Path is validated to be within the fixtures directory and has .json extension
 	data, err := os.ReadFile(fixturePath)
 	if err != nil {
 		return nil, err

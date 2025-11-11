@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"testing"
 
 	"globepay/internal/domain/model"
@@ -126,7 +127,7 @@ func (suite *AccountTestSuite) TestAccountRepository_GetByUser() {
 	assert.NoError(suite.T(), err)
 
 	// Test getting accounts by user ID
-	accounts, err := suite.accountRepo.GetByUser(nil, "1", 100, 0)
+	accounts, err := suite.accountRepo.GetByUser(context.Background(), "1")
 	assert.NoError(suite.T(), err)
 	assert.Len(suite.T(), accounts, 2)
 }
@@ -151,7 +152,7 @@ func (suite *AccountTestSuite) TestAccountRepository_UpdateBalance() {
 
 	// Test updating account balance
 	newBalance := 1500.0
-	err = suite.accountRepo.UpdateBalance(nil, account.ID, newBalance)
+	err = suite.accountRepo.UpdateBalance(context.Background(), account.ID, newBalance)
 	assert.NoError(suite.T(), err)
 
 	// Verify the balance was updated

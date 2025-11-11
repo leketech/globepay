@@ -8,7 +8,9 @@ on:
 
 jobs:
   test-backend:
+    name: Backend Tests
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
 
@@ -19,17 +21,17 @@ jobs:
         cache-dependency-path: backend/go.sum
 
     - name: Install dependencies
-      run: |
-        cd backend
-        go mod download
+      working-directory: backend
+      run: go mod download
 
     - name: Run backend tests
-      run: |
-        cd backend
-        go test -v ./...
+      working-directory: backend
+      run: go test -v ./...
 
   test-frontend:
+    name: Frontend Tests
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
 
@@ -41,17 +43,17 @@ jobs:
         cache-dependency-path: frontend/package-lock.json
 
     - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm ci
+      working-directory: frontend
+      run: npm ci
 
     - name: Run frontend tests
-      run: |
-        cd frontend
-        npm test
+      working-directory: frontend
+      run: npm test -- --watchAll=false
 
   lint:
+    name: Linting (Go + Frontend)
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
 
@@ -69,22 +71,19 @@ jobs:
         cache-dependency-path: frontend/package-lock.json
 
     - name: Install backend dependencies
-      run: |
-        cd backend
-        go mod download
+      working-directory: backend
+      run: go mod download
 
     - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm ci
+      working-directory: frontend
+      run: npm ci
 
     - name: Run backend linting
+      working-directory: backend
       run: |
-        cd backend
-        go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.49.0
-        golangci-lint run --timeout=5m
+        go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
+        $(go env GOPATH)/bin/golangci-lint run --timeout=5m
 
     - name: Run frontend linting
-      run: |
-        cd frontend
-        npm run lint
+      working-directory: frontend
+      run: npm run lint

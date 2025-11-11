@@ -15,6 +15,10 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: ['1.18']
     
     services:
       postgres:
@@ -47,7 +51,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.18'
+          go-version: ${{ matrix.go-version }}
           cache-dependency-path: backend/go.sum
       
       - name: Cache Go modules
@@ -67,7 +71,7 @@ jobs:
       - name: Install golangci-lint
         working-directory: ./backend
         run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.49.0
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
       
       - name: Run golangci-lint
         working-directory: ./backend
@@ -129,7 +133,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=pr
-            type=sha,prefix=branch-
+            type=sha
             type=semver,pattern=version
             type=semver,pattern=major.minor
       
@@ -150,7 +154,7 @@ jobs:
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ steps.meta.outputs.tags }}
+          image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           format: 'sarif'
           output: 'trivy-results.sarif'
       
@@ -188,9 +192,9 @@ jobs:
           kubectl patch application globepay-backend-dev \
             -n argocd \
             --type merge \
-            -p '{"spec":{"source":{"targetRevision":"${{ github.sha }}"}}}'
+            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
           
-          kubectl wait --for=condition=Synced \
+          kubectl wait --for=condition=Healthy \
             application/globepay-backend-dev \
             -n argocd \
             --timeout=10m
@@ -237,9 +241,9 @@ jobs:
           kubectl patch application globepay-backend-staging \
             -n argocd \
             --type merge \
-            -p '{"spec":{"source":{"targetRevision":"${{ github.sha }}"}}}'
+            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
           
-          kubectl wait --for=condition=Synced \
+          kubectl wait --for=condition=Healthy \
             application/globepay-backend-staging \
             -n argocd \
             --timeout=15m
@@ -289,15 +293,20 @@ jobs:
           kubectl patch application globepay-backend-prod \
             -n argocd \
             --type merge \
-            -p '{"spec":{"source":{"targetRevision":"${{ github.sha }}"}}}'
+            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
           
-          kubectl wait --for=condition=Synced \
+          kubectl wait --for=condition=Healthy \
             application/globepay-backend-prod \
             -n argocd \
             --timeout=20m
       
       - name: Monitor canary deployment
         run: |
+          # Install Argo Rollouts CLI
+          curl -sLO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64
+          chmod +x kubectl-argo-rollouts-linux-amd64
+          sudo mv kubectl-argo-rollouts-linux-amd64 /usr/local/bin/kubectl-argo-rollouts
+          
           # Wait for canary analysis
           kubectl wait --for=condition=Progressing \
             rollout/backend \

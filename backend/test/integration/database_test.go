@@ -1,12 +1,10 @@
 package integration
 
 import (
-	"context"
 	"testing"
 	"time"
 
 	"globepay/internal/domain/model"
-	"globepay/internal/infrastructure/database"
 	"globepay/internal/repository"
 	"globepay/test/utils"
 
@@ -16,7 +14,7 @@ import (
 
 type DatabaseTestSuite struct {
 	suite.Suite
-	db       *database.Database
+	db       *utils.TestDB
 	userRepo repository.UserRepository
 	testDB   *utils.TestDB
 }

@@ -9,6 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
+
     steps:
     - uses: actions/checkout@v4
 
@@ -19,36 +20,39 @@ jobs:
 
     - name: Check if KUBECONFIG secret exists
       id: check_kubeconfig
+      shell: bash
       run: |
-        if [ "${{ secrets.KUBECONFIG }}" != "" ]; then
+        if [ -n "${{ secrets.KUBECONFIG }}" ]; then
           echo "kubeconfig_exists=true" >> $GITHUB_OUTPUT
         else
           echo "kubeconfig_exists=false" >> $GITHUB_OUTPUT
         fi
 
-    - name: Set up Kubeconfig
+    - name: Set up kubeconfig
       if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
       run: |
         mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+        echo "${{ secrets.KUBECONFIG }}" | base64 --decode > ~/.kube/config
 
     - name: Deploy to production
       if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
       run: |
         kubectl apply -k k8s/overlays/prod
 
-    - name: Verify deployment
+    - name: Verify backend rollout
       if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
       run: |
         kubectl rollout status deployment/backend -n globepay-prod
+
+    - name: Verify frontend rollout
+      if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
+      run: |
         kubectl rollout status deployment/frontend -n globepay-prod
 
     - name: Notify on success
-      if: success()
-      run: |
-        echo "Deployment to production successful"
+      if: ${{ success() }}
+      run: echo "✅ Deployment to production successful"
 
     - name: Notify on failure
-      if: failure()
-      run: |
-        echo "Deployment to production failed"
+      if: ${{ failure() }}
+      run: echo "❌ Deployment to production failed"

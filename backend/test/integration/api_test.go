@@ -2,16 +2,12 @@ package integration
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"globepay/internal/api/handler"
-	"globepay/internal/api/router"
 	"globepay/internal/domain/service"
-	"globepay/internal/infrastructure/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -31,9 +27,9 @@ func (suite *APITestSuite) SetupSuite() {
 
 	// In a real test, you would initialize the service factory with test dependencies
 	// For now, we'll create a minimal setup
-	cfg := &config.Config{
-		JWTSecret: "test-secret",
-	}
+	// cfg := &config.Config{
+	// 	JWTSecret: "test-secret",
+	// }
 	
 	// Create service factory (this would normally connect to test DB/Redis)
 	// suite.serviceFactory = service.NewServiceFactory(cfg, nil, nil, nil)

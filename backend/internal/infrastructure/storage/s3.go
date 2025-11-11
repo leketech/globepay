@@ -99,11 +99,16 @@ func (s *S3Client) GetObject(ctx context.Context, bucketName, key string) ([]byt
 	if err != nil {
 		return nil, fmt.Errorf("failed to get object %s from bucket %s: %w", key, bucketName, err)
 	}
-	defer result.Body.Close()
+	body := result.Body
+	defer func() {
+		if closeErr := body.Close(); closeErr != nil {
+			log.Printf("Warning: failed to close S3 object body: %v", closeErr)
+		}
+	}()
 
 	// Read the object data
 	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(result.Body)
+	_, err = buf.ReadFrom(body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read object data: %w", err)
 	}

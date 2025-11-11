@@ -1,4 +1,4 @@
-version: v1.52.2
+version: "v1.52.2"
 
 run:
   go: '1.18'

@@ -54,12 +54,17 @@ jobs:
         run: npm run build
         env:
           VITE_API_URL: https://api.globepay.com
-      
+
+      - name: Start local server for Lighthouse
+        working-directory: ./frontend
+        run: |
+          npx serve -s dist -l 3000 &
+          sleep 5
+
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v10
         with:
-          urls: |
-            http://localhost:3000
+          urls: http://localhost:3000
           uploadArtifacts: true
           temporaryPublicStorage: true
 
@@ -119,8 +124,11 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-      
-      - name: Set environment variables
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine environment variables
         id: vars
         run: |
           BRANCH=${GITHUB_REF#refs/heads/}
@@ -134,32 +142,40 @@ jobs:
             echo "environment=dev" >> $GITHUB_OUTPUT
             echo "api_url=https://api-dev.globepay.com" >> $GITHUB_OUTPUT
           fi
-      
+
+      - name: Extract metadata (frontend)
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha
+            type=semver,pattern=version
+            type=semver,pattern=major.minor
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.vars.outputs.environment }}-latest
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
           build-args: |
             VITE_API_URL=${{ steps.vars.outputs.api_url }}
             VITE_ENVIRONMENT=${{ steps.vars.outputs.environment }}
-      
+          platforms: linux/amd64,linux/arm64
+
       - name: Deploy to S3 and CloudFront
         if: github.ref == 'refs/heads/main'
         run: |
-          # Build for production
           cd frontend
           npm ci
           npm run build
-          
-          # Sync to S3
+
           aws s3 sync dist/ s3://globepay-prod-assets/ --delete
-          
-          # Invalidate CloudFront cache
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"

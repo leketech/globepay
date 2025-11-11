@@ -14,10 +14,10 @@ import (
 	"globepay/internal/domain/model"
 	"globepay/internal/domain/service"
 	"globepay/internal/infrastructure/config"
-	"globepay/internal/infrastructure/database"
 	"globepay/internal/infrastructure/metrics"
 	"globepay/test/utils"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -40,10 +40,15 @@ func TestWalletAddMoney(t *testing.T) {
 	testDB.ClearTables()
 
 	// Setup
-	cfg := config.LoadConfig()
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
 	// Use test database instead of the real one
-	db := &database.Database{DB: testDB.DB}
-	serviceFactory := service.NewServiceFactory(cfg, db, nil, nil)
+	db := testDB.DB
+	// Create a default AWS config for testing
+	awsConfig := aws.Config{}
+	serviceFactory := service.NewServiceFactory(cfg, db, nil, awsConfig)
 	metrics := metrics.NewMetrics()
 
 	// Create test router
@@ -53,7 +58,7 @@ func TestWalletAddMoney(t *testing.T) {
 
 	// Create test user and account
 	user := createTestUser(t, serviceFactory)
-	account := createTestAccount(t, serviceFactory, user.ID, "USD")
+	_ = createTestAccount(t, serviceFactory, user.ID, "USD")
 
 	// Prepare request body
 	requestBody := map[string]interface{}{
@@ -109,10 +114,15 @@ func TestWalletRequestMoney(t *testing.T) {
 	testDB.ClearTables()
 
 	// Setup
-	cfg := config.LoadConfig()
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
 	// Use test database instead of the real one
-	db := &database.Database{DB: testDB.DB}
-	serviceFactory := service.NewServiceFactory(cfg, db, nil, nil)
+	db := testDB.DB
+	// Create a default AWS config for testing
+	awsConfig := aws.Config{}
+	serviceFactory := service.NewServiceFactory(cfg, db, nil, awsConfig)
 	metrics := metrics.NewMetrics()
 
 	// Create test router
@@ -122,7 +132,9 @@ func TestWalletRequestMoney(t *testing.T) {
 
 	// Create test users and accounts
 	requester := createTestUser(t, serviceFactory)
+	_ = requester
 	recipient := createTestUser(t, serviceFactory)
+	_ = recipient
 	
 	// Prepare request body for user request
 	requestBody := map[string]interface{}{
@@ -162,13 +174,13 @@ func TestWalletRequestMoney(t *testing.T) {
 // Helper functions for creating test data
 func createTestUser(t *testing.T, serviceFactory *service.ServiceFactory) *model.User {
 	userService := serviceFactory.GetUserService()
-	user, err := userService.CreateUser(
-		context.Background(),
+	user := model.NewUser(
 		fmt.Sprintf("test%d@example.com", time.Now().Unix()),
 		"password123",
 		"Test",
 		"User",
 	)
+	err := userService.CreateUser(context.Background(), user)
 	assert.NoError(t, err)
 	return user
 }
