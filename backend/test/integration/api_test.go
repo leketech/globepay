@@ -16,8 +16,8 @@ import (
 
 type APITestSuite struct {
 	suite.Suite
-	router       *gin.Engine
-	serviceFactory *service.ServiceFactory
+	router *gin.Engine
+	// serviceFactory *service.ServiceFactory // Unused field
 }
 
 func (suite *APITestSuite) SetupSuite() {
@@ -30,10 +30,10 @@ func (suite *APITestSuite) SetupSuite() {
 	// cfg := &config.Config{
 	// 	JWTSecret: "test-secret",
 	// }
-	
+
 	// Create service factory (this would normally connect to test DB/Redis)
 	// suite.serviceFactory = service.NewServiceFactory(cfg, nil, nil, nil)
-	
+
 	// For now, we'll skip the actual API tests since we don't have test dependencies
 	suite.T().Skip("Skipping API tests - no test dependencies configured")
 }

@@ -14,7 +14,7 @@ import (
 
 type DatabaseTestSuite struct {
 	suite.Suite
-	db       *utils.TestDB
+	// db       *utils.TestDB // Unused field
 	userRepo repository.UserRepository
 	testDB   *utils.TestDB
 }
@@ -22,7 +22,7 @@ type DatabaseTestSuite struct {
 func (suite *DatabaseTestSuite) SetupSuite() {
 	// Initialize test database
 	suite.testDB = utils.NewTestDB()
-	
+
 	// Initialize repository
 	if suite.testDB != nil {
 		suite.userRepo = repository.NewUserRepository(suite.testDB.DB)
@@ -54,7 +54,7 @@ func (suite *DatabaseTestSuite) TestUserRepository_Create() {
 
 	// Create a test user
 	user := model.NewUser("test@example.com", "password123", "John", "Doe")
-	
+
 	// Test creating user
 	err := suite.userRepo.Create(user)
 	assert.NoError(suite.T(), err)

@@ -33,22 +33,8 @@ func NewNotificationService(
 func (s *NotificationService) SendTransferNotification(ctx context.Context, user *model.User, transfer *model.Transfer) error {
 	// Send email notification
 	subject := "Transfer Confirmation"
-	body := fmt.Sprintf(`
-Dear %s,
-
-Your transfer of %s %s to %s has been %s.
-
-Transfer Details:
-- Reference Number: %s
-- Amount: %s %s
-- Recipient: %s
-- Status: %s
-
-Thank you for using Globepay.
-
-Best regards,
-The Globepay Team
-`, user.FirstName, formatAmount(transfer.SourceAmount), transfer.SourceCurrency,
+	body := fmt.Sprintf("Dear %s,\n\nYour transfer of %s %s to %s has been %s.\n\nTransfer Details:\n- Reference Number: %s\n- Amount: %s %s\n- Recipient: %s\n- Status: %s\n\nThank you for using Globepay.\n\nBest regards,\nThe Globepay Team",
+		user.FirstName, formatAmount(transfer.SourceAmount), transfer.SourceCurrency,
 		transfer.RecipientName, transfer.Status, transfer.ReferenceNumber,
 		formatAmount(transfer.SourceAmount), transfer.SourceCurrency,
 		transfer.RecipientName, transfer.Status)
@@ -78,22 +64,8 @@ The Globepay Team
 // SendWelcomeEmail sends a welcome email to a new user
 func (s *NotificationService) SendWelcomeEmail(ctx context.Context, user *model.User) error {
 	subject := "Welcome to Globepay!"
-	body := fmt.Sprintf(`
-Welcome to Globepay, %s!
-
-Thank you for joining our platform. You can now start sending money to over 190 countries.
-
-To get started:
-1. Complete your profile
-2. Verify your identity
-3. Add beneficiaries
-4. Start transferring money
-
-If you have any questions, please contact our support team.
-
-Best regards,
-The Globepay Team
-`, user.FirstName)
+	body := fmt.Sprintf("Welcome to Globepay, %s!\n\nThank you for joining our platform. You can now start sending money to over 190 countries.\n\nTo get started:\n1. Complete your profile\n2. Verify your identity\n3. Add beneficiaries\n4. Start transferring money\n\nIf you have any questions, please contact our support team.\n\nBest regards,\nThe Globepay Team",
+		user.FirstName)
 
 	if user.Email != "" {
 		return s.emailClient.SendEmail(ctx, s.fromEmail, user.Email, subject, body)
@@ -105,20 +77,8 @@ The Globepay Team
 // SendPasswordResetEmail sends a password reset email
 func (s *NotificationService) SendPasswordResetEmail(ctx context.Context, user *model.User, resetToken string) error {
 	subject := "Password Reset Request"
-	body := fmt.Sprintf(`
-Hello %s,
-
-We received a request to reset your password. Click the link below to reset your password:
-
-https://globepay.com/reset-password?token=%s
-
-If you didn't request this, please ignore this email.
-
-This link will expire in 1 hour.
-
-Best regards,
-The Globepay Team
-`, user.FirstName, resetToken)
+	body := fmt.Sprintf("Hello %s,\n\nWe received a request to reset your password. Click the link below to reset your password:\n\nhttps://globepay.com/reset-password?token=%s\n\nIf you didn't request this, please ignore this email.\n\nThis link will expire in 1 hour.\n\nBest regards,\nThe Globepay Team",
+		user.FirstName, resetToken)
 
 	if user.Email != "" {
 		return s.emailClient.SendEmail(ctx, s.fromEmail, user.Email, subject, body)

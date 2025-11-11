@@ -23,14 +23,14 @@ func main() {
 
 	// Start worker
 	log.Println("Starting Globepay worker...")
-	
+
 	// Worker loop
 	go workerLoop()
 
 	// Wait for interrupt signal
 	<-sigChan
 	log.Println("Shutting down worker...")
-	
+
 	fmt.Println("Worker stopped successfully")
 }
 
@@ -38,12 +38,9 @@ func workerLoop() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
-	for {
-		select {
-		case <-ticker.C:
-			// Process background jobs
-			processJobs()
-		}
+	for range ticker.C {
+		// Process background jobs
+		processJobs()
 	}
 }
 
