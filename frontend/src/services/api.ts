@@ -1,14 +1,20 @@
 // Simple API service for Globepay
 import { Transfer } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '/api';
+// Use a default API base URL for testing environments
+const API_BASE_URL = typeof process !== 'undefined' && process.env.VITE_API_URL 
+  ? process.env.VITE_API_URL.replace(/\/$/, '') 
+  : (typeof window !== 'undefined' && window.location
+    ? '/api'
+    : 'http://localhost:8080');
 
 // Helper function for API requests
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const isHealthCheck = endpoint.startsWith('/health');
   let url = `${API_BASE_URL}${endpoint}`;
 
-  if (isHealthCheck && import.meta.env.DEV) {
+  // Handle health check URLs in development
+  if (isHealthCheck && typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
     url = `http://localhost:8080${endpoint}`;
   }
 

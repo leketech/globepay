@@ -1,50 +1,19 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
-import { store } from '../../store';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from '../../test-utils';
 import { Header } from './Header';
 
-// Mock the react-router-dom hooks
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+// Mock the HeaderProfile component since it has complex dependencies
+jest.mock('./HeaderProfile', () => ({
+  HeaderProfile: () => <div data-testid="header-profile">Profile</div>
 }));
 
-describe('Header', () => {
-  const renderWithProviders = (component: React.ReactElement) => {
-    return render(
-      <Provider store={store}>
-        <BrowserRouter>{component}</BrowserRouter>
-      </Provider>
-    );
-  };
-
-  it('renders the header with navigation links', () => {
-    renderWithProviders(<Header />);
-    // Simple assertion to satisfy the rule
-    expect(true).toBe(true);
-  });
-
-  it('renders user information when authenticated', () => {
-    renderWithProviders(<Header />);
-    // Simple assertion to satisfy the rule
-    expect(true).toBe(true);
-  });
-
-  it('calls logout function when logout button is clicked', () => {
-    renderWithProviders(<Header />);
-    // Simple assertion to satisfy the rule
-    expect(true).toBe(true);
-  });
-});
-
-// Simple test to verify the component can be imported
 describe('Header Component', () => {
-  it('should be importable', () => {
-    expect(Header).toBeDefined();
+  it('should render without crashing', () => {
+    renderWithProviders(<Header />);
+    
+    // Check that the header renders
+    expect(screen.getByText('Globepay')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Send Money')).toBeInTheDocument();
   });
 });
-
-// Header component test placeholder
-// This file will be implemented when testing dependencies are installed
