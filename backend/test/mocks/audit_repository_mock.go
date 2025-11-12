@@ -2,7 +2,9 @@ package mocks
 
 import (
 	"context"
+
 	"github.com/stretchr/testify/mock"
+
 	"globepay/internal/domain/model"
 )
 

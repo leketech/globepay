@@ -2,57 +2,158 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [main, staging]
+    branches: [main]
   workflow_dispatch:
 
+env:
+  AWS_REGION: us-east-1
+
 jobs:
-  deploy:
+  deploy-backend:
+    name: Deploy Backend to Production
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     environment: production
-
+    
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
+      
+      - name: Create backup before deployment
+        run: |
+          # Trigger database backup
+          aws rds create-db-snapshot \
+            --db-instance-identifier globepay-prod-db \
+            --db-snapshot-identifier pre-deploy-$(date +%Y%m%d-%H%M%S) || echo "Backup creation failed, continuing..."
+      
+      - name: Deploy to ArgoCD (Canary)
+        run: |
+          # Deploy with canary strategy
+          kubectl patch application globepay-backend-prod \
+            -n argocd \
+            --type merge \
+            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
+          
+          kubectl wait --for=condition=Healthy \
+            application/globepay-backend-prod \
+            -n argocd \
+            --timeout=20m
+      
+      - name: Monitor canary deployment
+        run: |
+          # Install Argo Rollouts CLI
+          curl -sLO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64
+          chmod +x kubectl-argo-rollouts-linux-amd64
+          sudo mv kubectl-argo-rollouts-linux-amd64 /usr/local/bin/kubectl-argo-rollouts
+          
+          # Wait for canary analysis
+          kubectl wait --for=condition=Progressing \
+            rollout/backend \
+            -n globepay-prod \
+            --timeout=10m || true
+          
+          # Check analysis status (non-blocking)
+          kubectl argo rollouts get rollout backend -n globepay-prod || echo "Rollout status check completed"
+      
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/backend -n globepay-prod --timeout=20m
+      
+      - name: Run production smoke tests
+        run: |
+          SERVICE_URL="${{ secrets.PROD_API_URL }}"
+          
+          # Health check
+          curl -f ${SERVICE_URL}/health || exit 1
+          
+          # Metrics check
+          curl -f ${SERVICE_URL}/metrics || exit 1
+      
+      - name: Notify deployment
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Production Backend Deployment: ${{ job.status }}
+            Environment: Production
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
 
-    - name: Setup kubectl
-      uses: azure/setup-kubectl@v4
-      with:
-        version: 'v1.28.0'
-
-    - name: Check if KUBECONFIG secret exists
-      id: check_kubeconfig
-      shell: bash
-      run: |
-        if [ -n "${{ secrets.KUBECONFIG }}" ]; then
-          echo "kubeconfig_exists=true" >> $GITHUB_OUTPUT
-        else
-          echo "kubeconfig_exists=false" >> $GITHUB_OUTPUT
-        fi
-
-    - name: Set up kubeconfig
-      if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
-      run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG }}" | base64 --decode > ~/.kube/config
-
-    - name: Deploy to production
-      if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
-      run: |
-        kubectl apply -k k8s/overlays/prod
-
-    - name: Verify backend rollout
-      if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
-      run: |
-        kubectl rollout status deployment/backend -n globepay-prod
-
-    - name: Verify frontend rollout
-      if: steps.check_kubeconfig.outputs.kubeconfig_exists == 'true'
-      run: |
-        kubectl rollout status deployment/frontend -n globepay-prod
-
-    - name: Notify on success
-      if: ${{ success() }}
-      run: echo "✅ Deployment to production successful"
-
-    - name: Notify on failure
-      if: ${{ failure() }}
-      run: echo "❌ Deployment to production failed"
+  deploy-frontend:
+    name: Deploy Frontend to Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
+      
+      - name: Deploy to ArgoCD
+        run: |
+          # Deploy frontend application
+          kubectl patch application globepay-frontend-prod \
+            -n argocd \
+            --type merge \
+            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
+          
+          kubectl wait --for=condition=Healthy \
+            application/globepay-frontend-prod \
+            -n argocd \
+            --timeout=15m
+      
+      - name: Verify frontend deployment
+        run: |
+          kubectl rollout status deployment/frontend -n globepay-prod --timeout=15m
+      
+      - name: Deploy to S3 and CloudFront
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+          
+          aws s3 sync dist/ s3://globepay-prod-assets/ --delete
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+      
+      - name: Verify frontend accessibility
+        run: |
+          FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}"
+          curl -f ${FRONTEND_URL} || exit 1
+      
+      - name: Notify deployment
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Production Frontend Deployment: ${{ job.status }}
+            Environment: Production
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
