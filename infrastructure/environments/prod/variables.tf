@@ -60,6 +60,12 @@ variable "cluster_endpoint_public_access" {
   default     = false
 }
 
+variable "cluster_endpoint_public_access_cidrs" {
+  description = "List of CIDR blocks which can access the EKS cluster endpoint publicly"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
 variable "database_name" {
   description = "Database name"
   type        = string

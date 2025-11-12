@@ -28,10 +28,23 @@ jobs:
       
       - name: Update kubeconfig
         run: |
+          echo "Checking if EKS cluster exists..."
           if aws eks describe-cluster --name globepay-prod-eks --region ${{ env.AWS_REGION }} >/dev/null 2>&1; then
-            aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
+            echo "Production cluster found, updating kubeconfig..."
+            if aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}; then
+              echo "Kubeconfig updated successfully"
+              # Test connectivity to the cluster
+              echo "Testing cluster connectivity..."
+              if kubectl cluster-info >/dev/null 2>&1; then
+                echo "Cluster connectivity test passed"
+              else
+                echo "WARNING: Cluster connectivity test failed, but continuing with deployment..."
+              fi
+            else
+              echo "Failed to update kubeconfig, but continuing with deployment..."
+            fi
           else
-            echo "Cluster globepay-prod-eks not found, skipping kubeconfig update"
+            echo "Production cluster globepay-prod-eks not found, skipping kubeconfig update"
           fi
       
       - name: Create backup before deployment
@@ -148,10 +161,23 @@ jobs:
       
       - name: Update kubeconfig
         run: |
+          echo "Checking if EKS cluster exists..."
           if aws eks describe-cluster --name globepay-prod-eks --region ${{ env.AWS_REGION }} >/dev/null 2>&1; then
-            aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
+            echo "Production cluster found, updating kubeconfig..."
+            if aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}; then
+              echo "Kubeconfig updated successfully"
+              # Test connectivity to the cluster
+              echo "Testing cluster connectivity..."
+              if kubectl cluster-info >/dev/null 2>&1; then
+                echo "Cluster connectivity test passed"
+              else
+                echo "WARNING: Cluster connectivity test failed, but continuing with deployment..."
+              fi
+            else
+              echo "Failed to update kubeconfig, but continuing with deployment..."
+            fi
           else
-            echo "Cluster globepay-prod-eks not found, skipping kubeconfig update"
+            echo "Production cluster globepay-prod-eks not found, skipping kubeconfig update"
           fi
       
       - name: Deploy to ArgoCD

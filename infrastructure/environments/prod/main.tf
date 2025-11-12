@@ -91,7 +91,7 @@ module "eks" {
   private_subnet_ids           = module.networking.private_subnet_ids
   cluster_endpoint_public_access = var.cluster_endpoint_public_access
   cluster_endpoint_private_access = true
-  cluster_endpoint_public_access_cidrs = ["102.22.168.11/32"]
+  cluster_endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
   
   # Node groups
   node_groups = {
