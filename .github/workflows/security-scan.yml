@@ -59,6 +59,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
+        if: github.event_name != 'pull_request'
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
@@ -70,7 +71,7 @@ jobs:
           path: .
       
       - name: Upload Trivy results to GitHub Security
+        if: github.event_name != 'pull_request'
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
         with:
           sarif_file: 'trivy-results.sarif'
