@@ -25,15 +25,15 @@ func NewAuditService(auditRepo repository.AuditRepository) *AuditService {
 // LogUserAction logs a user action
 func (s *AuditService) LogUserAction(ctx context.Context, userID, action, tableName string, recordID string, oldValues, newValues interface{}) error {
 	auditLog := &model.AuditLog{
-		UserID:     userID,
-		Action:     action,
-		TableName:  tableName,
-		RecordID:   recordID,
-		OldValues:  make(map[string]interface{}),
-		NewValues:  make(map[string]interface{}),
-		IPAddress:  getClientIP(ctx),
-		UserAgent:  getUserAgent(ctx),
-		CreatedAt:  time.Now(),
+		UserID:    userID,
+		Action:    action,
+		TableName: tableName,
+		RecordID:  recordID,
+		OldValues: make(map[string]interface{}),
+		NewValues: make(map[string]interface{}),
+		IPAddress: getClientIP(ctx),
+		UserAgent: getUserAgent(ctx),
+		CreatedAt: time.Now(),
 	}
 
 	// Convert old values to map
@@ -46,7 +46,7 @@ func (s *AuditService) LogUserAction(ctx context.Context, userID, action, tableN
 			log.Printf("Failed to unmarshal old values: %v", err)
 		}
 	}
-	
+
 	// Convert new values to map
 	if newValues != nil {
 		newBytes, err := json.Marshal(newValues)

@@ -36,12 +36,12 @@ func (s *TransactionService) CreateTransaction(ctx context.Context, transaction 
 	if !utils.ValidateCurrencyCode(transaction.Currency) {
 		return &ValidationError{Field: "currency", Message: "Invalid currency code"}
 	}
-	
+
 	// Validate amount
 	if transaction.Amount <= 0 {
 		return &ValidationError{Field: "amount", Message: "Amount must be greater than zero"}
 	}
-	
+
 	// Validate type
 	validTypes := map[string]bool{
 		"DEPOSIT":    true,
@@ -49,24 +49,24 @@ func (s *TransactionService) CreateTransaction(ctx context.Context, transaction 
 		"TRANSFER":   true,
 		"FEE":        true,
 	}
-	
+
 	if !validTypes[transaction.Type] {
 		return &ValidationError{Field: "type", Message: "Invalid transaction type"}
 	}
-	
+
 	// Generate reference number if not provided
 	if transaction.ReferenceNumber == "" {
 		transaction.ReferenceNumber = generateTransactionReference()
 	}
-	
+
 	// Set processed time
 	transaction.ProcessedAt = time.Now()
-	
+
 	// Save transaction
 	if err := s.transactionRepo.Create(transaction); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 

@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"strconv"
 
-	infraconfig "globepay/internal/infrastructure/config"
 	"globepay/internal/config"
 	"globepay/internal/infrastructure/cache"
+	infraconfig "globepay/internal/infrastructure/config"
 	"globepay/internal/infrastructure/email"
 	"globepay/internal/infrastructure/sms"
 	"globepay/internal/repository"

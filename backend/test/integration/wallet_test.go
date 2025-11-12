@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"globepay/internal/api/router"
+	"globepay/internal/config"
 	"globepay/internal/domain/model"
 	"globepay/internal/domain/service"
-	"globepay/internal/config"
 	"globepay/internal/infrastructure/metrics"
 	"globepay/test/utils"
 

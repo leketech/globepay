@@ -34,33 +34,33 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 		fmt.Printf("User not found for email %s: %v\n", email, err)
 		return nil, &AuthenticationError{Message: "Invalid email or password"}
 	}
-	
+
 	// Verify password
 	match, err := utils.CheckPassword(password, user.PasswordHash)
 	if err != nil {
 		fmt.Printf("Error checking password for user %s: %v\n", email, err)
 		return nil, &AuthenticationError{Message: "Invalid email or password"}
 	}
-	
+
 	if !match {
 		fmt.Printf("Invalid password for user %s\n", email)
 		return nil, &AuthenticationError{Message: "Invalid email or password"}
 	}
-	
+
 	// Generate access token
 	accessToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, s.jwtExpire)
 	if err != nil {
 		fmt.Printf("Failed to generate access token for user %s: %v\n", email, err)
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
-	
+
 	// Generate refresh token (longer expiration)
 	refreshToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, 7*24*time.Hour)
 	if err != nil {
 		fmt.Printf("Failed to generate refresh token for user %s: %v\n", email, err)
 		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
-	
+
 	return &LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -71,7 +71,7 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*Login
 // Register creates a new user and returns JWT tokens
 func (s *AuthService) Register(ctx context.Context, email, password, firstName, lastName, phoneNumber, dateOfBirth, country string) (*LoginResponse, error) {
 	fmt.Printf("Registering user: email=%s, firstName=%s, lastName=%s, phoneNumber=%s, dateOfBirth=%s, country=%s\n", email, firstName, lastName, phoneNumber, dateOfBirth, country)
-	
+
 	// Parse date of birth if provided
 	var dob time.Time
 	if dateOfBirth != "" {
@@ -82,12 +82,12 @@ func (s *AuthService) Register(ctx context.Context, email, password, firstName, 
 			// Continue without date of birth if parsing fails
 		}
 	}
-	
+
 	// Create user model with all details (password will be hashed in the model)
 	user := model.NewUserWithDetails(email, password, firstName, lastName, phoneNumber, country, dob)
-	
+
 	fmt.Printf("Creating user in database: %+v\n", user)
-	
+
 	// Create user
 	err := s.userService.CreateUser(ctx, user)
 	if err != nil {
@@ -99,23 +99,23 @@ func (s *AuthService) Register(ctx context.Context, email, password, firstName, 
 		// Return a more generic error for other database issues
 		return nil, fmt.Errorf("failed to register user: %w", err)
 	}
-	
+
 	fmt.Printf("User created successfully: %+v\n", user)
-	
+
 	// Generate access token
 	accessToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, s.jwtExpire)
 	if err != nil {
 		fmt.Printf("Failed to generate access token: %v\n", err)
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
-	
+
 	// Generate refresh token
 	refreshToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, 7*24*time.Hour)
 	if err != nil {
 		fmt.Printf("Failed to generate refresh token: %v\n", err)
 		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
-	
+
 	return &LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -130,25 +130,25 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*R
 	if err != nil {
 		return nil, &AuthenticationError{Message: "Invalid refresh token"}
 	}
-	
+
 	// Get user
 	user, err := s.userService.GetUserByID(ctx, claims.UserID)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Generate new access token
 	newAccessToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, s.jwtExpire)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Generate new refresh token
 	newRefreshToken, err := utils.GenerateJWT(user.ID, user.Email, s.jwtSecret, 7*24*time.Hour)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &RefreshResponse{
 		AccessToken:  newAccessToken,
 		RefreshToken: newRefreshToken,
@@ -161,7 +161,7 @@ func (s *AuthService) ValidateToken(ctx context.Context, tokenString string) (*u
 	if err != nil {
 		return nil, &AuthenticationError{Message: "Invalid token"}
 	}
-	
+
 	return claims, nil
 }
 

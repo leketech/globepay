@@ -28,7 +28,7 @@ func (s *BeneficiaryService) CreateBeneficiary(ctx context.Context, beneficiary 
 	if !utils.ValidateCountryCode(beneficiary.Country) {
 		return &ValidationError{Field: "country", Message: "Invalid country code"}
 	}
-	
+
 	// Check if beneficiary already exists for this user
 	existingBeneficiary, err := s.beneficiaryRepo.GetByNameAndUser(ctx, beneficiary.Name, beneficiary.UserID)
 	if err != nil && err != sql.ErrNoRows {
@@ -37,12 +37,12 @@ func (s *BeneficiaryService) CreateBeneficiary(ctx context.Context, beneficiary 
 	if existingBeneficiary != nil {
 		return &ConflictError{Message: "Beneficiary with this name already exists"}
 	}
-	
+
 	// Save beneficiary
 	if err := s.beneficiaryRepo.Create(beneficiary); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 

@@ -31,7 +31,7 @@ func (s *AccountService) CreateAccount(ctx context.Context, userID, currency str
 	if !utils.ValidateCurrencyCode(currency) {
 		return nil, &ValidationError{Field: "currency", Message: "Invalid currency code"}
 	}
-	
+
 	// Check if user exists
 	_, err := s.userRepo.GetByID(userID)
 	if err != nil {
@@ -40,7 +40,7 @@ func (s *AccountService) CreateAccount(ctx context.Context, userID, currency str
 		}
 		return nil, err
 	}
-	
+
 	// Check if account already exists for this currency
 	existingAccount, err := s.accountRepo.GetByUserAndCurrency(ctx, userID, currency)
 	if err != nil && err != sql.ErrNoRows {
@@ -49,18 +49,18 @@ func (s *AccountService) CreateAccount(ctx context.Context, userID, currency str
 	if existingAccount != nil {
 		return nil, &ConflictError{Message: fmt.Sprintf("Account for currency %s already exists", currency)}
 	}
-	
+
 	// Generate account number
 	accountNumber := generateAccountNumber()
-	
+
 	// Create new account
 	account := model.NewAccount(userID, currency, accountNumber)
-	
+
 	// Save account
 	if err := s.accountRepo.Create(account); err != nil {
 		return nil, err
 	}
-	
+
 	return account, nil
 }
 

@@ -37,10 +37,10 @@ func main() {
 
 	// Initialize logger
 	logLevel, err := logrus.ParseLevel(cfg.Observability.LogLevel)
-		if err != nil {
-			logLevel = logrus.InfoLevel
-		}
-		logger := logger.NewLogger(logLevel, cfg.IsDevelopment())
+	if err != nil {
+		logLevel = logrus.InfoLevel
+	}
+	logger := logger.NewLogger(logLevel, cfg.IsDevelopment())
 	logger.Info("Starting Globepay API server...")
 
 	// Initialize database connection
@@ -74,9 +74,9 @@ func main() {
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%s", cfg.GetServerAddress()),
 		Handler:           r,
-		ReadHeaderTimeout: 10 * time.Second, // Prevent Slowloris attacks
-		ReadTimeout:       30 * time.Second, // Maximum time to read entire request
-		WriteTimeout:      30 * time.Second, // Maximum time to write response
+		ReadHeaderTimeout: 10 * time.Second,  // Prevent Slowloris attacks
+		ReadTimeout:       30 * time.Second,  // Maximum time to read entire request
+		WriteTimeout:      30 * time.Second,  // Maximum time to write response
 		IdleTimeout:       120 * time.Second, // Maximum time to keep idle connections
 	}
 

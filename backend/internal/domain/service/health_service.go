@@ -63,7 +63,7 @@ func (h *HealthService) CheckAll(ctx context.Context) map[string]string {
 func (h *HealthService) CheckDatabaseSimple() bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	return h.db.PingContext(ctx) == nil
 }
 
@@ -71,6 +71,6 @@ func (h *HealthService) CheckDatabaseSimple() bool {
 func (h *HealthService) CheckRedisSimple() bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	return h.cache.Ping(ctx) == nil
 }

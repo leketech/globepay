@@ -41,26 +41,26 @@ func (s *TransferService) CreateTransfer(ctx context.Context, transfer *model.Tr
 	if !utils.ValidateCurrencyCode(transfer.SourceCurrency) {
 		return &ValidationError{Field: "sourceCurrency", Message: "Invalid source currency code"}
 	}
-	
+
 	if !utils.ValidateCurrencyCode(transfer.DestCurrency) {
 		return &ValidationError{Field: "destCurrency", Message: "Invalid destination currency code"}
 	}
-	
+
 	// Validate country code
 	if !utils.ValidateCountryCode(transfer.RecipientCountry) {
 		return &ValidationError{Field: "recipientCountry", Message: "Invalid country code"}
 	}
-	
+
 	// Validate purpose
 	if transfer.Purpose == "" {
 		return &ValidationError{Field: "purpose", Message: "Purpose is required"}
 	}
-	
+
 	// Validate amounts
 	if transfer.SourceAmount <= 0 {
 		return &ValidationError{Field: "sourceAmount", Message: "Source amount must be greater than zero"}
 	}
-	
+
 	// Get user accounts
 	sourceAccount, err := s.accountRepo.GetByUserAndCurrency(ctx, transfer.UserID, transfer.SourceCurrency)
 	if err != nil {
@@ -69,31 +69,31 @@ func (s *TransferService) CreateTransfer(ctx context.Context, transfer *model.Tr
 		}
 		return err
 	}
-	
+
 	// Check if user has sufficient funds
 	if sourceAccount.Balance < transfer.SourceAmount {
 		return &InsufficientFundsError{Message: "Insufficient funds in source account"}
 	}
-	
+
 	// Generate reference number
 	transfer.ReferenceNumber = generateReferenceNumber()
-	
+
 	// Set initial status
 	transfer.Status = "pending"
-	
+
 	// Set estimated arrival time (24 hours from now)
 	transfer.EstimatedArrival = time.Now().Add(24 * time.Hour)
-	
+
 	// Calculate exchange rate and fees (simplified for this example)
 	transfer.ExchangeRate = calculateExchangeRate(transfer.SourceCurrency, transfer.DestCurrency)
 	transfer.FeeAmount = calculateFee(transfer.SourceAmount)
 	transfer.DestAmount = (transfer.SourceAmount - transfer.FeeAmount) * transfer.ExchangeRate
-	
+
 	// Save transfer
 	if err := s.transferRepo.Create(transfer); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -113,16 +113,16 @@ func (s *TransferService) CancelTransfer(ctx context.Context, transferID string)
 	if err != nil {
 		return err
 	}
-	
+
 	// Check if transfer can be cancelled
 	if transfer.Status != "pending" {
 		return &ConflictError{Message: "Only pending transfers can be cancelled"}
 	}
-	
+
 	// Update status
 	transfer.Status = "cancelled"
 	transfer.UpdatedAt = time.Now()
-	
+
 	return s.transferRepo.Update(transfer)
 }
 
@@ -132,22 +132,22 @@ func (s *TransferService) ProcessTransfer(ctx context.Context, transferID string
 	if err != nil {
 		return err
 	}
-	
+
 	// Check if transfer can be processed
 	if transfer.Status != "pending" {
 		return &ConflictError{Message: "Only pending transfers can be processed"}
 	}
-	
+
 	// Update status
 	transfer.Status = "completed"
 	transfer.ProcessedAt = time.Now()
 	transfer.UpdatedAt = time.Now()
-	
+
 	// Update transfer
 	if err := s.transferRepo.Update(transfer); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -168,13 +168,13 @@ func calculateExchangeRate(fromCurrency, toCurrency string) float64 {
 		"GBP": {"USD": 1.33, "EUR": 1.14, "JPY": 147.0},
 		"JPY": {"USD": 0.0091, "EUR": 0.0078, "GBP": 0.0068},
 	}
-	
+
 	if fromRates, ok := rates[fromCurrency]; ok {
 		if rate, ok := fromRates[toCurrency]; ok {
 			return rate
 		}
 	}
-	
+
 	// Default to 1.0 if no rate found
 	return 1.0
 }
@@ -183,13 +183,13 @@ func calculateExchangeRate(fromCurrency, toCurrency string) float64 {
 func calculateFee(amount float64) float64 {
 	// In a real implementation, this would use a more complex fee structure
 	// based on amount, currency, destination, etc.
-	
+
 	// 2.5% fee with minimum of $1
 	fee := amount * 0.025
 	if fee < 1.0 {
 		fee = 1.0
 	}
-	
+
 	// Round to 2 decimal places
 	return math.Round(fee*100) / 100
 }
