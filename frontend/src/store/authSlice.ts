@@ -38,14 +38,31 @@ const mapApiUserToUser = (apiUser: ApiUser): User => {
   return user;
 };
 
-const initialState: AuthState = {
-  user: authService.getCurrentUser(),
-  token: authService.getToken(),
-  accounts: [],
-  isAuthenticated: authService.isAuthenticated(),
-  loading: false,
-  error: null,
+// Helper function to safely get initial state
+const getInitialState = (): AuthState => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return {
+      user: null,
+      token: null,
+      accounts: [],
+      isAuthenticated: false,
+      loading: false,
+      error: null,
+    };
+  }
+
+  return {
+    user: authService.getCurrentUser(),
+    token: authService.getToken(),
+    accounts: [],
+    isAuthenticated: authService.isAuthenticated(),
+    loading: false,
+    error: null,
+  };
 };
+
+const initialState: AuthState = getInitialState();
 
 export const login = createAsyncThunk(
   'auth/login',

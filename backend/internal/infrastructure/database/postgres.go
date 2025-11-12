@@ -7,6 +7,7 @@ import (
 
 	"globepay/internal/config"
 
+	// Register PostgreSQL driver for database/sql
 	_ "github.com/lib/pq"
 )
 

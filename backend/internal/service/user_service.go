@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -114,7 +115,7 @@ func (s *UserService) SubmitVerification(userID string, verification *UserVerifi
 // GetAccounts retrieves all accounts for a user
 func (s *UserService) GetAccounts(userID string) ([]model.Account, error) { // Changed from int64 to string
 	// This method doesn't exist in the repository interface, so we'll use GetByUser instead
-	accountPtrs, err := s.accountRepo.GetByUser(nil, userID) // Pass nil context for now
+	accountPtrs, err := s.accountRepo.GetByUser(context.TODO(), userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get accounts: %w", err)
 	}

@@ -25,6 +25,14 @@ export interface AuthResponse {
   };
 }
 
+// Helper function to safely access localStorage
+const getStorage = () => {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return null;
+  }
+  return localStorage;
+};
+
 export const authService = {
   async login(data: LoginRequest): Promise<AuthResponse> {
     console.log('AuthService login called with data:', data);
@@ -39,9 +47,10 @@ export const authService = {
       }
 
       // Store in localStorage
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
+      const storage = getStorage();
+      if (storage && response.token) {
+        storage.setItem('token', response.token);
+        storage.setItem('user', JSON.stringify(response.user));
       }
 
       return response;
@@ -56,25 +65,33 @@ export const authService = {
     // Using the authApi.register function directly
     const response = await authApi.register(data);
     console.log('AuthService signup response:', response);
-    if (response.token) {
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+    const storage = getStorage();
+    if (storage && response.token) {
+      storage.setItem('token', response.token);
+      storage.setItem('user', JSON.stringify(response.user));
     }
     return response;
   },
 
   async logout(): Promise<void> {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    const storage = getStorage();
+    if (storage) {
+      storage.removeItem('token');
+      storage.removeItem('user');
+    }
   },
 
   getCurrentUser() {
-    const userStr = localStorage.getItem('user');
+    const storage = getStorage();
+    if (!storage) return null;
+    const userStr = storage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   },
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    const storage = getStorage();
+    if (!storage) return null;
+    return storage.getItem('token');
   },
 
   isAuthenticated(): boolean {

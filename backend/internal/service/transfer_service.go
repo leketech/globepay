@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -39,7 +40,7 @@ func NewTransferService(transferRepo repository.TransferRepository, accountRepo 
 // GetTransfers retrieves all transfers for a user (as sender or receiver)
 func (s *TransferService) GetTransfers(userID string) ([]model.Transfer, error) { // Changed from int64 to string
 	// This method doesn't exist in the repository interface, so we'll use GetByUser instead
-	transfers, err := s.transferRepo.GetByUser(nil, userID, 100, 0) // Pass nil context for now
+	transfers, err := s.transferRepo.GetByUser(context.TODO(), userID, 100, 0) // Pass nil context for now
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transfers: %w", err)
 	}

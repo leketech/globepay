@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -198,7 +199,7 @@ func (suite *TransferTestSuite) TestTransferRepository_GetByUser() {
 	assert.NoError(suite.T(), err)
 
 	// Test getting transfers by user ID
-	transfers, err := suite.transferRepo.GetByUser(nil, "1", 100, 0)
+	transfers, err := suite.transferRepo.GetByUser(context.TODO(), "1", 100, 0)
 	assert.NoError(suite.T(), err)
 	assert.Len(suite.T(), transfers, 2)
 }

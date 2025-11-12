@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -156,7 +157,7 @@ func (suite *TransactionTestSuite) TestTransactionRepository_GetByUser() {
 	assert.NoError(suite.T(), err)
 
 	// Test getting transactions by user ID
-	transactions, err := suite.transactionRepo.GetByUser(nil, "1", 100, 0)
+	transactions, err := suite.transactionRepo.GetByUser(context.TODO(), "1", 100, 0)
 	assert.NoError(suite.T(), err)
 	assert.Len(suite.T(), transactions, 2)
 }
