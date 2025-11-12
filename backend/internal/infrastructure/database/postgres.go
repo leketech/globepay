@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/lib/pq"
 	"globepay/internal/config"
+
+	_ "github.com/lib/pq"
 )
 
 // NewPostgresConnection creates a new PostgreSQL database connection

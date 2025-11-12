@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -36,7 +37,7 @@ func NewTransactionService(transactionRepo repository.TransactionRepository, acc
 // GetTransactions retrieves all transactions for a user
 func (s *TransactionService) GetTransactions(userID string) ([]model.Transaction, error) { // Changed from int64 to string
 	// This method doesn't exist in the repository interface, so we'll use GetByUser instead
-	transactions, err := s.transactionRepo.GetByUser(nil, userID, 100, 0) // Pass nil context for now
+	transactions, err := s.transactionRepo.GetByUser(context.TODO(), userID, 100, 0)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transactions: %w", err)
 	}
@@ -98,7 +99,7 @@ func (s *TransactionService) CreateTransaction(transaction *model.Transaction) e
 // GetTransactionHistory retrieves transaction history with pagination
 func (s *TransactionService) GetTransactionHistory(userID string, limit, offset int) ([]model.Transaction, error) { // Changed from int64 to string
 	// Get all transactions for the user
-	allTransactions, err := s.transactionRepo.GetByUser(nil, userID, 1000, 0) // Pass nil context for now, get more than needed
+	allTransactions, err := s.transactionRepo.GetByUser(context.TODO(), userID, 1000, 0)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transactions: %w", err)
 	}
@@ -178,7 +179,7 @@ func (s *TransactionService) processDeposit(transaction *model.Transaction) erro
 
 	// Add amount to account balance
 	newBalance := account.Balance + transaction.Amount
-	if err := s.accountRepo.UpdateBalance(nil, account.ID, newBalance); err != nil { // Pass nil context for now
+	if err := s.accountRepo.UpdateBalance(context.TODO(), account.ID, newBalance); err != nil {
 		return fmt.Errorf("failed to update account balance: %w", err)
 	}
 
@@ -204,7 +205,7 @@ func (s *TransactionService) handleStatusTransition(transaction *model.Transacti
 			}
 
 			newBalance := account.Balance - transaction.Amount - transaction.Fee
-			if err := s.accountRepo.UpdateBalance(nil, account.ID, newBalance); err != nil { // Pass nil context for now
+			if err := s.accountRepo.UpdateBalance(context.TODO(), account.ID, newBalance); err != nil {
 				return fmt.Errorf("failed to update account balance: %w", err)
 			}
 		}
@@ -223,7 +224,7 @@ func (s *TransactionService) handleStatusTransition(transaction *model.Transacti
 			}
 
 			newBalance := account.Balance - transaction.Amount
-			if err := s.accountRepo.UpdateBalance(nil, account.ID, newBalance); err != nil { // Pass nil context for now
+			if err := s.accountRepo.UpdateBalance(context.TODO(), account.ID, newBalance); err != nil {
 				return fmt.Errorf("failed to update account balance: %w", err)
 			}
 		} else if transaction.Type == string(model.TransactionWithdrawal) {
@@ -234,7 +235,7 @@ func (s *TransactionService) handleStatusTransition(transaction *model.Transacti
 			}
 
 			newBalance := account.Balance + transaction.Amount + transaction.Fee
-			if err := s.accountRepo.UpdateBalance(nil, account.ID, newBalance); err != nil { // Pass nil context for now
+			if err := s.accountRepo.UpdateBalance(context.TODO(), account.ID, newBalance); err != nil {
 				return fmt.Errorf("failed to update account balance: %w", err)
 			}
 		}

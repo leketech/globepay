@@ -72,7 +72,9 @@ func TestAuthService_Login(t *testing.T) {
 	}
 
 	// Set password using the model's SetPassword method
-	modelUser.SetPassword(password)
+	if err := modelUser.SetPassword(password); err != nil {
+		t.Fatalf("Failed to set password: %v", err)
+	}
 
 	// Set up mock expectations
 	mockUserRepo.On("GetByEmail", email).Return(modelUser, nil)

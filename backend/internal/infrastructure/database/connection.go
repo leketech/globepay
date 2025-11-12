@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // Register PostgreSQL driver for database/sql
 )
 
 // Config holds database configuration

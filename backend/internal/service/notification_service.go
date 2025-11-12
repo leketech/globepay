@@ -177,17 +177,14 @@ func (s *NotificationService) SendVerificationNotification(userID string, verifi
 // SendWelcomeNotification sends a welcome notification to a new user
 func (s *NotificationService) SendWelcomeNotification(userID string, email string) error { // Changed from int64 to string
 	subject := "Welcome to Globepay!"
-	body := fmt.Sprintf(`
+	body := `
 		Welcome to Globepay!
 		
 		Thank you for joining our platform. You can now start sending and receiving money globally.
 		
-		If you have any questions, feel free to contact our support team.
-		
 		Best regards,
 		The Globepay Team
-	`)
-
+	`
 	return s.SendEmail(email, subject, body)
 }
 

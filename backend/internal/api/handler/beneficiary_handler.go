@@ -25,7 +25,7 @@ type CreateBeneficiaryRequest struct {
 // UpdateBeneficiaryRequest represents the update beneficiary request body
 type UpdateBeneficiaryRequest struct {
 	Name          string `json:"name,omitempty"`
-	Country       string `json:"country,omitempty,len=2"`
+	Country       string `json:"country,omitempty"`
 	BankName      string `json:"bankName,omitempty"`
 	AccountNumber string `json:"accountNumber,omitempty"`
 	SwiftCode     string `json:"swiftCode,omitempty"`
