@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"strconv"
 
-	config "globepay/internal/config"
+	"globepay/internal/config"
 	"globepay/internal/infrastructure/cache"
 	infraconfig "globepay/internal/infrastructure/config"
 	"globepay/internal/infrastructure/email"
@@ -112,8 +112,8 @@ func (f *Factory) GetAuthService() *AuthService {
 	if f.authService == nil {
 		f.authService = NewAuthService(
 			f.GetUserService(),
-			f.config.JWTSecret,
-			f.config.JWTExpiration,
+			f.config.JWT.Secret,
+			f.config.JWT.Expiration,
 		)
 	}
 	return f.authService
@@ -142,8 +142,8 @@ func (f *Factory) GetConfigService() *ConfigService {
 	return NewConfigService(&infraconfig.Config{
 		Environment:   f.config.Environment,
 		ServerPort:    strconv.Itoa(f.config.Server.Port),
-		JWTSecret:     f.config.JWTSecret,
-		JWTExpiration: f.config.JWTExpiration,
+		JWTSecret:     f.config.JWT.Secret,
+		JWTExpiration: f.config.JWT.Expiration,
 		DatabaseURL:   f.config.GetDatabaseDSN(),
 		RedisURL:      f.config.GetRedisAddress(),
 		AWSRegion:     f.config.AWS.Region,
@@ -154,7 +154,7 @@ func (f *Factory) GetConfigService() *ConfigService {
 
 // GetJWTSecret returns the JWT secret from the configuration
 func (f *Factory) GetJWTSecret() string {
-	return f.config.JWTSecret
+	return f.config.JWT.Secret
 }
 
 // GetConfig returns the application configuration
