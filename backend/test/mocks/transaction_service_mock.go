@@ -1,9 +1,9 @@
 package mocks
 
 import (
-	"globepay/internal/domain/model"
-
 	"github.com/stretchr/testify/mock"
+
+	"globepay/internal/domain/model"
 )
 
 type TransactionServiceMock struct {

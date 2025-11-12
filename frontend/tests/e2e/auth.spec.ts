@@ -2,7 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Authentication Flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    // Listen for console messages
+    page.on('console', msg => console.log('Console:', msg.text()));
+    page.on('pageerror', error => console.log('Page error:', error.message));
+    page.on('requestfailed', request => console.log('Request failed:', request.url(), request.failure()?.errorText));
+    
+    await page.goto('/', { waitUntil: 'networkidle' });
   });
 
   test('should load the home page', async ({ page }) => {

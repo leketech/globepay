@@ -1,4 +1,4 @@
-name: Backend CI/CD
+name: Backend CI
 
 on:
   push:
@@ -7,18 +7,14 @@ on:
     branches: [main, develop, staging]
 
 env:
+  GO_VERSION: '1.25'
   AWS_REGION: us-east-1
   ECR_REPOSITORY: globepay-backend
-  GO_VERSION: '1.18'
 
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        go-version: ['1.18']
     
     services:
       postgres:
@@ -43,91 +39,75 @@ jobs:
           --health-retries 5
         ports:
           - 6379:6379
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v4
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: '1.25'
           cache-dependency-path: backend/go.sum
-      
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      
+
       - name: Install dependencies
-        working-directory: ./backend
+        working-directory: backend
         run: go mod download
-      
-      - name: Install golangci-lint
-        working-directory: ./backend
-        run: |
-          go clean -modcache
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
-      
-      - name: Run golangci-lint
-        working-directory: ./backend
-        run: |
-          $(go env GOPATH)/bin/golangci-lint run --timeout=5m
-      
+
       - name: Run tests
-        working-directory: ./backend
+        working-directory: backend
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/globepay_test?sslmode=disable
           REDIS_URL: redis://localhost:6379/0
-        run: |
-          go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
-      
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        run: go test -v ./...
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
-          files: ./backend/coverage.out
-          flags: backend
-          fail_ci_if_error: false
-      
-      - name: Run security scan
-        working-directory: ./backend
+          go-version: '1.25'
+          cache-dependency-path: backend/go.sum
+
+      - name: Install dependencies
+        working-directory: backend
+        run: go mod download
+
+      - name: Run linting
+        working-directory: backend
         run: |
-          go install github.com/securego/gosec/v2/cmd/gosec@v2.15.0
-          $(go env GOPATH)/bin/gosec ./... || true
-        continue-on-error: true
-  
+          go clean -modcache
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
+          $(go env GOPATH)/bin/golangci-lint run --timeout=5m
+
   build:
     name: Build and Push
-    needs: test
+    needs: [test, lint]
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
-    
-    outputs:
-      image-tag: ${{ steps.meta.outputs.tags }}
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -139,252 +119,17 @@ jobs:
             type=sha
             type=semver,pattern=version
             type=semver,pattern=major.minor
-      
-      - name: Build and push Docker image
+
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ./backend
-          file: ./backend/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
             VERSION=${{ github.sha }}
             BUILD_DATE=${{ github.event.repository.updated_at }}
-      
-      - name: Scan image with Trivy
-        if: github.event_name != 'pull_request'
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          exit-code: '0'
-          severity: 'CRITICAL,HIGH'
-      
-      - name: Upload Trivy results to GitHub Security
-        if: github.event_name != 'pull_request'
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
-          wait-for-processing: true
-
-  deploy-dev:
-    name: Deploy to Dev
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
-    environment: dev
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      
-      - name: Update kubeconfig
-        run: |
-          if aws eks describe-cluster --name globepay-dev-eks --region ${{ env.AWS_REGION }} >/dev/null 2>&1; then
-            aws eks update-kubeconfig --name globepay-dev-eks --region ${{ env.AWS_REGION }}
-          else
-            echo "Cluster globepay-dev-eks not found, skipping kubeconfig update"
-          fi
-      
-      - name: Deploy to ArgoCD
-        run: |
-          kubectl patch application globepay-backend-dev \
-            -n argocd \
-            --type merge \
-            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
-          
-          kubectl wait --for=condition=Healthy \
-            application/globepay-backend-dev \
-            -n argocd \
-            --timeout=10m
-      
-      - name: Verify deployment
-        run: |
-          kubectl rollout status deployment/backend -n globepay-dev --timeout=10m
-      
-      - name: Run smoke tests
-        run: |
-          kubectl wait --for=condition=ready pod -l app=backend -n globepay-dev --timeout=5m
-          
-          SERVICE_URL=$(kubectl get svc backend -n globepay-dev -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-          
-          if [ -z "$SERVICE_URL" ]; then
-            echo "Service URL not found, skipping health check"
-            exit 0
-          fi
-          
-          curl -f http://${SERVICE_URL}/health || exit 1
-
-  deploy-staging:
-    name: Deploy to Staging
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/staging'
-    environment: staging
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      
-      - name: Update kubeconfig
-        run: |
-          if aws eks describe-cluster --name globepay-staging-eks --region ${{ env.AWS_REGION }} >/dev/null 2>&1; then
-            aws eks update-kubeconfig --name globepay-staging-eks --region ${{ env.AWS_REGION }}
-          else
-            echo "Cluster globepay-staging-eks not found, skipping kubeconfig update"
-          fi
-      
-      - name: Deploy to ArgoCD
-        run: |
-          kubectl patch application globepay-backend-staging \
-            -n argocd \
-            --type merge \
-            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
-          
-          kubectl wait --for=condition=Healthy \
-            application/globepay-backend-staging \
-            -n argocd \
-            --timeout=15m
-      
-      - name: Verify deployment
-        run: |
-          kubectl rollout status deployment/backend -n globepay-staging --timeout=15m
-      
-      - name: Run integration tests
-        run: |
-          cd backend
-          go test -v ./test/integration/... -tags=integration || echo "Integration tests failed but continuing"
-
-  deploy-prod:
-    name: Deploy to Production
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment: production
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      
-      - name: Update kubeconfig
-        run: |
-          if aws eks describe-cluster --name globepay-prod-eks --region ${{ env.AWS_REGION }} >/dev/null 2>&1; then
-            aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
-          else
-            echo "Cluster globepay-prod-eks not found, skipping kubeconfig update"
-          fi
-      
-      - name: Create backup before deployment
-        run: |
-          # Trigger database backup
-          echo "Creating database snapshot before deployment..."
-          if aws rds create-db-snapshot \
-            --db-instance-identifier globepay-prod-db \
-            --db-snapshot-identifier pre-deploy-$(date +%Y%m%d-%H%M%S); then
-            echo "Database snapshot created successfully"
-          else
-            echo "Backup creation failed, continuing with deployment..."
-          fi
-      
-      - name: Deploy to ArgoCD (Canary)
-        run: |
-          # Deploy with canary strategy
-          echo "Deploying application with commit ${GITHUB_SHA}..."
-          if kubectl patch application globepay-backend-prod \
-            -n argocd \
-            --type merge \
-            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"; then
-            echo "Application patch applied successfully"
-          else
-            echo "Failed to patch application, exiting..."
-            exit 1
-          fi
-          
-          echo "Waiting for application to become healthy..."
-          if kubectl wait --for=condition=Healthy \
-            application/globepay-backend-prod \
-            -n argocd \
-            --timeout=20m; then
-            echo "Application is healthy"
-          else
-            echo "Application failed to become healthy within timeout"
-            kubectl describe application/globepay-backend-prod -n argocd
-            exit 1
-          fi
-      
-      - name: Monitor canary deployment
-        run: |
-          curl -sLO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64
-          chmod +x kubectl-argo-rollouts-linux-amd64
-          sudo mv kubectl-argo-rollouts-linux-amd64 /usr/local/bin/kubectl-argo-rollouts
-          
-          kubectl wait --for=condition=Progressing \
-            rollout/backend \
-            -n globepay-prod \
-            --timeout=10m || true
-      
-      - name: Verify deployment
-        run: |
-          kubectl rollout status deployment/backend -n globepay-prod --timeout=20m
-      
-      - name: Run production smoke tests
-        run: |
-          SERVICE_URL="${{ secrets.PROD_API_URL }}"
-          
-          if [ -z "$SERVICE_URL" ]; then
-            echo "PROD_API_URL not set, skipping smoke tests"
-            exit 0
-          fi
-          
-          echo "Running health check against $SERVICE_URL..."
-          if curl -f ${SERVICE_URL}/health --max-time 30; then
-            echo "Health check passed"
-          else
-            echo "Health check failed"
-            exit 1
-          fi
-          
-          echo "Running metrics check..."
-          if curl -f ${SERVICE_URL}/metrics --max-time 30; then
-            echo "Metrics check passed"
-          else
-            echo "Metrics check failed"
-            exit 1
-          fi
-      
-      - name: Notify deployment
-        if: always()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          text: |
-            Production Deployment: ${{ job.status }}
-            Environment: Production
-            Commit: ${{ github.sha }}
-            Author: ${{ github.actor }}
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}

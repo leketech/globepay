@@ -1,6 +1,6 @@
 module globepay
 
-go 1.18
+go 1.25
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.22.1
