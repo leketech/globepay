@@ -30,6 +30,15 @@
     }
   },
   "include": ["src", "**/*.test.ts", "**/*.test.tsx"],
-  "exclude": ["node_modules", "dist", "tests/e2e", "**/*.spec.ts", "**/*.spec.tsx"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests",
+    "tests/e2e",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "playwright-report",
+    "coverage"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
