@@ -1,8 +1,8 @@
 package mocks
 
 import (
-	"github.com/stretchr/testify/mock"
 	"globepay/internal/domain"
+	"github.com/stretchr/testify/mock"
 )
 
 type ExchangeRateServiceMock struct {
