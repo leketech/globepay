@@ -300,21 +300,41 @@ jobs:
       
       - name: Create backup before deployment
         run: |
-          aws rds create-db-snapshot \
+          # Trigger database backup
+          echo "Creating database snapshot before deployment..."
+          if aws rds create-db-snapshot \
             --db-instance-identifier globepay-prod-db \
-            --db-snapshot-identifier pre-deploy-$(date +%Y%m%d-%H%M%S) || echo "Backup creation failed, continuing..."
+            --db-snapshot-identifier pre-deploy-$(date +%Y%m%d-%H%M%S); then
+            echo "Database snapshot created successfully"
+          else
+            echo "Backup creation failed, continuing with deployment..."
+          fi
       
       - name: Deploy to ArgoCD (Canary)
         run: |
-          kubectl patch application globepay-backend-prod \
+          # Deploy with canary strategy
+          echo "Deploying application with commit ${GITHUB_SHA}..."
+          if kubectl patch application globepay-backend-prod \
             -n argocd \
             --type merge \
-            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
+            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"; then
+            echo "Application patch applied successfully"
+          else
+            echo "Failed to patch application, exiting..."
+            exit 1
+          fi
           
-          kubectl wait --for=condition=Healthy \
+          echo "Waiting for application to become healthy..."
+          if kubectl wait --for=condition=Healthy \
             application/globepay-backend-prod \
             -n argocd \
-            --timeout=20m
+            --timeout=20m; then
+            echo "Application is healthy"
+          else
+            echo "Application failed to become healthy within timeout"
+            kubectl describe application/globepay-backend-prod -n argocd
+            exit 1
+          fi
       
       - name: Monitor canary deployment
         run: |
@@ -340,8 +360,21 @@ jobs:
             exit 0
           fi
           
-          curl -f ${SERVICE_URL}/health || exit 1
-          curl -f ${SERVICE_URL}/metrics || exit 1
+          echo "Running health check against $SERVICE_URL..."
+          if curl -f ${SERVICE_URL}/health --max-time 30; then
+            echo "Health check passed"
+          else
+            echo "Health check failed"
+            exit 1
+          fi
+          
+          echo "Running metrics check..."
+          if curl -f ${SERVICE_URL}/metrics --max-time 30; then
+            echo "Metrics check passed"
+          else
+            echo "Metrics check failed"
+            exit 1
+          fi
       
       - name: Notify deployment
         if: always()

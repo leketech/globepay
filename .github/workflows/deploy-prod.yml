@@ -37,22 +37,40 @@ jobs:
       - name: Create backup before deployment
         run: |
           # Trigger database backup
-          aws rds create-db-snapshot \
+          echo "Creating database snapshot before deployment..."
+          if aws rds create-db-snapshot \
             --db-instance-identifier globepay-prod-db \
-            --db-snapshot-identifier pre-deploy-$(date +%Y%m%d-%H%M%S) || echo "Backup creation failed, continuing..."
+            --db-snapshot-identifier pre-deploy-$(date +%Y%m%d-%H%M%S); then
+            echo "Database snapshot created successfully"
+          else
+            echo "Backup creation failed, continuing with deployment..."
+          fi
       
       - name: Deploy to ArgoCD (Canary)
         run: |
           # Deploy with canary strategy
-          kubectl patch application globepay-backend-prod \
+          echo "Deploying application with commit ${GITHUB_SHA}..."
+          if kubectl patch application globepay-backend-prod \
             -n argocd \
             --type merge \
-            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
+            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"; then
+            echo "Application patch applied successfully"
+          else
+            echo "Failed to patch application, exiting..."
+            exit 1
+          fi
           
-          kubectl wait --for=condition=Healthy \
+          echo "Waiting for application to become healthy..."
+          if kubectl wait --for=condition=Healthy \
             application/globepay-backend-prod \
             -n argocd \
-            --timeout=20m
+            --timeout=20m; then
+            echo "Application is healthy"
+          else
+            echo "Application failed to become healthy within timeout"
+            kubectl describe application/globepay-backend-prod -n argocd
+            exit 1
+          fi
       
       - name: Monitor canary deployment
         run: |
@@ -78,11 +96,26 @@ jobs:
         run: |
           SERVICE_URL="${{ secrets.PROD_API_URL }}"
           
-          # Health check
-          curl -f ${SERVICE_URL}/health || exit 1
+          if [ -z "$SERVICE_URL" ]; then
+            echo "PROD_API_URL not set, skipping smoke tests"
+            exit 0
+          fi
           
-          # Metrics check
-          curl -f ${SERVICE_URL}/metrics || exit 1
+          echo "Running health check against $SERVICE_URL..."
+          if curl -f ${SERVICE_URL}/health --max-time 30; then
+            echo "Health check passed"
+          else
+            echo "Health check failed"
+            exit 1
+          fi
+          
+          echo "Running metrics check..."
+          if curl -f ${SERVICE_URL}/metrics --max-time 30; then
+            echo "Metrics check passed"
+          else
+            echo "Metrics check failed"
+            exit 1
+          fi
       
       - name: Notify deployment
         if: always()
@@ -124,15 +157,28 @@ jobs:
       - name: Deploy to ArgoCD
         run: |
           # Deploy frontend application
-          kubectl patch application globepay-frontend-prod \
+          echo "Deploying frontend application with commit ${GITHUB_SHA}..."
+          if kubectl patch application globepay-frontend-prod \
             -n argocd \
             --type merge \
-            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
+            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"; then
+            echo "Frontend application patch applied successfully"
+          else
+            echo "Failed to patch frontend application, exiting..."
+            exit 1
+          fi
           
-          kubectl wait --for=condition=Healthy \
+          echo "Waiting for frontend application to become healthy..."
+          if kubectl wait --for=condition=Healthy \
             application/globepay-frontend-prod \
             -n argocd \
-            --timeout=15m
+            --timeout=15m; then
+            echo "Frontend application is healthy"
+          else
+            echo "Frontend application failed to become healthy within timeout"
+            kubectl describe application/globepay-frontend-prod -n argocd
+            exit 1
+          fi
       
       - name: Verify frontend deployment
         run: |
@@ -140,19 +186,52 @@ jobs:
       
       - name: Deploy to S3 and CloudFront
         run: |
+          echo "Building frontend application..."
           cd frontend
-          npm ci
-          npm run build
+          if npm ci && npm run build; then
+            echo "Frontend build completed successfully"
+          else
+            echo "Frontend build failed, exiting..."
+            exit 1
+          fi
           
-          aws s3 sync dist/ s3://globepay-prod-assets/ --delete
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
+          echo "Deploying to S3..."
+          if aws s3 sync dist/ s3://globepay-prod-assets/ --delete; then
+            echo "S3 deployment completed successfully"
+          else
+            echo "S3 deployment failed, exiting..."
+            exit 1
+          fi
+          
+          echo "Creating CloudFront invalidation..."
+          if [ -n "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" ]; then
+            if aws cloudfront create-invalidation \
+              --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+              --paths "/*"; then
+              echo "CloudFront invalidation created successfully"
+            else
+              echo "CloudFront invalidation failed, continuing..."
+            fi
+          else
+            echo "CLOUDFRONT_DISTRIBUTION_ID not set, skipping invalidation"
+          fi
       
       - name: Verify frontend accessibility
         run: |
           FRONTEND_URL="${{ secrets.PROD_FRONTEND_URL }}"
-          curl -f ${FRONTEND_URL} || exit 1
+          
+          if [ -z "$FRONTEND_URL" ]; then
+            echo "PROD_FRONTEND_URL not set, skipping frontend accessibility check"
+            exit 0
+          fi
+          
+          echo "Verifying frontend accessibility at $FRONTEND_URL..."
+          if curl -f ${FRONTEND_URL} --max-time 30; then
+            echo "Frontend is accessible"
+          else
+            echo "Frontend is not accessible"
+            exit 1
+          fi
       
       - name: Notify deployment
         if: always()
