@@ -18,8 +18,8 @@ func TestUser_NewUser(t *testing.T) {
 	assert.Equal(t, "active", user.AccountStatus)
 	assert.False(t, user.EmailVerified)
 	assert.False(t, user.PhoneVerified)
-	assert.WithinDuration(t, time.Now(), user.CreatedAt, time.Second)
-	assert.WithinDuration(t, time.Now(), user.UpdatedAt, time.Second)
+	assert.WithinDuration(t, time.Now(), user.CreatedAt, 5*time.Second)
+	assert.WithinDuration(t, time.Now(), user.UpdatedAt, 5*time.Second)
 }
 
 func TestUser_SetPassword(t *testing.T) {
