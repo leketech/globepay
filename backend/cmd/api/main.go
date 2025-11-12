@@ -72,8 +72,12 @@ func main() {
 
 	// Start server
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", cfg.GetServerAddress()),
-		Handler: r,
+		Addr:              fmt.Sprintf(":%s", cfg.GetServerAddress()),
+		Handler:           r,
+		ReadHeaderTimeout: 10 * time.Second, // Prevent Slowloris attacks
+		ReadTimeout:       30 * time.Second, // Maximum time to read entire request
+		WriteTimeout:      30 * time.Second, // Maximum time to write response
+		IdleTimeout:       120 * time.Second, // Maximum time to keep idle connections
 	}
 
 	// Create a channel to listen for interrupt signals

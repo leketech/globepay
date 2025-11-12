@@ -13,7 +13,7 @@ import (
 	"globepay/internal/api/router"
 	"globepay/internal/domain/model"
 	"globepay/internal/domain/service"
-	"globepay/internal/infrastructure/config"
+	"globepay/internal/config"
 	"globepay/internal/infrastructure/metrics"
 	"globepay/test/utils"
 

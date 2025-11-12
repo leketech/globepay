@@ -7,8 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"globepay/internal/domain/service"
-
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
