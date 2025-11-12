@@ -28,7 +28,11 @@ jobs:
       
       - name: Update kubeconfig
         run: |
-          aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
+          if aws eks describe-cluster --name globepay-prod-eks --region ${{ env.AWS_REGION }} >/dev/null 2>&1; then
+            aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
+          else
+            echo "Cluster globepay-prod-eks not found, skipping kubeconfig update"
+          fi
       
       - name: Create backup before deployment
         run: |
@@ -111,7 +115,11 @@ jobs:
       
       - name: Update kubeconfig
         run: |
-          aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
+          if aws eks describe-cluster --name globepay-prod-eks --region ${{ env.AWS_REGION }} >/dev/null 2>&1; then
+            aws eks update-kubeconfig --name globepay-prod-eks --region ${{ env.AWS_REGION }}
+          else
+            echo "Cluster globepay-prod-eks not found, skipping kubeconfig update"
+          fi
       
       - name: Deploy to ArgoCD
         run: |
