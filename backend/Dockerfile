@@ -18,6 +18,10 @@ RUN go mod verify
 # Copy source code
 COPY . .
 
+# Copy config files
+COPY config.yaml .
+COPY config.prod.yaml .
+
 # Clean up unnecessary files
 RUN rm -rf tmp/*
 

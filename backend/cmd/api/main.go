@@ -30,6 +30,12 @@ func main() {
 	}
 
 	// Load configuration
+	// Check if a specific config file is specified
+	configFile := os.Getenv("CONFIG_FILE")
+	if configFile != "" {
+		// Set the config file for viper
+		config.SetConfigFile(configFile)
+	}
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)

@@ -101,6 +101,11 @@ func setDefaults() {
 	viper.SetDefault("jwt.expiration", 24*time.Hour)
 }
 
+// SetConfigFile sets the config file to use
+func SetConfigFile(file string) {
+	viper.SetConfigFile(file)
+}
+
 // IsDevelopment checks if the environment is development
 func (c *Config) IsDevelopment() bool {
 	return c.Environment == "development"
