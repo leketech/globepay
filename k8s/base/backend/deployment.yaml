@@ -25,6 +25,8 @@ spec:
         env:
         - name: ENVIRONMENT
           value: "production"
+        - name: CONFIG_FILE
+          value: "/app/config.prod.yaml"
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -35,6 +37,10 @@ spec:
             secretKeyRef:
               name: backend-secrets
               key: jwt-secret
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config.prod.yaml
+          subPath: config.prod.yaml
         resources:
           requests:
             memory: "256Mi"
@@ -56,3 +62,7 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
+      volumes:
+      - name: config-volume
+        configMap:
+          name: backend-config
