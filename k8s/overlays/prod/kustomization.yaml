@@ -12,11 +12,12 @@ namespace: globepay-prod
 patches:
 - path: ./patches/backend-deployment.yaml
 - path: ./patches/backend-resources.yaml
+- path: ./patches/postgresql-deployment.yaml
 
 secretGenerator:
 - name: backend-secrets
   envs:
   - .env.secret
 - name: postgresql-secrets
-  literals:
-  - password=${DB_PASSWORD}
+  envs:
+  - .env.secret
