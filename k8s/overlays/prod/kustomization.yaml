@@ -15,9 +15,8 @@ patches:
 
 secretGenerator:
 - name: backend-secrets
-  literals:
-  - database-password=${DB_PASSWORD}
-  - jwt-secret=${JWT_SECRET}
+  envs:
+  - .env.secret
 - name: postgresql-secrets
   literals:
   - password=${DB_PASSWORD}
