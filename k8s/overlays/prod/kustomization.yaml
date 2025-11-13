@@ -17,9 +17,3 @@ secretGenerator:
   - database-url=postgresql://globepay:${DB_PASSWORD}@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable
   - redis-url=redis://redis:6379/0
   - jwt-secret=${JWT_SECRET}
-
-# Add image replacement using the IMAGE_TAG variable
-images:
-- name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
-  newName: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
-  newTag: $(IMAGE_TAG)

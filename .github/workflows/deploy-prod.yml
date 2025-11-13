@@ -71,13 +71,10 @@ jobs:
           # Deploy with canary strategy
           echo "Deploying application with commit ${GITHUB_SHA}..."
           
-          # Set the IMAGE_TAG environment variable
-          echo "Setting IMAGE_TAG to ${GITHUB_SHA}"
-          export IMAGE_TAG=${GITHUB_SHA}
-          
-          # Update kustomization with the image tag
+          # Use kustomize to set the image tag to the commit SHA
+          echo "Setting image tag to ${GITHUB_SHA}"
           cd k8s/overlays/prod
-          kustomize edit add configmap image-tag-config --from-literal=image-tag=${IMAGE_TAG}
+          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:${GITHUB_SHA}
           
           # Go back to root
           cd ../../..
@@ -228,13 +225,10 @@ jobs:
           # Deploy frontend application
           echo "Deploying frontend application with commit ${GITHUB_SHA}..."
           
-          # Set the IMAGE_TAG environment variable
-          echo "Setting IMAGE_TAG to ${GITHUB_SHA}"
-          export IMAGE_TAG=${GITHUB_SHA}
-          
-          # Update kustomization with the image tag
+          # Use kustomize to set the image tag to the commit SHA
+          echo "Setting frontend image tag to ${GITHUB_SHA}"
           cd k8s/overlays/frontend-prod
-          kustomize edit add configmap image-tag-config --from-literal=image-tag=${IMAGE_TAG}
+          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:${GITHUB_SHA}
           
           # Go back to root
           cd ../../..
