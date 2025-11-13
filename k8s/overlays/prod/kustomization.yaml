@@ -16,6 +16,5 @@ patches:
 secretGenerator:
 - name: backend-secrets
   literals:
-  - database-url=postgresql://globepay:${DB_PASSWORD}@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable
-  - redis-url=redis://redis:6379/0
+  - database-password=${DB_PASSWORD}
   - jwt-secret=${JWT_SECRET}
