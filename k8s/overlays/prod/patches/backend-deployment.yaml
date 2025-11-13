@@ -11,7 +11,7 @@ spec:
         image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:latest
         env:
         - name: CONFIG_FILE
-          value: config.prod.yaml
+          value: /app/config.prod.yaml
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
