@@ -10,18 +10,31 @@ spec:
       - name: backend
         image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:latest
         env:
+        - name: ENVIRONMENT
+          value: "production"
         - name: CONFIG_FILE
-          value: /app/config.prod.yaml
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: jwt-secret
+          value: "/app/config.prod.yaml"
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: backend-secrets
               key: database-password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: jwt-secret
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config.prod.yaml
+          subPath: config.prod.yaml
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
         livenessProbe:
           httpGet:
             path: /health
@@ -36,3 +49,7 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
+      volumes:
+      - name: config-volume
+        configMap:
+          name: backend-config
