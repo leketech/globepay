@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-password-update
+  namespace: globepay-prod
+spec:
+  template:
+    spec:
+      containers:
+      - name: postgresql-client
+        image: postgres:15-alpine
+        env:
+        - name: PGHOST
+          value: "postgresql.globepay-prod.svc.cluster.local"
+        - name: PGPORT
+          value: "5432"
+        - name: PGUSER
+          value: "postgres"
+        - name: PGPASSWORD
+          value: "secure_password_here"
+        - name: PGDATABASE
+          value: "postgres"
+        command:
+        - sh
+        - -c
+        - |
+          echo "Updating password for globepay user..."
+          psql -c "ALTER USER globepay WITH PASSWORD 'secure_password_here';"
+          echo "Password updated successfully"
+      restartPolicy: OnFailure
