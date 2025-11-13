@@ -12,8 +12,6 @@ spec:
         env:
         - name: ENVIRONMENT
           value: "production"
-        - name: CONFIG_FILE
-          value: "/app/config.prod.yaml"
         - name: DATABASE_URL
           value: "postgresql://globepay:$(DB_PASSWORD)@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable"
         - name: DB_PASSWORD
@@ -28,10 +26,6 @@ spec:
               key: jwt-secret
         - name: REDIS_URL
           value: "redis://redis:6379/0"
-        volumeMounts:
-        - name: config-volume
-          mountPath: /app/config.prod.yaml
-          subPath: config.prod.yaml
         resources:
           requests:
             memory: "256Mi"
@@ -53,7 +47,3 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
-      volumes:
-      - name: config-volume
-        configMap:
-          name: backend-config
