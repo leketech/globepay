@@ -18,12 +18,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: backend-secrets
-              key: database-password
+              key: DB_PASSWORD
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
               name: backend-secrets
-              key: jwt-secret
+              key: JWT_SECRET
         - name: REDIS_URL
           value: "redis://redis:6379/0"
         resources:
