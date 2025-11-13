@@ -68,17 +68,6 @@ jobs:
             sudo mv kustomize /usr/local/bin/
           fi
           
-          # Check if required secrets are set
-          if [ -z "${{ secrets.JWT_SECRET }}" ]; then
-            echo "ERROR: JWT_SECRET is not set in GitHub secrets"
-            exit 1
-          fi
-          
-          if [ -z "${{ secrets.DB_PASSWORD }}" ]; then
-            echo "ERROR: DB_PASSWORD is not set in GitHub secrets"
-            exit 1
-          fi
-          
           # Deploy with canary strategy
           echo "Deploying application with commit ${GITHUB_SHA}..."
           
@@ -227,17 +216,6 @@ jobs:
             echo "Installing kustomize..."
             curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
             sudo mv kustomize /usr/local/bin/
-          fi
-          
-          # Check if required secrets are set
-          if [ -z "${{ secrets.JWT_SECRET }}" ]; then
-            echo "ERROR: JWT_SECRET is not set in GitHub secrets"
-            exit 1
-          fi
-          
-          if [ -z "${{ secrets.DB_PASSWORD }}" ]; then
-            echo "ERROR: DB_PASSWORD is not set in GitHub secrets"
-            exit 1
           fi
           
           # Deploy frontend application
