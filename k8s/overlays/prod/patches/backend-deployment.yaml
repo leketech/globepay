@@ -26,6 +26,11 @@ spec:
               key: JWT_SECRET
         - name: REDIS_URL
           value: "redis://redis:6379/0"
+        $patch: delete
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config.prod.yaml
+          subPath: config.prod.yaml
         resources:
           requests:
             memory: "256Mi"
@@ -47,4 +52,8 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
-      volumes: []
+      volumes:
+      - name: config-volume
+        configMap:
+          name: backend-config
+        $patch: delete
