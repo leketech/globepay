@@ -16,6 +16,11 @@ spec:
           kind: Secret
           name: backend-secrets
           apiVersion: v1
+      - name: DB_PASSWORD
+        objref:
+          kind: Secret
+          name: backend-secrets
+          apiVersion: v1
   destination:
     server: https://kubernetes.default.svc
     namespace: globepay-prod

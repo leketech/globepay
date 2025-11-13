@@ -61,8 +61,31 @@ jobs:
       
       - name: Deploy to ArgoCD (Canary)
         run: |
+          # Install kustomize if not available
+          if ! command -v kustomize &> /dev/null; then
+            echo "Installing kustomize..."
+            curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+            sudo mv kustomize /usr/local/bin/
+          fi
+          
+          # Check if required secrets are set
+          if [ -z "${{ secrets.JWT_SECRET }}" ]; then
+            echo "ERROR: JWT_SECRET is not set in GitHub secrets"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.DB_PASSWORD }}" ]; then
+            echo "ERROR: DB_PASSWORD is not set in GitHub secrets"
+            exit 1
+          fi
+          
           # Deploy with canary strategy
           echo "Deploying application with commit ${GITHUB_SHA}..."
+          
+          # Update the image tag in the patch file
+          echo "Updating image tag in patch file..."
+          sed -i "s/__GITHUB_SHA__/${GITHUB_SHA}/g" k8s/overlays/prod/patches/backend-deployment.yaml
+          
           # First, ensure the application exists
           if ! kubectl get application globepay-backend-prod -n argocd >/dev/null 2>&1; then
             echo "Application globepay-backend-prod not found, creating it..."
@@ -73,41 +96,20 @@ jobs:
           echo "Current application status:"
           kubectl get application globepay-backend-prod -n argocd -o yaml || echo "Failed to get application status"
           
-          # Update image tag to use commit SHA instead of latest
-          echo "Updating image tag to use commit SHA..."
-          kubectl patch application globepay-backend-prod \
-            -n argocd \
-            --type=json \
-            -p='[{"op": "replace", "path": "/spec/source/kustomize/images/0", "value": "907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:'${GITHUB_SHA}'"}]' || echo "Failed to update image tag, continuing..."
+          # Instead of patching, we'll recreate the application with the correct configuration
+          echo "Recreating application with correct configuration..."
+          kubectl delete application globepay-backend-prod -n argocd || true
           
-          # Set the JWT secret and database password in the application
-          echo "Setting JWT secret and database password in application..."
-          kubectl patch application globepay-backend-prod \
-            -n argocd \
-            --type=json \
-            -p='[{"op": "add", "path": "/spec/source/kustomize/vars/-", "value": {"name": "JWT_SECRET", "objref": {"apiVersion": "v1", "kind": "Secret", "name": "backend-secrets"}}}]' || echo "Failed to set JWT secret, continuing..."
+          # Wait a moment for deletion
+          sleep 5
           
-          kubectl patch application globepay-backend-prod \
-            -n argocd \
-            --type=json \
-            -p='[{"op": "add", "path": "/spec/source/kustomize/vars/-", "value": {"name": "DB_PASSWORD", "objref": {"apiVersion": "v1", "kind": "Secret", "name": "backend-secrets"}}}]' || echo "Failed to set database password, continuing..."
+          # Apply the application with the correct image tag
+          kubectl apply -f k8s/argocd/application.yaml -n argocd
           
-          # Patch the application with the specific commit
-          if kubectl patch application globepay-backend-prod \
-            -n argocd \
-            --type merge \
-            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"; then
-            echo "Application patch applied successfully"
-          else
-            echo "Failed to patch application, trying to recreate..."
-            kubectl delete application globepay-backend-prod -n argocd || true
-            kubectl apply -k k8s/argocd/ -n argocd
-            kubectl patch application globepay-backend-prod \
-              -n argocd \
-              --type merge \
-              -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
-          fi
-          
+          # Wait for the application to be ready
+          echo "Waiting for application to be ready..."
+          sleep 10
+           
           echo "Waiting for application to become healthy..."
           if kubectl wait --for=condition=Healthy \
             application/globepay-backend-prod \
@@ -220,8 +222,31 @@ jobs:
       
       - name: Deploy to ArgoCD
         run: |
+          # Install kustomize if not available
+          if ! command -v kustomize &> /dev/null; then
+            echo "Installing kustomize..."
+            curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+            sudo mv kustomize /usr/local/bin/
+          fi
+          
+          # Check if required secrets are set
+          if [ -z "${{ secrets.JWT_SECRET }}" ]; then
+            echo "ERROR: JWT_SECRET is not set in GitHub secrets"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.DB_PASSWORD }}" ]; then
+            echo "ERROR: DB_PASSWORD is not set in GitHub secrets"
+            exit 1
+          fi
+          
           # Deploy frontend application
           echo "Deploying frontend application with commit ${GITHUB_SHA}..."
+          
+          # Update the image tag in the patch file
+          echo "Updating frontend image tag in patch file..."
+          sed -i "s/__GITHUB_SHA__/${GITHUB_SHA}/g" k8s/overlays/frontend-prod/patches/frontend-deployment.yaml
+          
           # First, ensure the application exists
           if ! kubectl get application globepay-frontend-prod -n argocd >/dev/null 2>&1; then
             echo "Frontend application globepay-frontend-prod not found, creating it..."
@@ -232,41 +257,20 @@ jobs:
           echo "Current frontend application status:"
           kubectl get application globepay-frontend-prod -n argocd -o yaml || echo "Failed to get frontend application status"
           
-          # Update image tag to use commit SHA instead of latest
-          echo "Updating frontend image tag to use commit SHA..."
-          kubectl patch application globepay-frontend-prod \
-            -n argocd \
-            --type=json \
-            -p='[{"op": "replace", "path": "/spec/source/kustomize/images/0", "value": "907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:'${GITHUB_SHA}'"}]' || echo "Failed to update frontend image tag, continuing..."
+          # Instead of patching, we'll recreate the application with the correct configuration
+          echo "Recreating frontend application with correct configuration..."
+          kubectl delete application globepay-frontend-prod -n argocd || true
           
-          # Set the JWT secret and database password in the frontend application as well
-          echo "Setting JWT secret and database password in frontend application..."
-          kubectl patch application globepay-frontend-prod \
-            -n argocd \
-            --type=json \
-            -p='[{"op": "add", "path": "/spec/source/kustomize/vars/-", "value": {"name": "JWT_SECRET", "objref": {"apiVersion": "v1", "kind": "Secret", "name": "backend-secrets"}}}]' || echo "Failed to set JWT secret for frontend, continuing..."
+          # Wait a moment for deletion
+          sleep 5
           
-          kubectl patch application globepay-frontend-prod \
-            -n argocd \
-            --type=json \
-            -p='[{"op": "add", "path": "/spec/source/kustomize/vars/-", "value": {"name": "DB_PASSWORD", "objref": {"apiVersion": "v1", "kind": "Secret", "name": "backend-secrets"}}}]' || echo "Failed to set database password for frontend, continuing..."
+          # Apply the application with the correct image tag
+          kubectl apply -f k8s/argocd/application-frontend.yaml -n argocd
           
-          # Patch the application with the specific commit
-          if kubectl patch application globepay-frontend-prod \
-            -n argocd \
-            --type merge \
-            -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"; then
-            echo "Frontend application patch applied successfully"
-          else
-            echo "Failed to patch frontend application, trying to recreate..."
-            kubectl delete application globepay-frontend-prod -n argocd || true
-            kubectl apply -k k8s/argocd/ -n argocd
-            kubectl patch application globepay-frontend-prod \
-              -n argocd \
-              --type merge \
-              -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
-          fi
-          
+          # Wait for the application to be ready
+          echo "Waiting for frontend application to be ready..."
+          sleep 10
+           
           echo "Waiting for frontend application to become healthy..."
           if kubectl wait --for=condition=Healthy \
             application/globepay-frontend-prod \

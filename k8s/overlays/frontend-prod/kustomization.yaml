@@ -9,3 +9,14 @@ namespace: globepay-prod
 
 patches:
 - path: ./patches/frontend-deployment.yaml
+
+# Reference the backend secrets for JWT token validation
+generatorOptions:
+  disableNameSuffixHash: true
+
+secretGenerator:
+- name: backend-secrets
+  behavior: merge
+  literals:
+  - database-url=postgresql://globepay:${DB_PASSWORD}@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable
+  - jwt-secret=${JWT_SECRET}
