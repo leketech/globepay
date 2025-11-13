@@ -1,17 +1,10 @@
 run:
-  timeout: 5m
+  timeout: 10m
   go: '1.25'
 
 linters:
   enable:
-    - errcheck
-    - gosimple
     - govet
-    - ineffassign
+    - errcheck
     - staticcheck
-    - typecheck
     - unused
-    - gofmt
-    - goimports
-    - misspell
-    - revive

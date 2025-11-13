@@ -12,6 +12,11 @@ spec:
         env:
         - name: CONFIG_FILE
           value: config.prod.yaml
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: jwt-secret
         livenessProbe:
           httpGet:
             path: /health

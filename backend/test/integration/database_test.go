@@ -14,7 +14,6 @@ import (
 
 type DatabaseTestSuite struct {
 	suite.Suite
-	// db       *utils.TestDB // Unused field
 	userRepo repository.UserRepository
 	testDB   *utils.TestDB
 }

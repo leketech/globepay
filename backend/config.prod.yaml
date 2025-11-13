@@ -11,7 +11,7 @@ database:
   host: postgresql.globepay-prod.svc.cluster.local
   port: 5432
   user: globepay
-  password: secure_password_here
+  password: ${DB_PASSWORD}
   db_name: globepay_prod
   ssl_mode: disable
   max_open_conns: 25
@@ -26,7 +26,7 @@ redis:
   db: 0
 
 jwt:
-  secret: SECURE_JWT_SECRET_KEY
+  secret: ${JWT_SECRET}
   expiration: 24h
 
 aws:

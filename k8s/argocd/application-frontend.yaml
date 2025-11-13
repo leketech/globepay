@@ -7,8 +7,15 @@ spec:
   project: globepay-project
   source:
     repoURL: https://github.com/leketech/globepay.git
-    targetRevision: HEAD
+    targetRevision: main
     path: k8s/overlays/frontend-prod
+    kustomize:
+      vars:
+      - name: JWT_SECRET
+        objref:
+          kind: Secret
+          name: backend-secrets
+          apiVersion: v1
   destination:
     server: https://kubernetes.default.svc
     namespace: globepay-prod

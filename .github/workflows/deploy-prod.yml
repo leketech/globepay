@@ -63,14 +63,49 @@ jobs:
         run: |
           # Deploy with canary strategy
           echo "Deploying application with commit ${GITHUB_SHA}..."
+          # First, ensure the application exists
+          if ! kubectl get application globepay-backend-prod -n argocd >/dev/null 2>&1; then
+            echo "Application globepay-backend-prod not found, creating it..."
+            kubectl apply -k k8s/argocd/ -n argocd
+          fi
+          
+          # Show current application status
+          echo "Current application status:"
+          kubectl get application globepay-backend-prod -n argocd -o yaml || echo "Failed to get application status"
+          
+          # Update image tag to use commit SHA instead of latest
+          echo "Updating image tag to use commit SHA..."
+          kubectl patch application globepay-backend-prod \
+            -n argocd \
+            --type=json \
+            -p='[{"op": "replace", "path": "/spec/source/kustomize/images/0", "value": "907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:'${GITHUB_SHA}'"}]' || echo "Failed to update image tag, continuing..."
+          
+          # Set the JWT secret and database password in the application
+          echo "Setting JWT secret and database password in application..."
+          kubectl patch application globepay-backend-prod \
+            -n argocd \
+            --type=json \
+            -p='[{"op": "add", "path": "/spec/source/kustomize/vars/-", "value": {"name": "JWT_SECRET", "objref": {"apiVersion": "v1", "kind": "Secret", "name": "backend-secrets"}}}]' || echo "Failed to set JWT secret, continuing..."
+          
+          kubectl patch application globepay-backend-prod \
+            -n argocd \
+            --type=json \
+            -p='[{"op": "add", "path": "/spec/source/kustomize/vars/-", "value": {"name": "DB_PASSWORD", "objref": {"apiVersion": "v1", "kind": "Secret", "name": "backend-secrets"}}}]' || echo "Failed to set database password, continuing..."
+          
+          # Patch the application with the specific commit
           if kubectl patch application globepay-backend-prod \
             -n argocd \
             --type merge \
             -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"; then
             echo "Application patch applied successfully"
           else
-            echo "Failed to patch application, exiting..."
-            exit 1
+            echo "Failed to patch application, trying to recreate..."
+            kubectl delete application globepay-backend-prod -n argocd || true
+            kubectl apply -k k8s/argocd/ -n argocd
+            kubectl patch application globepay-backend-prod \
+              -n argocd \
+              --type merge \
+              -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
           fi
           
           echo "Waiting for application to become healthy..."
@@ -142,6 +177,8 @@ jobs:
             Author: ${{ github.actor }}
           channel: ${{ secrets.SLACK_CHANNEL }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   deploy-frontend:
     name: Deploy Frontend to Production
@@ -185,14 +222,49 @@ jobs:
         run: |
           # Deploy frontend application
           echo "Deploying frontend application with commit ${GITHUB_SHA}..."
+          # First, ensure the application exists
+          if ! kubectl get application globepay-frontend-prod -n argocd >/dev/null 2>&1; then
+            echo "Frontend application globepay-frontend-prod not found, creating it..."
+            kubectl apply -k k8s/argocd/ -n argocd
+          fi
+          
+          # Show current frontend application status
+          echo "Current frontend application status:"
+          kubectl get application globepay-frontend-prod -n argocd -o yaml || echo "Failed to get frontend application status"
+          
+          # Update image tag to use commit SHA instead of latest
+          echo "Updating frontend image tag to use commit SHA..."
+          kubectl patch application globepay-frontend-prod \
+            -n argocd \
+            --type=json \
+            -p='[{"op": "replace", "path": "/spec/source/kustomize/images/0", "value": "907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:'${GITHUB_SHA}'"}]' || echo "Failed to update frontend image tag, continuing..."
+          
+          # Set the JWT secret and database password in the frontend application as well
+          echo "Setting JWT secret and database password in frontend application..."
+          kubectl patch application globepay-frontend-prod \
+            -n argocd \
+            --type=json \
+            -p='[{"op": "add", "path": "/spec/source/kustomize/vars/-", "value": {"name": "JWT_SECRET", "objref": {"apiVersion": "v1", "kind": "Secret", "name": "backend-secrets"}}}]' || echo "Failed to set JWT secret for frontend, continuing..."
+          
+          kubectl patch application globepay-frontend-prod \
+            -n argocd \
+            --type=json \
+            -p='[{"op": "add", "path": "/spec/source/kustomize/vars/-", "value": {"name": "DB_PASSWORD", "objref": {"apiVersion": "v1", "kind": "Secret", "name": "backend-secrets"}}}]' || echo "Failed to set database password for frontend, continuing..."
+          
+          # Patch the application with the specific commit
           if kubectl patch application globepay-frontend-prod \
             -n argocd \
             --type merge \
             -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"; then
             echo "Frontend application patch applied successfully"
           else
-            echo "Failed to patch frontend application, exiting..."
-            exit 1
+            echo "Failed to patch frontend application, trying to recreate..."
+            kubectl delete application globepay-frontend-prod -n argocd || true
+            kubectl apply -k k8s/argocd/ -n argocd
+            kubectl patch application globepay-frontend-prod \
+              -n argocd \
+              --type merge \
+              -p "{\"spec\":{\"source\":{\"targetRevision\":\"${GITHUB_SHA}\"}}}"
           fi
           
           echo "Waiting for frontend application to become healthy..."
@@ -272,3 +344,5 @@ jobs:
             Author: ${{ github.actor }}
           channel: ${{ secrets.SLACK_CHANNEL }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -7,5 +7,5 @@ resources:
 
 namespace: globepay-prod
 
-patchesStrategicMerge:
-- ./patches/frontend-deployment.yaml
+patches:
+- path: ./patches/frontend-deployment.yaml
