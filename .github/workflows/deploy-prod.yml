@@ -69,15 +69,7 @@ jobs:
           fi
           
           # Deploy with canary strategy
-          echo "Deploying application with commit ${GITHUB_SHA}..."
-          
-          # Use kustomize to set the image tag instead of sed
-          echo "Setting image tag with kustomize..."
-          cd k8s/overlays/prod
-          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:${GITHUB_SHA}
-          
-          # Go back to root
-          cd ../../..
+          echo "Deploying application..."
           
           # First, ensure the application exists
           if ! kubectl get application globepay-backend-prod -n argocd >/dev/null 2>&1; then
@@ -223,15 +215,7 @@ jobs:
           fi
           
           # Deploy frontend application
-          echo "Deploying frontend application with commit ${GITHUB_SHA}..."
-          
-          # Use kustomize to set the image tag instead of sed
-          echo "Setting frontend image tag with kustomize..."
-          cd k8s/overlays/frontend-prod
-          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:${GITHUB_SHA}
-          
-          # Go back to root
-          cd ../../..
+          echo "Deploying frontend application..."
           
           # First, ensure the application exists
           if ! kubectl get application globepay-frontend-prod -n argocd >/dev/null 2>&1; then
