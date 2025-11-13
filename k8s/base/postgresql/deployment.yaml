@@ -25,7 +25,10 @@ spec:
         - name: POSTGRES_USER
           value: "globepay"
         - name: POSTGRES_PASSWORD
-          value: "secure_password_here"
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-secrets
+              key: password
         resources:
           requests:
             memory: "256Mi"
