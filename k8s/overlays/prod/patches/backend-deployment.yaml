@@ -47,3 +47,4 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
+      volumes: []
