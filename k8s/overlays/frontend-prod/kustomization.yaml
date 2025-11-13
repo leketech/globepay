@@ -19,3 +19,9 @@ secretGenerator:
   literals:
   - jwt-secret=placeholder-jwt-secret
   - database-url=placeholder-db-url
+
+# Add image replacement
+images:
+- name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend
+  newName: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend
+  newTag: latest
