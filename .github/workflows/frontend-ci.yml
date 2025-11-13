@@ -189,7 +189,7 @@ jobs:
           build-args: |
             VITE_API_URL=${{ steps.vars.outputs.api_url }}
             VITE_ENVIRONMENT=${{ steps.vars.outputs.environment }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max
       

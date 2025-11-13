@@ -52,17 +52,17 @@ func (s *BeneficiaryService) GetBeneficiariesByUser(ctx context.Context, userID 
 }
 
 // GetBeneficiaryByID retrieves a beneficiary by ID
-func (s *BeneficiaryService) GetBeneficiaryByID(ctx context.Context, beneficiaryID string) (*model.Beneficiary, error) {
+func (s *BeneficiaryService) GetBeneficiaryByID(_ context.Context, beneficiaryID string) (*model.Beneficiary, error) {
 	return s.beneficiaryRepo.GetByID(beneficiaryID)
 }
 
 // UpdateBeneficiary updates beneficiary information
-func (s *BeneficiaryService) UpdateBeneficiary(ctx context.Context, beneficiary *model.Beneficiary) error {
+func (s *BeneficiaryService) UpdateBeneficiary(_ context.Context, beneficiary *model.Beneficiary) error {
 	beneficiary.UpdatedAt = time.Now()
 	return s.beneficiaryRepo.Update(beneficiary)
 }
 
 // DeleteBeneficiary deletes a beneficiary
-func (s *BeneficiaryService) DeleteBeneficiary(ctx context.Context, beneficiaryID string) error {
+func (s *BeneficiaryService) DeleteBeneficiary(_ context.Context, beneficiaryID string) error {
 	return s.beneficiaryRepo.Delete(beneficiaryID)
 }

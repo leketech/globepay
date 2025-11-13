@@ -103,12 +103,17 @@ func (s *TransferService) GetTransfersByUser(ctx context.Context, userID string,
 }
 
 // GetTransferByID retrieves a transfer by ID
-func (s *TransferService) GetTransferByID(ctx context.Context, transferID string) (*model.Transfer, error) {
+func (s *TransferService) GetTransferByID(_ context.Context, transferID string) (*model.Transfer, error) {
 	return s.transferRepo.GetByID(transferID)
 }
 
+// GetTransferByReferenceNumber retrieves a transfer by reference number
+func (s *TransferService) GetTransferByReferenceNumber(_ string) (*model.Transfer, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+
 // CancelTransfer cancels a pending transfer
-func (s *TransferService) CancelTransfer(ctx context.Context, transferID string) error {
+func (s *TransferService) CancelTransfer(_ context.Context, transferID string) error {
 	transfer, err := s.transferRepo.GetByID(transferID)
 	if err != nil {
 		return err
@@ -127,7 +132,7 @@ func (s *TransferService) CancelTransfer(ctx context.Context, transferID string)
 }
 
 // ProcessTransfer processes a transfer (simulated)
-func (s *TransferService) ProcessTransfer(ctx context.Context, transferID string) error {
+func (s *TransferService) ProcessTransfer(_ context.Context, transferID string) error {
 	transfer, err := s.transferRepo.GetByID(transferID)
 	if err != nil {
 		return err

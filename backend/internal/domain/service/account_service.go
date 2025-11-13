@@ -70,33 +70,33 @@ func (s *AccountService) GetAccountsByUser(ctx context.Context, userID string) (
 }
 
 // GetAccountByID retrieves an account by ID
-func (s *AccountService) GetAccountByID(ctx context.Context, accountID string) (*model.Account, error) {
+func (s *AccountService) GetAccountByID(_ context.Context, accountID string) (*model.Account, error) {
 	return s.accountRepo.GetByID(accountID)
 }
 
 // GetAccountByNumber retrieves an account by account number
-func (s *AccountService) GetAccountByNumber(ctx context.Context, accountNumber string) (*model.Account, error) {
-	return s.accountRepo.GetByNumber(ctx, accountNumber)
+func (s *AccountService) GetAccountByNumber(_ context.Context, accountNumber string) (*model.Account, error) {
+	return s.accountRepo.GetByNumber(context.Background(), accountNumber)
 }
 
 // GetAccountByUserIDAndCurrency retrieves an account by user ID and currency
-func (s *AccountService) GetAccountByUserIDAndCurrency(ctx context.Context, userID, currency string) (*model.Account, error) {
-	return s.accountRepo.GetByUserAndCurrency(ctx, userID, currency)
+func (s *AccountService) GetAccountByUserIDAndCurrency(_ context.Context, userID, currency string) (*model.Account, error) {
+	return s.accountRepo.GetByUserAndCurrency(context.Background(), userID, currency)
 }
 
 // UpdateAccount updates account information
-func (s *AccountService) UpdateAccount(ctx context.Context, account *model.Account) error {
+func (s *AccountService) UpdateAccount(_ context.Context, account *model.Account) error {
 	account.UpdatedAt = time.Now()
 	return s.accountRepo.Update(account)
 }
 
 // UpdateAccountBalance updates the balance of an account
-func (s *AccountService) UpdateAccountBalance(ctx context.Context, accountID string, newBalance float64) error {
-	return s.accountRepo.UpdateBalance(ctx, accountID, newBalance)
+func (s *AccountService) UpdateAccountBalance(_ context.Context, accountID string, newBalance float64) error {
+	return s.accountRepo.UpdateBalance(context.Background(), accountID, newBalance)
 }
 
 // DeleteAccount deletes an account
-func (s *AccountService) DeleteAccount(ctx context.Context, accountID string) error {
+func (s *AccountService) DeleteAccount(_ context.Context, accountID string) error {
 	return s.accountRepo.Delete(accountID)
 }
 

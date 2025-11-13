@@ -61,14 +61,13 @@ func (s *NotificationService) SendTransferNotification(ctx context.Context, user
 	return nil
 }
 
-// SendWelcomeEmail sends a welcome email to a new user
-func (s *NotificationService) SendWelcomeEmail(ctx context.Context, user *model.User) error {
+// SendWelcomeNotification sends a welcome email to a new user
+func (s *NotificationService) SendWelcomeNotification(_ string, email string) error {
 	subject := "Welcome to Globepay!"
-	body := fmt.Sprintf("Welcome to Globepay, %s!\n\nThank you for joining our platform. You can now start sending money to over 190 countries.\n\nTo get started:\n1. Complete your profile\n2. Verify your identity\n3. Add beneficiaries\n4. Start transferring money\n\nIf you have any questions, please contact our support team.\n\nBest regards,\nThe Globepay Team",
-		user.FirstName)
+	body := "Welcome to Globepay!\n\nThank you for joining our platform. You can now start sending money to over 190 countries.\n\nTo get started:\n1. Complete your profile\n2. Verify your identity\n3. Add beneficiaries\n4. Start transferring money\n\nIf you have any questions, please contact our support team.\n\nBest regards,\nThe Globepay Team"
 
-	if user.Email != "" {
-		return s.emailClient.SendEmail(ctx, s.fromEmail, user.Email, subject, body)
+	if email != "" {
+		return s.emailClient.SendEmail(context.Background(), s.fromEmail, email, subject, body)
 	}
 
 	return nil

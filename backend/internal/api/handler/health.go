@@ -3,8 +3,9 @@ package handler
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"globepay/internal/domain/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 // HealthHandler handles health check requests

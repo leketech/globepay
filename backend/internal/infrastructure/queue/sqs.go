@@ -42,7 +42,7 @@ func NewSQSClient(cfg SQSConfig) (*SQSClient, error) {
 	// Create SQS client
 	client := sqs.NewFromConfig(awsConfig, func(o *sqs.Options) {
 		if cfg.Endpoint != "" {
-			o.EndpointResolver = sqs.EndpointResolverFunc(func(region string, options sqs.EndpointResolverOptions) (aws.Endpoint, error) {
+			o.EndpointResolver = sqs.EndpointResolverFunc(func(_ string, _ sqs.EndpointResolverOptions) (aws.Endpoint, error) {
 				return aws.Endpoint{
 					URL: cfg.Endpoint,
 				}, nil

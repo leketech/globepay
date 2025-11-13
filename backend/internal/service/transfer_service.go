@@ -140,7 +140,7 @@ func (s *TransferService) CalculateTransferFee(amount float64, fromCurrency, toC
 }
 
 // GetTransferByReferenceNumber retrieves a transfer by reference number
-func (s *TransferService) GetTransferByReferenceNumber(referenceNumber string) (*model.Transfer, error) {
+func (s *TransferService) GetTransferByReferenceNumber(_ string) (*model.Transfer, error) {
 	// This method doesn't exist in the repository interface
 	// We'll need to implement it or find an alternative
 	return nil, fmt.Errorf("not implemented")
@@ -194,7 +194,7 @@ func (s *TransferService) processTransfer(transfer *model.Transfer) error {
 }
 
 // handleTransferStatusTransition handles logic when a transfer status changes
-func (s *TransferService) handleTransferStatusTransition(transfer *model.Transfer, oldStatus, newStatus domain.TransferStatus) error {
+func (s *TransferService) handleTransferStatusTransition(_ *model.Transfer, oldStatus, newStatus domain.TransferStatus) error {
 	// Handle different status transitions
 	switch {
 	case oldStatus == domain.TransferPending && newStatus == domain.TransferProcessed:

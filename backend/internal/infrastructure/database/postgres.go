@@ -52,7 +52,7 @@ func ClosePostgresConnection(db *sql.DB) error {
 }
 
 // RunMigrations runs database migrations
-func RunMigrations(db *sql.DB, migrationsPath string) error {
+func RunMigrations(_ *sql.DB, migrationsPath string) error {
 	// In a real implementation, you would run actual migrations
 	// For now, we'll just log that migrations would be run
 	log.Printf("Running migrations from path: %s", migrationsPath)

@@ -175,7 +175,7 @@ func (s *NotificationService) SendVerificationNotification(userID string, verifi
 }
 
 // SendWelcomeNotification sends a welcome notification to a new user
-func (s *NotificationService) SendWelcomeNotification(userID string, email string) error { // Changed from int64 to string
+func (s *NotificationService) SendWelcomeNotification(_ string, email string) error {
 	subject := "Welcome to Globepay!"
 	body := `
 		Welcome to Globepay!

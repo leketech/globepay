@@ -156,7 +156,7 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*R
 }
 
 // ValidateToken validates a JWT token and returns the user claims
-func (s *AuthService) ValidateToken(ctx context.Context, tokenString string) (*utils.Claims, error) {
+func (s *AuthService) ValidateToken(_ context.Context, tokenString string) (*utils.Claims, error) {
 	claims, err := utils.ValidateJWT(tokenString, s.jwtSecret)
 	if err != nil {
 		return nil, &AuthenticationError{Message: "Invalid token"}

@@ -148,7 +148,7 @@ func RefreshToken(c *gin.Context, serviceFactory *service.Factory) {
 }
 
 // ForgotPassword handles forgot password requests
-func ForgotPassword(c *gin.Context, serviceFactory *service.Factory) {
+func ForgotPassword(c *gin.Context, _ *service.Factory) {
 	var req ForgotPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())
@@ -167,7 +167,7 @@ func ForgotPassword(c *gin.Context, serviceFactory *service.Factory) {
 }
 
 // ResetPassword handles password reset
-func ResetPassword(c *gin.Context, serviceFactory *service.Factory) {
+func ResetPassword(c *gin.Context, _ *service.Factory) {
 	var req ResetPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, "VALIDATION_ERROR", err.Error())

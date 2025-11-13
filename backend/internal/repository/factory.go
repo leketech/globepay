@@ -5,6 +5,7 @@ import (
 )
 
 // RepositoryFactory creates and manages repository instances
+//
 //nolint:revive // RepositoryFactory is the conventional name for this pattern
 type RepositoryFactory struct {
 	db *sql.DB

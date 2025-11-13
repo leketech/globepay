@@ -27,47 +27,47 @@ func (s *UserService) SetUserPreferencesRepo(repo repository.UserPreferencesRepo
 }
 
 // CreateUser creates a new user
-func (s *UserService) CreateUser(ctx context.Context, user *model.User) error {
+func (s *UserService) CreateUser(_ context.Context, user *model.User) error {
 	return s.userRepo.Create(user)
 }
 
 // GetUserByID retrieves a user by ID
-func (s *UserService) GetUserByID(ctx context.Context, id string) (*model.User, error) {
+func (s *UserService) GetUserByID(_ context.Context, id string) (*model.User, error) {
 	return s.userRepo.GetByID(id)
 }
 
 // GetUserByEmail retrieves a user by email
-func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+func (s *UserService) GetUserByEmail(_ context.Context, email string) (*model.User, error) {
 	return s.userRepo.GetByEmail(email)
 }
 
 // UpdateUser updates a user
-func (s *UserService) UpdateUser(ctx context.Context, user *model.User) error {
+func (s *UserService) UpdateUser(_ context.Context, user *model.User) error {
 	return s.userRepo.Update(user)
 }
 
 // DeleteUser deletes a user
-func (s *UserService) DeleteUser(ctx context.Context, id string) error {
+func (s *UserService) DeleteUser(_ context.Context, id string) error {
 	return s.userRepo.Delete(id)
 }
 
 // GetAllUsers retrieves all users
-func (s *UserService) GetAllUsers(ctx context.Context) ([]model.User, error) {
+func (s *UserService) GetAllUsers(_ context.Context) ([]model.User, error) {
 	return s.userRepo.GetAll()
 }
 
 // GetUserPreferences retrieves user preferences
-func (s *UserService) GetUserPreferences(ctx context.Context, userID string) (*model.UserPreferences, error) {
+func (s *UserService) GetUserPreferences(_ context.Context, userID string) (*model.UserPreferences, error) {
 	if s.userPreferencesRepo == nil {
 		return nil, &NotFoundError{Message: "User preferences repository not initialized"}
 	}
-	return s.userPreferencesRepo.GetUserPreferences(ctx, userID)
+	return s.userPreferencesRepo.GetUserPreferences(context.Background(), userID)
 }
 
 // UpdateUserPreferences updates user preferences
-func (s *UserService) UpdateUserPreferences(ctx context.Context, preferences *model.UserPreferences) error {
+func (s *UserService) UpdateUserPreferences(_ context.Context, preferences *model.UserPreferences) error {
 	if s.userPreferencesRepo == nil {
 		return &NotFoundError{Message: "User preferences repository not initialized"}
 	}
-	return s.userPreferencesRepo.UpdateUserPreferences(ctx, preferences)
+	return s.userPreferencesRepo.UpdateUserPreferences(context.Background(), preferences)
 }

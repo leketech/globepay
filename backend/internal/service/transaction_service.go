@@ -245,7 +245,7 @@ func (s *TransactionService) handleStatusTransition(transaction *model.Transacti
 }
 
 // GetTransactionByReferenceNumber retrieves a transaction by reference number
-func (s *TransactionService) GetTransactionByReferenceNumber(referenceNumber string) (*model.Transaction, error) {
+func (s *TransactionService) GetTransactionByReferenceNumber(_ string) (*model.Transaction, error) {
 	// This would require adding a method to the repository interface
 	// For now, we'll return a placeholder implementation
 	return nil, fmt.Errorf("not implemented")

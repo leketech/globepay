@@ -77,14 +77,14 @@ func (s *AuditService) GetAuditLogsByTable(ctx context.Context, tableName string
 }
 
 // getClientIP extracts client IP from context
-func getClientIP(ctx context.Context) string {
+func getClientIP(_ context.Context) string {
 	// In a real implementation, this would extract the IP from the request
 	// For now, we'll return a placeholder
 	return "127.0.0.1"
 }
 
 // getUserAgent extracts user agent from context
-func getUserAgent(ctx context.Context) string {
+func getUserAgent(_ context.Context) string {
 	// In a real implementation, this would extract the user agent from the request
 	// For now, we'll return a placeholder
 	return "Unknown"

@@ -43,7 +43,7 @@ func NewS3Client(cfg S3Config) (*S3Client, error) {
 	// Create S3 client
 	client := s3.NewFromConfig(awsConfig, func(o *s3.Options) {
 		if cfg.Endpoint != "" {
-			o.EndpointResolver = s3.EndpointResolverFunc(func(region string, options s3.EndpointResolverOptions) (aws.Endpoint, error) {
+			o.EndpointResolver = s3.EndpointResolverFunc(func(_ string, _ s3.EndpointResolverOptions) (aws.Endpoint, error) {
 				return aws.Endpoint{
 					URL: cfg.Endpoint,
 				}, nil
@@ -250,7 +250,7 @@ func (s *S3Client) CopyObject(ctx context.Context, sourceBucket, sourceKey, dest
 }
 
 // GeneratePresignedURL generates a presigned URL for an S3 object
-func (s *S3Client) GeneratePresignedURL(ctx context.Context, bucketName, key string, expiresInSeconds int64) (string, error) {
+func (s *S3Client) GeneratePresignedURL(_ context.Context, bucketName, key string, expiresInSeconds int64) (string, error) {
 	// Note: This requires the s3presign package which is not imported above
 	// In a real implementation, you would use:
 	// presigner := s3presign.NewPresigner(s.client)

@@ -45,7 +45,7 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 		fmt.Printf("Token string: %s\n", tokenString)
 
 		// Parse and validate the token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.Parse(tokenString, func(_ *jwt.Token) (interface{}, error) {
 			return []byte(secret), nil
 		})
 

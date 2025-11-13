@@ -31,7 +31,7 @@ func NewTransactionService(
 }
 
 // CreateTransaction creates a new transaction
-func (s *TransactionService) CreateTransaction(ctx context.Context, transaction *model.Transaction) error {
+func (s *TransactionService) CreateTransaction(_ context.Context, transaction *model.Transaction) error {
 	// Validate currency
 	if !utils.ValidateCurrencyCode(transaction.Currency) {
 		return &ValidationError{Field: "currency", Message: "Invalid currency code"}
@@ -76,7 +76,7 @@ func (s *TransactionService) GetTransactionsByUser(ctx context.Context, userID s
 }
 
 // GetTransactionByID retrieves a transaction by ID
-func (s *TransactionService) GetTransactionByID(ctx context.Context, transactionID string) (*model.Transaction, error) {
+func (s *TransactionService) GetTransactionByID(_ context.Context, transactionID string) (*model.Transaction, error) {
 	return s.transactionRepo.GetByID(transactionID)
 }
 

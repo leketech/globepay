@@ -19,9 +19,11 @@ type APIInfo struct {
 
 // RootHandler handles root path requests
 func RootHandler(c *gin.Context) {
+	// Get the config from the context or pass it as a parameter
+	// For now, we'll keep the hardcoded version since we don't have access to config here
 	apiInfo := APIInfo{
 		Name:        "Globepay API",
-		Version:     "1.0.0",
+		Version:     "1.0.0", // This should be replaced with config.Version
 		Description: "Globepay is a modern payment processing platform API",
 		DocsURL:     "/swagger", // Placeholder for Swagger docs
 		Timestamp:   time.Now(),

@@ -7,9 +7,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Config holds application configuration
 type Config struct {
 	Environment   string              `mapstructure:"environment"`
 	ServiceName   string              `mapstructure:"service_name"`
+	Version       string              `mapstructure:"version"`
 	Server        ServerConfig        `mapstructure:"server"`
 	Database      DatabaseConfig      `mapstructure:"database"`
 	Redis         RedisConfig         `mapstructure:"redis"`
@@ -91,6 +93,7 @@ func LoadConfig() (*Config, error) {
 func setDefaults() {
 	viper.SetDefault("environment", "development")
 	viper.SetDefault("service_name", "globepay-api")
+	viper.SetDefault("version", "0.0.0")
 	viper.SetDefault("server.port", 8080)
 	viper.SetDefault("server.read_timeout", 30*time.Second)
 	viper.SetDefault("server.write_timeout", 30*time.Second)

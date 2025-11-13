@@ -22,7 +22,7 @@ func (suite *TestSuite) TearDownSuite() {
 }
 
 // TestAll runs all integration tests
-func TestAll(t *testing.T) {
+func TestAll(_ *testing.T) {
 	// Run all integration test suites
 	// suite.Run(t, new(integration.APITestSuite))
 	// Skip other test suites for now as they may have dependencies

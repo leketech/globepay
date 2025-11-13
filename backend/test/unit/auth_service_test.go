@@ -87,7 +87,7 @@ func TestAuthService_Login(t *testing.T) {
 	assert.NotEmpty(t, token)
 
 	// Verify token is valid
-	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+	parsedToken, err := jwt.Parse(token, func(_ *jwt.Token) (interface{}, error) {
 		return []byte("test-secret"), nil
 	})
 	assert.NoError(t, err)

@@ -214,7 +214,7 @@ func runMigrationsUp(db *sql.DB) error {
 	return nil
 }
 
-func runMigrationsDown(db *sql.DB) error {
+func runMigrationsDown(_ *sql.DB) error {
 	// In a real implementation, you would roll back migrations
 	// For this example, we'll just print a message
 	fmt.Println("Rolling back migrations...")

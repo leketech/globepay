@@ -64,18 +64,18 @@ func (s *MoneyRequestService) CreatePaymentLink(
 }
 
 // GetRequest retrieves a money request by ID
-func (s *MoneyRequestService) GetRequest(ctx context.Context, id string) (*model.MoneyRequest, error) {
-	return s.moneyRequestRepo.GetByID(ctx, id)
+func (s *MoneyRequestService) GetRequest(_ context.Context, id string) (*model.MoneyRequest, error) {
+	return s.moneyRequestRepo.GetByID(context.Background(), id)
 }
 
 // GetRequestsByRequester retrieves all money requests made by a user
-func (s *MoneyRequestService) GetRequestsByRequester(ctx context.Context, requesterID string) ([]*model.MoneyRequest, error) {
-	return s.moneyRequestRepo.GetByRequester(ctx, requesterID)
+func (s *MoneyRequestService) GetRequestsByRequester(_ context.Context, requesterID string) ([]*model.MoneyRequest, error) {
+	return s.moneyRequestRepo.GetByRequester(context.Background(), requesterID)
 }
 
 // GetRequestsByRecipient retrieves all money requests for a recipient
-func (s *MoneyRequestService) GetRequestsByRecipient(ctx context.Context, recipientID string) ([]*model.MoneyRequest, error) {
-	return s.moneyRequestRepo.GetByRecipient(ctx, recipientID)
+func (s *MoneyRequestService) GetRequestsByRecipient(_ context.Context, recipientID string) ([]*model.MoneyRequest, error) {
+	return s.moneyRequestRepo.GetByRecipient(context.Background(), recipientID)
 }
 
 // PayRequest processes payment for a money request

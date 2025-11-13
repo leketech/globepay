@@ -31,7 +31,7 @@ func GenerateJWT(userID, email, secret string, expiration time.Duration) (string
 // ValidateJWT validates a JWT token
 func ValidateJWT(tokenString, secret string) (*Claims, error) {
 	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
 

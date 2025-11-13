@@ -140,7 +140,8 @@ jobs:
             Environment: Production
             Commit: ${{ github.sha }}
             Author: ${{ github.actor }}
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          channel: ${{ secrets.SLACK_CHANNEL }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-frontend:
     name: Deploy Frontend to Production
@@ -269,4 +270,5 @@ jobs:
             Environment: Production
             Commit: ${{ github.sha }}
             Author: ${{ github.actor }}
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          channel: ${{ secrets.SLACK_CHANNEL }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
