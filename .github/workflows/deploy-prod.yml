@@ -69,7 +69,18 @@ jobs:
           fi
           
           # Deploy with canary strategy
-          echo "Deploying application..."
+          echo "Deploying application with commit ${GITHUB_SHA}..."
+          
+          # Set the IMAGE_TAG environment variable
+          echo "Setting IMAGE_TAG to ${GITHUB_SHA}"
+          export IMAGE_TAG=${GITHUB_SHA}
+          
+          # Update kustomization with the image tag
+          cd k8s/overlays/prod
+          kustomize edit add configmap image-tag-config --from-literal=image-tag=${IMAGE_TAG}
+          
+          # Go back to root
+          cd ../../..
           
           # First, ensure the application exists
           if ! kubectl get application globepay-backend-prod -n argocd >/dev/null 2>&1; then
@@ -215,7 +226,18 @@ jobs:
           fi
           
           # Deploy frontend application
-          echo "Deploying frontend application..."
+          echo "Deploying frontend application with commit ${GITHUB_SHA}..."
+          
+          # Set the IMAGE_TAG environment variable
+          echo "Setting IMAGE_TAG to ${GITHUB_SHA}"
+          export IMAGE_TAG=${GITHUB_SHA}
+          
+          # Update kustomization with the image tag
+          cd k8s/overlays/frontend-prod
+          kustomize edit add configmap image-tag-config --from-literal=image-tag=${IMAGE_TAG}
+          
+          # Go back to root
+          cd ../../..
           
           # First, ensure the application exists
           if ! kubectl get application globepay-frontend-prod -n argocd >/dev/null 2>&1; then
