@@ -20,7 +20,7 @@ database:
   migrations_path: ./internal/infrastructure/database/migrations
 
 redis:
-  url: redis://localhost:6379/0
+  url: redis://localhost:6379
   password: ""
 
 jwt:
