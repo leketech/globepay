@@ -30,8 +30,8 @@ spec:
         - sh
         - -c
         - |
-          cp /app/config.prod.yaml /app/config
-          ./api
+          cp /app/config.prod.yaml /app/config.yaml
+          ./api --config=/app/config.yaml
         volumeMounts:
         - name: config-volume
           mountPath: /app/config.prod.yaml
