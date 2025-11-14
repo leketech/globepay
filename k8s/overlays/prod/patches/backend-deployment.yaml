@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA}
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-8aef22a
         env:
         - name: ENVIRONMENT
           value: "production"
