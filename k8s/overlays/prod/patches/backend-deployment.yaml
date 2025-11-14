@@ -25,7 +25,7 @@ spec:
               name: backend-secrets-kk7h245k4c
               key: JWT_SECRET
         - name: REDIS_URL
-          value: "redis://redis.globepay-prod.svc.cluster.local:6379/0"
+          value: "redis://redis.globepay-prod.svc.cluster.local:6379"
         command:
         - sh
         - -c
