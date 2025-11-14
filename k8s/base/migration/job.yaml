@@ -7,14 +7,16 @@ spec:
     spec:
       containers:
       - name: migrate
-        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:v1.0.0
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA}
         command: ["/app/migrate"]
         args: ["up"]
         env:
         - name: DATABASE_URL
+          value: "postgresql://globepay:$(DB_PASSWORD)@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable"
+        - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: backend-secrets
-              key: database-url
+              name: backend-secrets-kk7h245k4c
+              key: DB_PASSWORD
       restartPolicy: Never
   backoffLimit: 4
