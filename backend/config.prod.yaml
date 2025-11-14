@@ -22,7 +22,6 @@ database:
 redis:
   url: redis://redis.globepay-prod.svc.cluster.local:6379/0
   password: ""
-  db: 0
 
 jwt:
   secret: ${JWT_SECRET}

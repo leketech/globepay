@@ -22,7 +22,6 @@ database:
 redis:
   url: redis://localhost:6379/0
   password: ""
-  db: 0
 
 jwt:
   secret: your-super-secret-jwt-key-change-in-production
