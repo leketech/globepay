@@ -71,10 +71,10 @@ jobs:
           # Deploy with canary strategy
           echo "Deploying application with commit ${GITHUB_SHA}..."
           
-          # Use kustomize to set the image tag to the commit SHA
-          echo "Setting image tag to ${GITHUB_SHA}"
+          # Use kustomize to set the image tag to the commit SHA with 'sha-' prefix
+          echo "Setting image tag to sha-${GITHUB_SHA}"
           cd k8s/overlays/prod
-          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:${GITHUB_SHA}
+          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA}
           
           # Go back to root
           cd ../../..
@@ -225,10 +225,10 @@ jobs:
           # Deploy frontend application
           echo "Deploying frontend application with commit ${GITHUB_SHA}..."
           
-          # Use kustomize to set the image tag to the commit SHA
-          echo "Setting frontend image tag to ${GITHUB_SHA}"
+          # Use kustomize to set the image tag to the commit SHA with 'sha-' prefix
+          echo "Setting frontend image tag to sha-${GITHUB_SHA}"
           cd k8s/overlays/frontend-prod
-          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:${GITHUB_SHA}
+          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:sha-${GITHUB_SHA}
           
           # Go back to root
           cd ../../..
