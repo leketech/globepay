@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"time"
+	"errors"
 
 	"globepay/internal/infrastructure/cache"
 )
@@ -22,6 +23,11 @@ func NewCacheService(redisClient *cache.RedisClient) *CacheService {
 
 // Set stores a value in cache
 func (s *CacheService) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	// If Redis client is nil, return an error
+	if s.redisClient == nil {
+		return errors.New("redis client is not available")
+	}
+	
 	// Serialize the value to JSON
 	data, err := json.Marshal(value)
 	if err != nil {
@@ -33,6 +39,11 @@ func (s *CacheService) Set(ctx context.Context, key string, value interface{}, e
 
 // Get retrieves a value from cache
 func (s *CacheService) Get(ctx context.Context, key string, dest interface{}) error {
+	// If Redis client is nil, return an error
+	if s.redisClient == nil {
+		return errors.New("redis client is not available")
+	}
+	
 	// Get the value from Redis
 	data, err := s.redisClient.Get(ctx, key)
 	if err != nil {
@@ -45,6 +56,11 @@ func (s *CacheService) Get(ctx context.Context, key string, dest interface{}) er
 
 // Delete removes a key from cache
 func (s *CacheService) Delete(ctx context.Context, key string) error {
+	// If Redis client is nil, return an error
+	if s.redisClient == nil {
+		return errors.New("redis client is not available")
+	}
+	
 	return s.redisClient.Delete(ctx, key)
 }
 

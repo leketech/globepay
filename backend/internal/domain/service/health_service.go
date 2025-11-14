@@ -32,6 +32,11 @@ func (h *HealthService) CheckDatabase(ctx context.Context) error {
 
 // CheckCache checks cache connectivity
 func (h *HealthService) CheckCache(ctx context.Context) error {
+	// If cache is nil, return an error
+	if h.cache == nil {
+		return nil // Return nil to indicate cache is not available but not an error
+	}
+	
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -50,7 +55,9 @@ func (h *HealthService) CheckAll(ctx context.Context) map[string]string {
 	}
 
 	// Check cache
-	if err := h.CheckCache(ctx); err != nil {
+	if h.cache == nil {
+		results["cache"] = "not configured"
+	} else if err := h.CheckCache(ctx); err != nil {
 		results["cache"] = "disconnected"
 	} else {
 		results["cache"] = "connected"
@@ -69,6 +76,11 @@ func (h *HealthService) CheckDatabaseSimple() bool {
 
 // CheckRedisSimple simple Redis connectivity check without context
 func (h *HealthService) CheckRedisSimple() bool {
+	// If cache is nil, return false
+	if h.cache == nil {
+		return false
+	}
+	
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

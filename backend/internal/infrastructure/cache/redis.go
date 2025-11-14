@@ -14,8 +14,13 @@ type RedisClient struct {
 	client *redis.Client
 }
 
-// NewRedisClient creates a new Redis client
+// NewRedisClient creates a new Redis client with retry logic
 func NewRedisClient(redisURL string) (*RedisClient, error) {
+	// If the URL doesn't start with redis://, prepend it
+	if redisURL != "" && len(redisURL) > 0 && redisURL[0] != '/' && !startsWithRedisScheme(redisURL) {
+		redisURL = "redis://" + redisURL
+	}
+
 	opt, err := redis.ParseURL(redisURL)
 	if err != nil {
 		return nil, err
@@ -23,17 +28,28 @@ func NewRedisClient(redisURL string) (*RedisClient, error) {
 
 	client := redis.NewClient(opt)
 
-	// Test the connection
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	// Test the connection with retry logic
+	ctx := context.Background()
 
-	if err := client.Ping(ctx).Err(); err != nil {
-		return nil, err
+	for i := 0; i < 5; i++ {
+		_, err := client.Ping(ctx).Result()
+		if err == nil {
+			log.Println("Redis connected successfully")
+			return &RedisClient{
+				client: client,
+			}, nil
+		}
+
+		log.Printf("Redis not ready, retrying... (%d/5) Error: %v", i+1, err)
+		time.Sleep(3 * time.Second)
 	}
 
-	return &RedisClient{
-		client: client,
-	}, nil
+	return nil, fmt.Errorf("could not connect to Redis after retries")
+}
+
+// Helper function to check if URL starts with redis:// scheme
+func startsWithRedisScheme(url string) bool {
+	return len(url) >= 7 && url[:7] == "redis://"
 }
 
 // Get retrieves a value from Redis by key

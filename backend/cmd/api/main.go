@@ -59,9 +59,15 @@ func main() {
 	// Initialize Redis client
 	redisClient, err := cache.NewRedisClient(cfg.GetRedisAddress())
 	if err != nil {
-		log.Fatalf("Failed to connect to Redis: %v", err)
+		logger.Error(fmt.Sprintf("Failed to connect to Redis: %v. Starting without Redis support.", err))
+		// Continue without Redis - the application can still function with reduced capabilities
+		redisClient = nil
 	}
-	defer redisClient.Close()
+	
+	// Only defer close if redisClient is not nil
+	if redisClient != nil {
+		defer redisClient.Close()
+	}
 
 	// Initialize AWS config
 	awsConfig := aws.Config{}
