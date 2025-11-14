@@ -24,8 +24,6 @@ spec:
             secretKeyRef:
               name: backend-secrets-kk7h245k4c
               key: JWT_SECRET
-        - name: REDIS_URL
-          value: "redis://redis.globepay-prod.svc.cluster.local:6379/0"
         - name: CONFIG_FILE
           value: "/app/config.prod.yaml"
         command:
