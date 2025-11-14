@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:latest
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:v1.0.0
         env:
         - name: ENVIRONMENT
           value: "production"
@@ -17,15 +17,17 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: backend-secrets
+              name: backend-secrets-kk7h245k4c
               key: DB_PASSWORD
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: backend-secrets
+              name: backend-secrets-kk7h245k4c
               key: JWT_SECRET
         - name: REDIS_URL
-          value: "redis://redis:6379/0"
+          value: "redis://redis.globepay-prod.svc.cluster.local:6379/0"
+        - name: CONFIG_FILE
+          value: "/app/config.prod.yaml"
         command:
         - sh
         - -c
@@ -57,3 +59,7 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
+      volumes:
+      - name: config-volume
+        configMap:
+          name: backend-config
