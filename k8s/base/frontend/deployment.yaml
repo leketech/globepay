@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:v1.0.0
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:main
         ports:
         - containerPort: 80
           name: http
