@@ -24,8 +24,6 @@ spec:
             secretKeyRef:
               name: backend-secrets-kk7h245k4c
               key: JWT_SECRET
-        - name: CONFIG_FILE
-          value: "/app/config.prod.yaml"
         command:
         - sh
         - -c
