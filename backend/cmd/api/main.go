@@ -10,42 +10,34 @@ import (
 	"syscall"
 	"time"
 
-	"globepay/internal/api/router"
 	"globepay/internal/config"
 	"globepay/internal/domain/service"
 	"globepay/internal/infrastructure/cache"
 	"globepay/internal/infrastructure/database"
 	"globepay/internal/infrastructure/logger"
+	"globepay/internal/infrastructure/metrics"
+	"globepay/internal/api/router"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	// Load environment variables
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
-	}
-
 	// Load configuration
-	// Check if a specific config file is specified
-	configFile := os.Getenv("CONFIG_FILE")
-	if configFile != "" {
-		// Set the config file for viper
-		config.SetConfigFile(configFile)
-	}
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Initialize logger
+	// Parse log level
 	logLevel, err := logrus.ParseLevel(cfg.Observability.LogLevel)
 	if err != nil {
 		logLevel = logrus.InfoLevel
 	}
+
+	// Initialize logger
 	logger := logger.NewLogger(logLevel, cfg.IsDevelopment())
 	logger.Info("Starting Globepay API server...")
 
@@ -57,16 +49,26 @@ func main() {
 	defer db.Close()
 
 	// Initialize Redis client
-	redisClient, err := cache.NewRedisClient(cfg.GetRedisAddress())
+	var redisClient *cache.RedisClient
+	redisClient, err = cache.NewRedisClient(cfg.GetRedisAddress())
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to connect to Redis: %v. Starting without Redis support.", err))
 		// Continue without Redis - the application can still function with reduced capabilities
 		redisClient = nil
 	}
-	
+
 	// Only defer close if redisClient is not nil
 	if redisClient != nil {
 		defer redisClient.Close()
+	}
+
+	// Initialize metrics
+	var appMetrics *metrics.Metrics
+	if redisClient != nil {
+		appMetrics = metrics.NewMetrics()
+		logger.Info("Metrics initialized")
+	} else {
+		logger.Info("Metrics skipped (Redis not available)")
 	}
 
 	// Initialize AWS config
@@ -80,7 +82,7 @@ func main() {
 	// Initialize Gin router
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
-	router.SetupRoutes(r, serviceFactory, nil) // TODO: Add metrics
+	router.SetupRoutes(r, serviceFactory, appMetrics)
 
 	// Start server
 	srv := &http.Server{
@@ -96,11 +98,11 @@ func main() {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	// Start server in a goroutine
+	// Start the server in a goroutine
 	go func() {
-		logger.Info(fmt.Sprintf("Server starting on port %s...", cfg.GetServerAddress()))
+		logger.Info(fmt.Sprintf("Starting server on port %s", cfg.GetServerAddress()))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Failed to start server: %v", err)
+			logger.Error(fmt.Sprintf("Failed to start server: %v", err))
 		}
 	}()
 
@@ -109,7 +111,7 @@ func main() {
 	logger.Info("Shutting down server...")
 
 	// Create a context with timeout for graceful shutdown
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	// Attempt graceful shutdown
@@ -117,5 +119,5 @@ func main() {
 		logger.Error(fmt.Sprintf("Server forced to shutdown: %v", err))
 	}
 
-	logger.Info("Server stopped successfully")
+	logger.Info("Server exited")
 }

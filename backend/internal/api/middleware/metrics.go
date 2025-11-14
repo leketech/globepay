@@ -15,25 +15,31 @@ func MetricsMiddleware(m *metrics.Metrics) gin.HandlerFunc {
 		// Store metrics in context for handlers to access
 		c.Set("metrics", m)
 
-		// Increment in-flight requests
-		m.HTTPRequestsInFlight.Inc()
-		defer m.HTTPRequestsInFlight.Dec()
+		// Only collect metrics if metrics object is not nil
+		if m != nil {
+			// Increment in-flight requests
+			m.HTTPRequestsInFlight.Inc()
+			defer m.HTTPRequestsInFlight.Dec()
 
-		start := time.Now()
-		path := c.FullPath()
+			start := time.Now()
+			path := c.FullPath()
 
-		// Process request
-		c.Next()
+			// Process request
+			c.Next()
 
-		// Record metrics
-		status := strconv.Itoa(c.Writer.Status())
-		method := c.Request.Method
+			// Record metrics
+			status := strconv.Itoa(c.Writer.Status())
+			method := c.Request.Method
 
-		// Record total requests
-		m.HTTPRequestsTotal.WithLabelValues(method, path, status).Inc()
+			// Record total requests
+			m.HTTPRequestsTotal.WithLabelValues(method, path, status).Inc()
 
-		// Record request duration
-		duration := time.Since(start).Seconds()
-		m.HTTPRequestDuration.WithLabelValues(method, path).Observe(duration)
+			// Record request duration
+			duration := time.Since(start).Seconds()
+			m.HTTPRequestDuration.WithLabelValues(method, path).Observe(duration)
+		} else {
+			// Process request without collecting metrics
+			c.Next()
+		}
 	}
 }

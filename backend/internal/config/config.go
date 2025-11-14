@@ -45,6 +45,7 @@ type RedisConfig struct {
 	Port     int    `mapstructure:"port"`
 	Password string `mapstructure:"password"`
 	DB       int    `mapstructure:"db"`
+	URL      string `mapstructure:"url"`
 }
 
 type JWTConfig struct {
@@ -136,6 +137,11 @@ func (c *Config) GetDatabaseDSN() string {
 
 // GetRedisAddress returns the Redis address
 func (c *Config) GetRedisAddress() string {
+	// If URL is provided, use it
+	if c.Redis.URL != "" {
+		return c.Redis.URL
+	}
+	// Otherwise, construct from host and port
 	return c.Redis.Host + ":" + strconv.Itoa(c.Redis.Port)
 }
 

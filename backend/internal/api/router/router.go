@@ -20,7 +20,15 @@ func SetupRoutes(r *gin.Engine, serviceFactory *service.Factory, metrics *metric
 		c.Next()
 	})
 	r.Use(middleware.CORS())
-	r.Use(middleware.MetricsMiddleware(metrics))
+	
+	// Only apply metrics middleware if metrics are available
+	if metrics != nil {
+		r.Use(middleware.MetricsMiddleware(metrics))
+		fmt.Println("Metrics middleware applied")
+	} else {
+		fmt.Println("Metrics middleware skipped (metrics not available)")
+	}
+	
 	fmt.Println("CORS middleware applied")
 
 	// Create health handler with health service
