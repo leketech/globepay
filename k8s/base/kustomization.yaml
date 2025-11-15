@@ -7,4 +7,5 @@ resources:
 - ./redis
 - ./postgresql
 - ./ingress
+- ./migration
 - ./backend/postgresql-init.yaml
