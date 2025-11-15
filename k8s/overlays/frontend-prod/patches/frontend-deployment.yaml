@@ -3,12 +3,12 @@ kind: Deployment
 metadata:
   name: frontend
 spec:
-  replicas: 5
+  replicas: 3
   template:
     spec:
       containers:
       - name: frontend
-        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:main
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:sha-${GITHUB_SHA}
         env:
         - name: VITE_API_URL
           value: "https://api.globepay.space"
@@ -25,11 +25,13 @@ spec:
           httpGet:
             path: /
             port: http
-          initialDelaySeconds: 30
-          periodSeconds: 10
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          timeoutSeconds: 10
         readinessProbe:
           httpGet:
             path: /
             port: http
-          initialDelaySeconds: 10
-          periodSeconds: 5
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5

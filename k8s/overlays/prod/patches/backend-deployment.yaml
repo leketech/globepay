@@ -17,12 +17,12 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: backend-secrets-kk7h245k4c
+              name: backend-secrets
               key: DB_PASSWORD
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: backend-secrets-kk7h245k4c
+              name: backend-secrets
               key: JWT_SECRET
         - name: REDIS_URL
           value: "redis://redis.globepay-prod.svc.cluster.local:6379"
@@ -34,8 +34,8 @@ spec:
           ./api --config=/app/config.yaml
         volumeMounts:
         - name: config-volume
-        mountPath: /app/config.prod.yaml
-        subPath: config.prod.yaml
+          mountPath: /app/config.prod.yaml
+          subPath: config.prod.yaml
         resources:
           requests:
             memory: "256Mi"
