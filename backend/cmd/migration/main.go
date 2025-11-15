@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"globepay/internal/infrastructure/config"
-	"globepay/internal/infrastructure/database"
 
 	_ "github.com/lib/pq"
 )
@@ -27,12 +27,18 @@ func main() {
 	}
 
 	// Connect to database
-	db, err := database.NewConnection(cfg.DatabaseURL)
+	db, err := sql.Open("postgres", cfg.DatabaseURL)
 	if err != nil {
 		fmt.Printf("Failed to connect to database: %v\n", err)
 		os.Exit(1)
 	}
 	defer db.Close()
+
+	// Test the connection
+	if err := db.Ping(); err != nil {
+		fmt.Printf("Failed to ping database: %v\n", err)
+		os.Exit(1)
+	}
 
 	switch command {
 	case "up":
@@ -66,158 +72,75 @@ func main() {
 }
 
 func runMigrationsUp(db *sql.DB) error {
-	// In a real implementation, you would use a migration library like migrate
-	// For this example, we'll just run a simple migration
-
-	// Create users table
-	_, err := db.Exec(`
-		CREATE TABLE IF NOT EXISTS users (
-			id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-			email VARCHAR(255) UNIQUE NOT NULL,
-			password_hash VARCHAR(255) NOT NULL,
-			first_name VARCHAR(100) NOT NULL,
-			last_name VARCHAR(100) NOT NULL,
-			phone_number VARCHAR(20),
-			date_of_birth DATE,
-			country_code CHAR(2),
-			kyc_status VARCHAR(20) DEFAULT 'pending',
-			account_status VARCHAR(20) DEFAULT 'active',
-			email_verified BOOLEAN DEFAULT FALSE,
-			phone_verified BOOLEAN DEFAULT FALSE,
-			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-		)
-	`)
-	if err != nil {
-		return err
+	// Get all .up.sql files from migrations directory
+	migrationDir := "./migrations"
+	if _, err := os.Stat(migrationDir); os.IsNotExist(err) {
+		// Try alternative path
+		migrationDir = "/app/migrations"
 	}
 
-	// Create accounts table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS accounts (
-			id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			currency_code CHAR(3) NOT NULL,
-			balance DECIMAL(15,2) DEFAULT 0.00,
-			account_number VARCHAR(50) UNIQUE NOT NULL,
-			account_type VARCHAR(20) DEFAULT 'checking',
-			status VARCHAR(20) DEFAULT 'active',
-			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-		)
-	`)
+	files, err := filepath.Glob(filepath.Join(migrationDir, "*.up.sql"))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read migration files: %v", err)
 	}
 
-	// Create transfers table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS transfers (
-			id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			recipient_name VARCHAR(255) NOT NULL,
-			recipient_email VARCHAR(255),
-			recipient_country CHAR(2) NOT NULL,
-			recipient_bank_name VARCHAR(255) NOT NULL,
-			recipient_account_number VARCHAR(100) NOT NULL,
-			recipient_swift_code VARCHAR(20),
-			source_currency CHAR(3) NOT NULL,
-			destination_currency CHAR(3) NOT NULL,
-			source_amount DECIMAL(15,2) NOT NULL,
-			destination_amount DECIMAL(15,2) NOT NULL,
-			exchange_rate DECIMAL(10,6) NOT NULL,
-			fee_amount DECIMAL(15,2) NOT NULL,
-			purpose VARCHAR(100) NOT NULL,
-			status VARCHAR(20) DEFAULT 'pending',
-			reference_number VARCHAR(50) UNIQUE,
-			estimated_arrival TIMESTAMP WITH TIME ZONE,
-			processed_at TIMESTAMP WITH TIME ZONE,
-			failure_reason TEXT,
-			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-		)
-	`)
-	if err != nil {
-		return err
-	}
-
-	// Create transactions table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS transactions (
-			id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-			transfer_id UUID REFERENCES transfers(id) ON DELETE SET NULL,
-			type VARCHAR(20) NOT NULL,
-			status VARCHAR(20) DEFAULT 'completed',
-			amount DECIMAL(15,2) NOT NULL,
-			currency_code CHAR(3) NOT NULL,
-			fee_amount DECIMAL(15,2) DEFAULT 0.00,
-			description TEXT,
-			reference_number VARCHAR(50) UNIQUE,
-			processed_at TIMESTAMP WITH TIME ZONE,
-			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-		)
-	`)
-	if err != nil {
-		return err
-	}
-
-	// Create beneficiaries table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS beneficiaries (
-			id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			name VARCHAR(255) NOT NULL,
-			email VARCHAR(255),
-			country CHAR(2) NOT NULL,
-			bank_name VARCHAR(255) NOT NULL,
-			account_number VARCHAR(100) NOT NULL,
-			swift_code VARCHAR(20),
-			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-		)
-	`)
-	if err != nil {
-		return err
-	}
-
-	// Create currencies table
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS currencies (
-			code CHAR(3) PRIMARY KEY,
-			name VARCHAR(100) NOT NULL,
-			symbol VARCHAR(10) NOT NULL,
-			decimal_places INTEGER DEFAULT 2,
-			active BOOLEAN DEFAULT TRUE,
-			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-		)
-	`)
-	if err != nil {
-		return err
-	}
-
-	// Insert default currencies
-	_, err = db.Exec(`
-		INSERT INTO currencies (code, name, symbol) VALUES 
-		('USD', 'US Dollar', '$'),
-		('EUR', 'Euro', '€'),
-		('GBP', 'British Pound', '£'),
-		('JPY', 'Japanese Yen', '¥')
-		ON CONFLICT (code) DO NOTHING
-	`)
-	if err != nil {
-		return err
+	// Sort files by name to ensure they run in order
+	// (This is a simplified approach - in production you might want a more robust solution)
+	
+	for _, file := range files {
+		fmt.Printf("Running migration: %s\n", file)
+		
+		// Read the migration file
+		sqlBytes, err := os.ReadFile(file)
+		if err != nil {
+			return fmt.Errorf("failed to read migration file %s: %v", file, err)
+		}
+		
+		// Execute the migration
+		_, err = db.Exec(string(sqlBytes))
+		if err != nil {
+			return fmt.Errorf("failed to execute migration %s: %v", file, err)
+		}
+		
+		fmt.Printf("Completed migration: %s\n", file)
 	}
 
 	return nil
 }
 
-func runMigrationsDown(_ *sql.DB) error {
-	// In a real implementation, you would roll back migrations
-	// For this example, we'll just print a message
-	fmt.Println("Rolling back migrations...")
+func runMigrationsDown(db *sql.DB) error {
+	// Get all .down.sql files from migrations directory
+	migrationDir := "./migrations"
+	if _, err := os.Stat(migrationDir); os.IsNotExist(err) {
+		// Try alternative path
+		migrationDir = "/app/migrations"
+	}
+
+	files, err := filepath.Glob(filepath.Join(migrationDir, "*.down.sql"))
+	if err != nil {
+		return fmt.Errorf("failed to read migration files: %v", err)
+	}
+
+	// Run in reverse order
+	for i := len(files) - 1; i >= 0; i-- {
+		file := files[i]
+		fmt.Printf("Running rollback migration: %s\n", file)
+		
+		// Read the migration file
+		sqlBytes, err := os.ReadFile(file)
+		if err != nil {
+			return fmt.Errorf("failed to read migration file %s: %v", file, err)
+		}
+		
+		// Execute the migration
+		_, err = db.Exec(string(sqlBytes))
+		if err != nil {
+			return fmt.Errorf("failed to execute migration %s: %v", file, err)
+		}
+		
+		fmt.Printf("Completed rollback migration: %s\n", file)
+	}
+
 	return nil
 }
 

@@ -6,6 +6,7 @@ resources:
 - ../../base/redis
 - ../../base/postgresql
 - ../../base/ingress
+- ../../base/migration
 
 namespace: globepay-prod
 
@@ -13,6 +14,7 @@ patches:
 - path: ./patches/backend-deployment.yaml
 - path: ./patches/backend-resources.yaml
 - path: ./patches/postgresql-deployment.yaml
+- path: ./patches/migration-job.yaml
 
 secretGenerator:
 - name: backend-secrets

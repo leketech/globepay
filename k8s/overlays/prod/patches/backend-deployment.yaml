@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-8aef22a
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA}
         env:
         - name: ENVIRONMENT
           value: "production"
@@ -34,8 +34,8 @@ spec:
           ./api --config=/app/config.yaml
         volumeMounts:
         - name: config-volume
-          mountPath: /app/config.prod.yaml
-          subPath: config.prod.yaml
+        mountPath: /app/config.prod.yaml
+        subPath: config.prod.yaml
         resources:
           requests:
             memory: "256Mi"

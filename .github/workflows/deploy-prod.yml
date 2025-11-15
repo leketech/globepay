@@ -59,6 +59,54 @@ jobs:
             echo "Backup creation failed, continuing with deployment..."
           fi
       
+      - name: Run database migrations
+        run: |
+          echo "Running database migrations..."
+          
+          # Install kustomize if not available
+          if ! command -v kustomize &> /dev/null; then
+            echo "Installing kustomize..."
+            curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+            sudo mv kustomize /usr/local/bin/
+          fi
+          
+          # Create temporary secret files with actual values (in a real environment, these would come from GitHub secrets)
+          echo "Creating temporary secret files..."
+          cd k8s/overlays/prod
+          cat > .env.secret.tmp << 'EOF'
+          DB_PASSWORD=actual_db_password_here
+          JWT_SECRET=actual_jwt_secret_here
+          EOF
+          
+          # Replace the .env.secret file temporarily
+          mv .env.secret .env.secret.bak
+          mv .env.secret.tmp .env.secret
+          
+          # Set the image tag to the commit SHA with 'sha-' prefix for migration job
+          echo "Setting migration job image tag to sha-${GITHUB_SHA}"
+          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA}
+          
+          # Apply the migration job
+          echo "Applying migration job..."
+          kubectl apply -k ./
+          
+          # Wait for the migration job to complete
+          echo "Waiting for migration job to complete..."
+          kubectl wait --for=condition=complete job/database-migration -n globepay-prod --timeout=300s || {
+            echo "Migration job failed or timed out"
+            kubectl logs job/database-migration -n globepay-prod || true
+            # Restore the original .env.secret file
+            mv .env.secret .env.secret.tmp
+            mv .env.secret.bak .env.secret
+            exit 1
+          }
+          
+          # Restore the original .env.secret file
+          mv .env.secret .env.secret.tmp
+          mv .env.secret.bak .env.secret
+          
+          echo "Database migrations completed successfully"
+      
       - name: Deploy to ArgoCD (Canary)
         run: |
           # Install kustomize if not available
@@ -71,9 +119,20 @@ jobs:
           # Deploy with canary strategy
           echo "Deploying application with commit ${GITHUB_SHA}..."
           
+          # Create temporary secret files with actual values (in a real environment, these would come from GitHub secrets)
+          echo "Creating temporary secret files..."
+          cd k8s/overlays/prod
+          cat > .env.secret.tmp << 'EOF'
+          DB_PASSWORD=actual_db_password_here
+          JWT_SECRET=actual_jwt_secret_here
+          EOF
+          
+          # Replace the .env.secret file temporarily
+          mv .env.secret .env.secret.bak
+          mv .env.secret.tmp .env.secret
+          
           # Use kustomize to set the image tag to the commit SHA with 'sha-' prefix
           echo "Setting image tag to sha-${GITHUB_SHA}"
-          cd k8s/overlays/prod
           kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA}
           
           # Go back to root
@@ -98,6 +157,11 @@ jobs:
           
           # Apply the application with the correct image tag
           kubectl apply -f k8s/argocd/application.yaml -n argocd
+          
+          # Restore the original .env.secret file
+          cd k8s/overlays/prod
+          mv .env.secret .env.secret.tmp
+          mv .env.secret.bak .env.secret
           
           # Wait for the application to be ready
           echo "Waiting for application to be ready..."

@@ -21,6 +21,6 @@ WORKDIR /app
 
 COPY --from=builder /app/migrate /app/migrate
 
-COPY ./internal/infrastructure/database/migrations /app/migrations
+COPY ./internal/infrastructure/database/migrations/*.sql /app/migrations/
 
 ENTRYPOINT ["/app/migrate"]
