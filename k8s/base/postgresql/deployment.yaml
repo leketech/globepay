@@ -28,7 +28,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: postgresql-secrets
-              key: password
+              key: DB_PASSWORD
         resources:
           requests:
             memory: "256Mi"
