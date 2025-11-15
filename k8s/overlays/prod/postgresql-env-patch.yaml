@@ -3,6 +3,9 @@ kind: Deployment
 metadata:
   name: postgresql
 spec:
+  selector:
+    matchLabels:
+      app: postgresql
   template:
     spec:
       containers:

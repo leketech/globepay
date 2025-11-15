@@ -10,11 +10,12 @@ resources:
 
 namespace: globepay-prod
 
-patches:
-- path: ./patches/backend-deployment.yaml
-- path: ./patches/backend-resources.yaml
-- path: ./patches/migration-job.yaml
-- path: postgresql-env-patch.yaml
+patchesStrategicMerge:
+- postgresql-env-patch.yaml
+- patches/backend-deployment.yaml
+- patches/backend-resources.yaml
+- patches/frontend-deployment.yaml
+- patches/migration-job.yaml
 
 secretGenerator:
 - name: backend-secrets
