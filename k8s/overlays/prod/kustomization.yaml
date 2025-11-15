@@ -13,8 +13,8 @@ namespace: globepay-prod
 patches:
 - path: ./patches/backend-deployment.yaml
 - path: ./patches/backend-resources.yaml
-- path: ./patches/postgresql-deployment.yaml
 - path: ./patches/migration-job.yaml
+- path: postgresql-env-patch.yaml
 
 secretGenerator:
 - name: backend-secrets
