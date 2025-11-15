@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "26"
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"deployment.kubernetes.io/revision":"23"},"generation":27,"labels":{"app":"backend"},"name":"backend","namespace":"globepay-prod"},"spec":{"progressDeadlineSeconds":600,"replicas":3,"revisionHistoryLimit":10,"selector":{"matchLabels":{"app":"backend"}},"strategy":{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"},"template":{"metadata":{"annotations":null,"labels":{"app":"backend"}},"spec":{"containers":[{"command":["sh","-c","cp /app/config.prod.yaml /app/config.yaml\n./api --config=/app/config.yaml\n"],"env":[{"name":"ENVIRONMENT","value":"production"},{"name":"DATABASE_URL","value":"postgresql://globepay:$(DB_PASSWORD)@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable"},{"name":"DB_PASSWORD","valueFrom":{"secretKeyRef":{"key":"DB_PASSWORD","name":"backend-secrets-new"}}},{"name":"JWT_SECRET","valueFrom":{"secretKeyRef":{"key":"JWT_SECRET","name":"backend-secrets-new"}}},{"name":"REDIS_URL","value":"redis://redis.globepay-prod.svc.cluster.local:6379"},{"name":"CONFIG_FILE","value":"/app/config.prod.yaml"}],"image":"907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-8aef22a","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":"http","scheme":"HTTP"},"initialDelaySeconds":120,"periodSeconds":15,"successThreshold":1,"timeoutSeconds":5},"name":"backend","ports":[{"containerPort":8080,"name":"http","protocol":"TCP"},{"containerPort":9090,"name":"metrics","protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/health/ready","port":"http","scheme":"HTTP"},"initialDelaySeconds":60,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5},"resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"250m","memory":"256Mi"}},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","volumeMounts":[{"mountPath":"/app/config.prod.yaml","name":"config-volume","subPath":"config.prod.yaml"}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","schedulerName":"default-scheduler","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"configMap":{"defaultMode":420,"name":"backend-config"},"name":"config-volume"}]}}},"status":{"conditions":[{"lastTransitionTime":"2025-11-14T11:34:35Z","lastUpdateTime":"2025-11-14T12:37:30Z","message":"ReplicaSet \"backend-7bd8c79d47\" has successfully progressed.","reason":"NewReplicaSetAvailable","status":"True","type":"Progressing"},{"lastTransitionTime":"2025-11-15T06:05:20Z","lastUpdateTime":"2025-11-15T06:05:20Z","message":"Deployment does not have minimum availability.","reason":"MinimumReplicasUnavailable","status":"False","type":"Available"}],"observedGeneration":27,"replicas":3,"unavailableReplicas":3,"updatedReplicas":3}}
+  generation: 30
+  labels:
+    app: backend
+  name: backend
+  namespace: globepay-prod
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - command:
+        - sh
+        - -c
+        - |
+          cp /app/config.prod.yaml /app/config.yaml
+          ./api --config=/app/config.yaml
+        env:
+        - name: ENVIRONMENT
+          value: production
+        - name: DATABASE_URL
+          value: postgresql://globepay:$(DB_PASSWORD)@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: DB_PASSWORD
+              name: backend-secrets-new
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: JWT_SECRET
+              name: backend-secrets-new
+        - name: REDIS_URL
+          value: redis://redis.globepay-prod.svc.cluster.local:6379
+        - name: CONFIG_FILE
+          value: /app/config.prod.yaml
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-8aef22a
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 120
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: backend
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health/ready
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /app/config.prod.yaml
+          name: config-volume
+          subPath: config.prod.yaml
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: backend-config
+        name: config-volume
+status:
+  conditions:
+  - lastTransitionTime: "2025-11-15T06:05:20Z"
+    lastUpdateTime: "2025-11-15T06:05:20Z"
+    message: Deployment does not have minimum availability.
+    reason: MinimumReplicasUnavailable
+    status: "False"
+    type: Available
+  - lastTransitionTime: "2025-11-14T11:34:35Z"
+    lastUpdateTime: "2025-11-15T06:36:59Z"
+    message: ReplicaSet "backend-544789cdb8" is progressing.
+    reason: ReplicaSetUpdated
+    status: "True"
+    type: Progressing
+  observedGeneration: 30
+  replicas: 4
+  unavailableReplicas: 4
+  updatedReplicas: 1

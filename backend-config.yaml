@@ -1,0 +1,59 @@
+apiVersion: v1
+data:
+  aws-region: us-east-1
+  config.prod.yaml: |-
+    environment: production
+    service_name: globepay-api
+
+    server:
+      port: 8080
+      read_timeout: 30s
+      write_timeout: 30s
+      idle_timeout: 120s
+
+    database:
+      host: postgresql.globepay-prod.svc.cluster.local
+      port: 5432
+      user: globepay
+      password: simplepassword123
+      db_name: globepay_prod
+      ssl_mode: disable
+      max_open_conns: 25
+      max_idle_conns: 5
+      conn_max_lifetime: 5m
+      migrations_path: ./internal/infrastructure/database/migrations
+
+    redis:
+      url: redis://redis.globepay-prod.svc.cluster.local:6379
+      password: ""
+
+    jwt:
+      secret: SECURE_JWT_SECRET_KEY
+      expiration: 24h
+
+    aws:
+      region: us-east-1
+      s3_bucket: globepay-prod-assets
+      sqs_queue_url: https://sqs.us-east-1.amazonaws.com/907849381252/globepay-prod-queue
+      ses_from_email: noreply@globepay.com
+
+    observability:
+      prometheus_port: 9090
+      jaeger_endpoint: http://jaeger-collector.observability.svc.cluster.local:14268/api/traces
+      log_level: info
+      enable_tracing: true
+  enable-tracing: "true"
+  log-level: info
+  s3-bucket: globepay-prod-documents
+  sqs-queue-url: https://sqs.us-east-1.amazonaws.com/907849381252/globepay-prod-queue
+kind: ConfigMap
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: globepay-backend-prod:/ConfigMap:globepay-prod/backend-config
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"aws-region":"us-east-1","config.prod.yaml":"environment: production\nservice_name: globepay-api\n\nserver:\n  port: 8080\n  read_timeout: 30s\n  write_timeout: 30s\n  idle_timeout: 120s\n\ndatabase:\n  host: postgresql.globepay-prod.svc.cluster.local\n  port: 5432\n  user: globepay\n  password: simplepassword123\n  db_name: globepay_prod\n  ssl_mode: disable\n  max_open_conns: 25\n  max_idle_conns: 5\n  conn_max_lifetime: 5m\n  migrations_path: ./internal/infrastructure/database/migrations\n\nredis:\n  url: redis://redis.globepay-prod.svc.cluster.local:6379\n  password: \"\"\n\njwt:\n  secret: SECURE_JWT_SECRET_KEY\n  expiration: 24h\n\naws:\n  region: us-east-1\n  s3_bucket: globepay-prod-assets\n  sqs_queue_url: https://sqs.us-east-1.amazonaws.com/907849381252/globepay-prod-queue\n  ses_from_email: noreply@globepay.com\n\nobservability:\n  prometheus_port: 9090\n  jaeger_endpoint: http://jaeger-collector.observability.svc.cluster.local:14268/api/traces\n  log_level: info\n  enable_tracing: true","enable-tracing":"true","log-level":"info","s3-bucket":"globepay-prod-documents","sqs-queue-url":"https://sqs.us-east-1.amazonaws.com/907849381252/globepay-prod-queue"},"kind":"ConfigMap","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"globepay-backend-prod:/ConfigMap:globepay-prod/backend-config"},"name":"backend-config","namespace":"globepay-prod"}}
+  creationTimestamp: "2025-11-03T09:12:04Z"
+  name: backend-config
+  namespace: globepay-prod
+  resourceVersion: "4805401"
+  uid: c5838081-be19-4e8d-bfdb-bc0579f6e98d

@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: manual-database-migration-v4
+  namespace: globepay-prod
+spec:
+  template:
+    spec:
+      containers:
+      - name: migrate
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-8aef22a
+        command: [

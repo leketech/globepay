@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: globepay-prod
+  labels:
+    app: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-8aef22a
+        command:
+        - sh
+        - -c
+        - |
+          cp /app/config.prod.yaml /app/config.yaml
+          ./api --config=/app/config.yaml
+        env:
+        - name: ENVIRONMENT
+          value: production
+        - name: DATABASE_URL
+          value: postgresql://globepay:simplepassword123@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable
+        - name: REDIS_URL
+          value: redis://redis.globepay-prod.svc.cluster.local:6379
+        - name: CONFIG_FILE
+          value: /app/config.prod.yaml
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 9090
+          name: metrics
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 120
+          periodSeconds: 15
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config.prod.yaml
+          subPath: config.prod.yaml
+      volumes:
+      - name: config-volume
+        configMap:
+          name: backend-config
