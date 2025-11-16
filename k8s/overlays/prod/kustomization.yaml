@@ -11,7 +11,6 @@ resources:
 namespace: globepay-prod
 
 patches:
-  - path: postgresql-env-patch.yaml
   - path: patches/backend-deployment.yaml
   - path: patches/backend-resources.yaml
   - path: patches/migration-job.yaml

@@ -4,9 +4,6 @@ metadata:
   name: frontend
 spec:
   replicas: 3
-  selector:
-    matchLabels:
-      app: frontend
   template:
     spec:
       containers:
