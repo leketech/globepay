@@ -31,12 +31,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: backend-secrets
-              key: database-password
+              key: DB_PASSWORD
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
               name: backend-secrets
-              key: jwt-secret
+              key: JWT_SECRET
         volumeMounts:
         - name: config-volume
           mountPath: /app/config.prod.yaml
