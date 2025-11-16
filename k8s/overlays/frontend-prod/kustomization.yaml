@@ -1,14 +1,11 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 resources:
 - ../../base/frontend
-
 namespace: globepay-prod
-
 patches:
 - path: patches/frontend-deployment.yaml
-
 images:
-  - name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend
-    newTag: sha-8cef039904c39fef2e52bb4b042d8efbed3dea2b
+- name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend
+  newName: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend
+  newTag: sha-4d5fbe5fd8524d4605ee220213d7005a32ce2ca3
