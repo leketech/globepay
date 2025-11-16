@@ -2,14 +2,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: backend-config
-  namespace: globepay-prod
 data:
-  aws-region: "us-east-1"
-  s3-bucket: "globepay-prod-documents"
-  sqs-queue-url: "https://sqs.us-east-1.amazonaws.com/907849381252/globepay-prod-queue"
-  log-level: "info"
-  enable-tracing: "true"
-  config.prod.yaml: |
+  config.prod.yaml: |-
     environment: production
     service_name: globepay-api
 
@@ -23,7 +17,7 @@ data:
       host: postgresql.globepay-prod.svc.cluster.local
       port: 5432
       user: globepay
-      password: ${DB_PASSWORD}
+      password: secure_password_here
       db_name: globepay_prod
       ssl_mode: disable
       max_open_conns: 25
@@ -36,7 +30,7 @@ data:
       password: ""
 
     jwt:
-      secret: ${JWT_SECRET}
+      secret: SECURE_JWT_SECRET_KEY
       expiration: 24h
 
     aws:
@@ -50,3 +44,8 @@ data:
       jaeger_endpoint: http://jaeger-collector.observability.svc.cluster.local:14268/api/traces
       log_level: info
       enable_tracing: true
+  log-level: info
+  enable-tracing: "true"
+  aws-region: us-east-1
+  s3-bucket: globepay-prod-documents
+  sqs-queue-url: https://sqs.us-east-1.amazonaws.com/907849381252/globepay-prod-queue
