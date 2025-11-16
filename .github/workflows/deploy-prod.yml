@@ -85,9 +85,9 @@ jobs:
           mv .env.secret .env.secret.bak
           mv .env.secret.tmp .env.secret
           
-          # Set the image tag to the commit SHA (without 'sha-' prefix) for migration job
-          echo "Setting migration job image tag to ${GITHUB_SHA}"
-          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:${GITHUB_SHA}
+          # Set the image tag to the commit SHA with 'sha-' prefix for migration job
+          echo "Setting migration job image tag to sha-${GITHUB_SHA:0:7}"
+          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA:0:7}
           
           # Delete existing migration job to avoid immutable field errors
           echo "Deleting existing migration job if it exists..."
@@ -138,9 +138,9 @@ jobs:
           mv .env.secret .env.secret.bak
           mv .env.secret.tmp .env.secret
           
-          # Use kustomize to set the image tag to the commit SHA (without 'sha-' prefix)
-          echo "Setting image tag to ${GITHUB_SHA}"
-          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:${GITHUB_SHA}
+          # Use kustomize to set the image tag to the commit SHA with 'sha-' prefix
+          echo "Setting image tag to sha-${GITHUB_SHA:0:7}"
+          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA:0:7}
           
           # Go back to root
           cd ../../..
@@ -296,17 +296,17 @@ jobs:
           # Deploy frontend application
           echo "Deploying frontend application with commit ${GITHUB_SHA}..."
           
-          # Use kustomize to set the image tag to the commit SHA (without 'sha-' prefix)
-          echo "Setting frontend image tag to ${GITHUB_SHA}"
+          # Use kustomize to set the image tag to the commit SHA with 'sha-' prefix
+          echo "Setting frontend image tag to sha-${GITHUB_SHA:0:7}"
           cd k8s/overlays/frontend-prod
-          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:${GITHUB_SHA}
+          kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:sha-${GITHUB_SHA:0:7}
           
           # Commit the updated kustomization.yaml file
           echo "Committing updated kustomization.yaml..."
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add kustomization.yaml
-          git commit -m "Update frontend image tag to ${GITHUB_SHA}"
+          git commit -m "Update frontend image tag to sha-${GITHUB_SHA:0:7}"
           git push origin main
           
           # Go back to root
