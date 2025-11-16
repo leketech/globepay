@@ -86,6 +86,10 @@ jobs:
           echo "Setting migration job image tag to sha-${GITHUB_SHA}"
           kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA}
           
+          # Delete existing migration job to avoid immutable field errors
+          echo "Deleting existing migration job if it exists..."
+          kubectl delete job database-migration -n globepay-prod --ignore-not-found
+          
           # Apply the migration job
           echo "Applying migration job..."
           kubectl apply -k ./

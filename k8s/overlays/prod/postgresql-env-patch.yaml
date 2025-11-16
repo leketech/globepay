@@ -18,5 +18,5 @@ spec:
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: postgresql-secrets
+              name: $(postgresql-secrets)
               key: DB_PASSWORD
