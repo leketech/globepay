@@ -17,7 +17,10 @@ spec:
         - name: PGUSER
           value: "postgres"
         - name: PGPASSWORD
-          value: "secure_password_here"
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-secrets
+              key: POSTGRES_PASSWORD
         - name: PGDATABASE
           value: "postgres"
         command:
@@ -25,6 +28,6 @@ spec:
         - -c
         - |
           echo "Updating password for globepay user..."
-          psql -c "ALTER USER globepay WITH PASSWORD 'secure_password_here';"
+          psql -c "ALTER USER globepay WITH PASSWORD '$PGPASSWORD';"
           echo "Password updated successfully"
       restartPolicy: OnFailure
