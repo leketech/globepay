@@ -14,3 +14,8 @@ patches:
   - path: patches/backend-deployment.yaml
   - path: patches/backend-resources.yaml
   - path: patches/migration-job.yaml
+
+images:
+- name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
+  newName: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
+  newTag: sha-a7470bd
