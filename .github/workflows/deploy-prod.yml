@@ -298,28 +298,30 @@ jobs:
           cd k8s/overlays/frontend-prod
           kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:sha-${GITHUB_SHA}
           
+          # Verify the image tag was set correctly
+          echo "Verifying image tag was set correctly:"
+          kustomize cfg list-setters .
+          
           # Go back to root
           cd ../../..
           
           # First, ensure the application exists
           if ! kubectl get application globepay-frontend-prod -n argocd >/dev/null 2>&1; then
             echo "Frontend application globepay-frontend-prod not found, creating it..."
-            kubectl apply -k k8s/argocd/ -n argocd
+            kubectl apply -f k8s/argocd/application-frontend.yaml -n argocd
           fi
           
           # Show current frontend application status
           echo "Current frontend application status:"
           kubectl get application globepay-frontend-prod -n argocd -o yaml || echo "Failed to get frontend application status"
           
-          # Instead of patching, we'll recreate the application with the correct configuration
-          echo "Recreating frontend application with correct configuration..."
-          kubectl delete application globepay-frontend-prod -n argocd || true
+          # Instead of deleting and recreating, we'll refresh the application to pick up changes
+          echo "Refreshing frontend application to pick up image tag changes..."
+          kubectl annotate application globepay-frontend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
           
-          # Wait a moment for deletion
-          sleep 5
-          
-          # Apply the application with the correct image tag
-          kubectl apply -f k8s/argocd/application-frontend.yaml -n argocd
+          # Force sync the application to ensure it picks up the changes immediately
+          echo "Syncing frontend application..."
+          kubectl patch application globepay-frontend-prod -n argocd --type merge -p '{"spec":{"source":{"targetRevision":"main"}}}' || true
           
           # Wait for the application to be ready
           echo "Waiting for frontend application to be ready..."
@@ -329,7 +331,7 @@ jobs:
           if kubectl wait --for=condition=Healthy \
             application/globepay-frontend-prod \
             -n argocd \
-            --timeout=15m; then
+            --timeout=20m; then
             echo "Frontend application is healthy"
           else
             echo "Frontend application failed to become healthy within timeout"
