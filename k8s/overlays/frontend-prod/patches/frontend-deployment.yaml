@@ -4,9 +4,6 @@ metadata:
   name: frontend
 spec:
   replicas: 3
-  selector:
-    matchLabels:
-      app: frontend
   template:
     spec:
       containers:
@@ -22,18 +19,4 @@ spec:
             cpu: "200m"
           limits:
             memory: "512Mi"
-            cpu: "400m"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: http
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-        readinessProbe:
-          httpGet:
-            path: /
-            port: http
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          timeoutSeconds: 3
+            cpu: "500m"

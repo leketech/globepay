@@ -298,30 +298,20 @@ jobs:
           cd k8s/overlays/frontend-prod
           kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:sha-${GITHUB_SHA}
           
-          # Verify the image tag was set correctly
-          echo "Verifying image tag was set correctly:"
-          kustomize cfg list-setters .
+          # Commit the updated kustomization.yaml file
+          echo "Committing updated kustomization.yaml..."
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add kustomization.yaml
+          git commit -m "Update frontend image tag to sha-${GITHUB_SHA}"
+          git push origin main
           
           # Go back to root
           cd ../../..
           
-          # First, ensure the application exists
-          if ! kubectl get application globepay-frontend-prod -n argocd >/dev/null 2>&1; then
-            echo "Frontend application globepay-frontend-prod not found, creating it..."
-            kubectl apply -f k8s/argocd/application-frontend.yaml -n argocd
-          fi
-          
-          # Show current frontend application status
-          echo "Current frontend application status:"
-          kubectl get application globepay-frontend-prod -n argocd -o yaml || echo "Failed to get frontend application status"
-          
-          # Instead of deleting and recreating, we'll refresh the application to pick up changes
-          echo "Refreshing frontend application to pick up image tag changes..."
+          # Refresh ArgoCD to pick up the changes
+          echo "Refreshing ArgoCD to pick up image tag changes..."
           kubectl annotate application globepay-frontend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
-          
-          # Force sync the application to ensure it picks up the changes immediately
-          echo "Syncing frontend application..."
-          kubectl patch application globepay-frontend-prod -n argocd --type merge -p '{"spec":{"source":{"targetRevision":"main"}}}' || true
           
           # Wait for the application to be ready
           echo "Waiting for frontend application to be ready..."

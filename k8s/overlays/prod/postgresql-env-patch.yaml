@@ -8,6 +8,10 @@ spec:
       containers:
       - name: postgresql
         env:
+        - name: POSTGRES_DB
+          value: "globepay_prod"
+        - name: POSTGRES_USER
+          value: "globepay"
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:

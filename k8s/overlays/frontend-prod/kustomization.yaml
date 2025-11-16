@@ -7,14 +7,8 @@ resources:
 namespace: globepay-prod
 
 patches:
-- path: ./patches/frontend-deployment.yaml
+- path: patches/frontend-deployment.yaml
 
-# Create secrets needed for frontend
-generatorOptions:
-  disableNameSuffixHash: true
-
-secretGenerator:
-- name: backend-secrets
-  literals:
-  - jwt-secret=placeholder-jwt-secret
-  - database-url=placeholder-db-url
+images:
+  - name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend
+    newTag: sha-8cef039904c39fef2e52bb4b042d8efbed3dea2b
