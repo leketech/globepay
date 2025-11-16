@@ -2,24 +2,16 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-- ../../base/backend
-- ../../base/redis
-- ../../base/postgresql
-- ../../base/ingress
-- ../../base/migration
+  - ../../base/backend
+  - ../../base/redis
+  - ../../base/postgresql
+  - ../../base/ingress
+  - ../../base/migration
 
 namespace: globepay-prod
 
 patches:
-- path: postgresql-env-patch.yaml
-- path: patches/backend-deployment.yaml
-- path: patches/backend-resources.yaml
-- path: patches/migration-job.yaml
-
-secretGenerator:
-- name: backend-secrets
-  envs:
-  - .env.secret
-- name: postgresql-secrets
-  envs:
-  - .env.secret
+  - path: postgresql-env-patch.yaml
+  - path: patches/backend-deployment.yaml
+  - path: patches/backend-resources.yaml
+  - path: patches/migration-job.yaml

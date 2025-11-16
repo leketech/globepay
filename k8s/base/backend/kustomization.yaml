@@ -2,9 +2,18 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-- configmap.yaml
-- deployment.yaml
-- hpa.yaml
-- pdb.yaml
-- service.yaml
-- serviceaccount.yaml
+  - configmap.yaml
+  - deployment.yaml
+  - hpa.yaml
+  - pdb.yaml
+  - service.yaml
+  - serviceaccount.yaml
+
+secretGenerator:
+  - name: backend-secrets
+    literals:
+      - DB_PASSWORD=secure_password_here
+      - JWT_SECRET=SECURE_JWT_SECRET_KEY
+
+generatorOptions:
+  disableNameSuffixHash: true
