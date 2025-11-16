@@ -6,6 +6,7 @@ resources:
   - deployment.yaml
   - hpa.yaml
   - pdb.yaml
+  - postgresql-init.yaml
   - service.yaml
   - serviceaccount.yaml
 
