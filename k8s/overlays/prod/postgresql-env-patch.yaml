@@ -1,22 +1,8 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgresql
-spec:
-  selector:
-    matchLabels:
-      app: postgresql
-  template:
-    spec:
-      containers:
-      - name: postgresql
-        env:
-        - name: POSTGRES_DB
-          value: "globepay_prod"
-        - name: POSTGRES_USER
-          value: "globepay"
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: $(postgresql-secrets)
-              key: DB_PASSWORD
+- op: replace
+  path: /spec/template/spec/containers/0/env/2
+  value:
+    name: POSTGRES_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: postgresql-secrets
+        key: DB_PASSWORD
