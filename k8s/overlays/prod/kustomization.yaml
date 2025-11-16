@@ -14,7 +14,6 @@ patches:
 - path: postgresql-env-patch.yaml
 - path: patches/backend-deployment.yaml
 - path: patches/backend-resources.yaml
-- path: patches/frontend-deployment.yaml
 - path: patches/migration-job.yaml
 
 secretGenerator:
