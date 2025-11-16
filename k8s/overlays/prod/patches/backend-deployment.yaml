@@ -15,7 +15,10 @@ spec:
         - name: ENVIRONMENT
           value: "production"
         - name: DATABASE_URL
-          value: "postgresql://globepay:$(DB_PASSWORD)@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable"
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: database-url
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:

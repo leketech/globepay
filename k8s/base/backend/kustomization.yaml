@@ -15,6 +15,7 @@ secretGenerator:
     literals:
       - DB_PASSWORD=secure_password_here
       - JWT_SECRET=SECURE_JWT_SECRET_KEY
+      - database-url=postgresql://globepay:secure_password_here@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable
 
 generatorOptions:
   disableNameSuffixHash: true
