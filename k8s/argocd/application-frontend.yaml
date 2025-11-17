@@ -7,7 +7,7 @@ spec:
   project: globepay-project
   source:
     repoURL: https://github.com/leketech/globepay.git
-    targetRevision: HEAD
+    targetRevision: main
     path: k8s/overlays/frontend-prod
   destination:
     server: https://kubernetes.default.svc
@@ -20,13 +20,7 @@ spec:
     - CreateNamespace=true
     - PrunePropagationPolicy=foreground
     - PruneLast=true
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        factor: 2
-        maxDuration: 3m
-  revisionHistoryLimit: 10
+    - ApplyOutOfSyncOnly=true
   ignoreDifferences:
   - group: apps
     kind: Deployment
