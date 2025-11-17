@@ -15,7 +15,9 @@ patches:
   - path: patches/backend-resources.yaml
   - path: patches/migration-job.yaml
 
+# We'll set the image tag dynamically in the CI/CD pipeline
+# Defaulting to latest for local development
 images:
 - name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
   newName: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
-  newTag: sha-a7470bd
+  newTag: latest

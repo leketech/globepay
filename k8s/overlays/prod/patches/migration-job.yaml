@@ -2,8 +2,17 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: database-migration
+  annotations:
+    # This annotation forces recreation of the job on each sync
+    argocd.argoproj.io/sync-options: Replace=true
+    # This annotation indicates that the resource should be replaced instead of applied
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
 spec:
   template:
+    metadata:
+      annotations:
+        # This annotation forces recreation of the job on each sync
+        argocd.argoproj.io/sync-options: Replace=true
     spec:
       containers:
       - name: migrate
