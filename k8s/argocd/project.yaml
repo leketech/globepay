@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: globepay-project
+  name: globepay-prod
   namespace: argocd
 spec:
-  description: Globepay Project
+  description: Globepay Production Project
   sourceRepos:
   - '*'
   destinations:
@@ -28,7 +28,7 @@ spec:
     - p, proj:globepay:developer, applications, sync, globepay/*, allow
     groups:
     - developers
-  
+
   - name: admin
     description: Admin role
     policies:

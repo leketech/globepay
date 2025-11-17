@@ -3,12 +3,19 @@ kind: Application
 metadata:
   name: globepay-backend-prod
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
-  project: globepay-project
+  project: globepay-prod
   source:
     repoURL: https://github.com/leketech/globepay.git
     targetRevision: main
     path: k8s/overlays/prod
+    kustomize:
+      images:
+        - name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
+          newName: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
+          newTag: latest
   destination:
     server: https://kubernetes.default.svc
     namespace: globepay-prod
@@ -17,10 +24,12 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
-    - PrunePropagationPolicy=foreground
-    - PruneLast=true
-    - ApplyOutOfSyncOnly=true
+      - CreateNamespace=true
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
+    managedNamespaceMetadata:
+      labels:
+        app.kubernetes.io/name: globepay-backend-prod
   ignoreDifferences:
   - group: apps
     kind: Deployment
