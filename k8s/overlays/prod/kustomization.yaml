@@ -14,6 +14,7 @@ patches:
   - path: patches/backend-deployment.yaml
   - path: patches/backend-resources.yaml
   - path: patches/migration-job.yaml
+  - path: patches/remove-database-migration-job.yaml
 
 # We'll set the image tag dynamically in the CI/CD pipeline
 # Defaulting to latest for local development
