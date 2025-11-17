@@ -96,6 +96,10 @@ jobs:
           # Wait a moment for deletion to complete
           sleep 10
           
+          # Show what resources will be applied
+          echo "Showing resources that will be applied..."
+          kubectl kustomize ./
+          
           # Apply the migration job directly (not through ArgoCD since we removed it from ArgoCD management)
           echo "Applying migration job directly..."
           kubectl apply -k ./ --force-conflicts --server-side
@@ -105,6 +109,7 @@ jobs:
           # Use a loop to check if the job exists and is complete
           for i in {1..60}; do
             if kubectl get job database-migration -n globepay-prod >/dev/null 2>&1; then
+              echo "Job found, waiting for completion... ($i/60)"
               if kubectl wait --for=condition=complete job/database-migration -n globepay-prod --timeout=60s; then
                 echo "Migration job completed successfully"
                 break
@@ -116,7 +121,19 @@ jobs:
           done
           
           # Check if job completed successfully
-          if ! kubectl get job database-migration -n globepay-prod >/dev/null 2>&1 || ! kubectl get job database-migration -n globepay-prod -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep -q "True"; then
+          if ! kubectl get job database-migration -n globepay-prod >/dev/null 2>&1; then
+            echo "ERROR: Migration job was not created. Checking for errors..."
+            # List all resources in the namespace
+            echo "Listing all resources in globepay-prod namespace:"
+            kubectl get all -n globepay-prod
+            # Check for any errors in the apply process
+            echo "Re-applying with verbose output to check for errors:"
+            kubectl apply -k ./ -v=6 || true
+            # Restore the original .env.secret file
+            mv .env.secret .env.secret.tmp
+            mv .env.secret.bak .env.secret
+            exit 1
+          elif ! kubectl get job database-migration -n globepay-prod -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep -q "True"; then
             echo "Migration job failed or timed out"
             kubectl logs job/database-migration -n globepay-prod --previous 2>/dev/null || kubectl logs job/database-migration -n globepay-prod 2>/dev/null || true
             # Clean up the job
