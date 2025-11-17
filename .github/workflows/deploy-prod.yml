@@ -145,25 +145,9 @@ jobs:
           # Go back to root
           cd ../../..
           
-          # First, ensure the application exists
-          if ! kubectl get application globepay-backend-prod -n argocd >/dev/null 2>&1; then
-            echo "Application globepay-backend-prod not found, creating it..."
-            kubectl apply -k k8s/argocd/ -n argocd
-          fi
-          
-          # Show current application status
-          echo "Current application status:"
-          kubectl get application globepay-backend-prod -n argocd -o yaml || echo "Failed to get application status"
-          
-          # Instead of patching, we'll recreate the application with the correct configuration
-          echo "Recreating application with correct configuration..."
-          kubectl delete application globepay-backend-prod -n argocd || true
-          
-          # Wait a moment for deletion
-          sleep 5
-          
-          # Apply the application with the correct image tag
-          kubectl apply -f k8s/argocd/application.yaml -n argocd
+          # Refresh ArgoCD to pick up the changes
+          echo "Refreshing ArgoCD to pick up image tag changes..."
+          kubectl annotate application globepay-backend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
           
           # Restore the original .env.secret file
           cd k8s/overlays/prod
@@ -300,14 +284,6 @@ jobs:
           echo "Setting frontend image tag to sha-${GITHUB_SHA:0:7}"
           cd k8s/overlays/frontend-prod
           kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend:sha-${GITHUB_SHA:0:7}
-          
-          # Commit the updated kustomization.yaml file
-          echo "Committing updated kustomization.yaml..."
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add kustomization.yaml
-          git commit -m "Update frontend image tag to sha-${GITHUB_SHA:0:7}"
-          git push origin main
           
           # Go back to root
           cd ../../..
