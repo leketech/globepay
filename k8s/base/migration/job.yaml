@@ -8,8 +8,13 @@ metadata:
     # This annotation indicates that the resource should be replaced instead of applied
     argocd.argoproj.io/compare-options: IgnoreExtraneous
 spec:
+  selector:
+    matchLabels:
+      app: database-migration
   template:
     metadata:
+      labels:
+        app: database-migration
       annotations:
         # This annotation forces recreation of the job on each sync
         argocd.argoproj.io/sync-options: Replace=true
