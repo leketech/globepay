@@ -89,52 +89,34 @@ jobs:
           echo "Setting migration job image tag to sha-${GITHUB_SHA:0:7}"
           kustomize edit set image 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend=907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend:sha-${GITHUB_SHA:0:7}
           
-          # Delete existing migration job if it exists
-          echo "Deleting existing migration job if it exists..."
-          kubectl delete job database-migration -n globepay-prod --ignore-not-found
-          
-          # Wait a moment for deletion to complete
-          sleep 10
-          
           # Show what resources will be applied
           echo "Showing resources that will be applied..."
           kubectl kustomize ./
           
-          # Apply the migration job directly (not through ArgoCD since we removed it from ArgoCD management)
-          echo "Applying migration job directly..."
+          # Apply all resources including the migration job
+          echo "Applying all resources..."
           kubectl apply -k ./ --force-conflicts --server-side
           
-          # Wait for the migration job to complete
-          echo "Waiting for migration job to complete..."
-          # Use a loop to check if the job exists and is complete
-          for i in {1..60}; do
-            if kubectl get job database-migration -n globepay-prod >/dev/null 2>&1; then
-              echo "Job found, waiting for completion... ($i/60)"
-              if kubectl wait --for=condition=complete job/database-migration -n globepay-prod --timeout=60s; then
-                echo "Migration job completed successfully"
-                break
-              fi
-            else
-              echo "Waiting for job to be created... ($i/60)"
-              sleep 5
-            fi
-          done
+          # Wait for the migration job to be created
+          echo "Waiting for migration job to be created..."
+          sleep 10
           
-          # Check if job completed successfully
+          # Check if job was created
           if ! kubectl get job database-migration -n globepay-prod >/dev/null 2>&1; then
-            echo "ERROR: Migration job was not created. Checking for errors..."
-            # List all resources in the namespace
-            echo "Listing all resources in globepay-prod namespace:"
+            echo "ERROR: Migration job was not created. Listing resources..."
             kubectl get all -n globepay-prod
-            # Check for any errors in the apply process
-            echo "Re-applying with verbose output to check for errors:"
-            kubectl apply -k ./ -v=6 || true
             # Restore the original .env.secret file
             mv .env.secret .env.secret.tmp
             mv .env.secret.bak .env.secret
             exit 1
-          elif ! kubectl get job database-migration -n globepay-prod -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep -q "True"; then
-            echo "Migration job failed or timed out"
+          fi
+          
+          # Wait for the migration job to complete (with better error handling)
+          echo "Waiting for migration job to complete..."
+          if kubectl wait --for=condition=complete job/database-migration -n globepay-prod --timeout=300s; then
+            echo "Migration job completed successfully"
+          else
+            echo "Migration job failed or timed out. Getting logs..."
             kubectl logs job/database-migration -n globepay-prod --previous 2>/dev/null || kubectl logs job/database-migration -n globepay-prod 2>/dev/null || true
             # Clean up the job
             kubectl delete job database-migration -n globepay-prod --ignore-not-found
