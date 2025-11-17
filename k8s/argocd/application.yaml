@@ -29,3 +29,9 @@ spec:
   - group: batch
     kind: Job
     name: database-migration
+    jsonPointers:
+    - /spec/selector
+    - /spec/template/metadata/labels/controller-uid
+    - /spec/template/metadata/labels/job-name
+    - /spec/template/metadata/labels/batch.kubernetes.io/controller-uid
+    - /spec/template/metadata/labels/batch.kubernetes.io/job-name
