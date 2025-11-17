@@ -14,4 +14,4 @@ patches:
 images:
 - name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend
   newName: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend
-  newTag: latest
+  newTag: sha-759e8e0
