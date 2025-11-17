@@ -93,6 +93,13 @@ jobs:
           echo "Showing resources that will be applied..."
           kubectl kustomize ./
           
+          # Delete existing migration job if it exists to avoid immutable field errors
+          echo "Deleting existing migration job if it exists..."
+          kubectl delete job database-migration -n globepay-prod --ignore-not-found
+          
+          # Wait a moment for deletion to complete
+          sleep 10
+          
           # Apply all resources including the migration job
           echo "Applying all resources..."
           kubectl apply -k ./ --force-conflicts --server-side
