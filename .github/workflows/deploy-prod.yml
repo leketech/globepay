@@ -94,7 +94,7 @@ jobs:
           kubectl delete job database-migration -n globepay-prod --ignore-not-found
           
           # Wait a moment for deletion to complete
-          sleep 5
+          sleep 10
           
           # Apply the migration job
           echo "Applying migration job..."
@@ -148,9 +148,21 @@ jobs:
           # Go back to root
           cd ../../..
           
-          # Refresh ArgoCD to pick up the changes
-          echo "Refreshing ArgoCD to pick up image tag changes..."
+          # Sync ArgoCD application to pick up the changes
+          echo "Syncing ArgoCD application to pick up image tag changes..."
+          kubectl patch application globepay-backend-prod -n argocd -p='{"spec":{"source":{"targetRevision":"main"}}}' --type=merge || true
           kubectl annotate application globepay-backend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
+          sleep 5
+          if ! kubectl argocd app sync globepay-backend-prod -n argocd --timeout 600; then
+            echo "ArgoCD sync failed, trying refresh and sync again..."
+            kubectl annotate application globepay-backend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
+            sleep 10
+            kubectl argocd app sync globepay-backend-prod -n argocd --timeout 600 || {
+              echo "ArgoCD sync failed again"
+              kubectl describe application globepay-backend-prod -n argocd
+              exit 1
+            }
+          fi
           
           # Restore the original .env.secret file
           cd k8s/overlays/prod
@@ -159,13 +171,13 @@ jobs:
           
           # Wait for the application to be ready
           echo "Waiting for application to be ready..."
-          sleep 10
+          sleep 15
            
           echo "Waiting for application to become healthy..."
           if kubectl wait --for=condition=Healthy \
             application/globepay-backend-prod \
             -n argocd \
-            --timeout=20m; then
+            --timeout=25m; then
             echo "Application is healthy"
           else
             echo "Application failed to become healthy within timeout"
@@ -291,20 +303,32 @@ jobs:
           # Go back to root
           cd ../../..
           
-          # Refresh ArgoCD to pick up the changes
-          echo "Refreshing ArgoCD to pick up image tag changes..."
+          # Sync ArgoCD application to pick up the changes
+          echo "Syncing ArgoCD application to pick up image tag changes..."
+          kubectl patch application globepay-frontend-prod -n argocd -p='{"spec":{"source":{"targetRevision":"main"}}}' --type=merge || true
           kubectl annotate application globepay-frontend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
+          sleep 5
+          if ! kubectl argocd app sync globepay-frontend-prod -n argocd --timeout 600; then
+            echo "ArgoCD sync failed, trying refresh and sync again..."
+            kubectl annotate application globepay-frontend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
+            sleep 10
+            kubectl argocd app sync globepay-frontend-prod -n argocd --timeout 600 || {
+              echo "ArgoCD sync failed again"
+              kubectl describe application/globepay-frontend-prod -n argocd
+              exit 1
+            }
+          fi
           
           # Wait for the application to be ready
           echo "Waiting for frontend application to be ready..."
-          sleep 10
+          sleep 15
            
           echo "Waiting for frontend application to become healthy..."
-          # Increase timeout to 30 minutes to account for longer sync times
+          # Increase timeout to 35 minutes to account for longer sync times
           if kubectl wait --for=condition=Healthy \
             application/globepay-frontend-prod \
             -n argocd \
-            --timeout=30m; then
+            --timeout=35m; then
             echo "Frontend application is healthy"
           else
             echo "Frontend application failed to become healthy within timeout"
