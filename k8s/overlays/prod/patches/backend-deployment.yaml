@@ -15,11 +15,8 @@ spec:
         env:
         - name: ENVIRONMENT
           value: "production"
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: database-url
+        - name: CONFIG_FILE
+          value: "/app/config.prod.yaml"
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
