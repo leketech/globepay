@@ -102,16 +102,30 @@ jobs:
           
           # Wait for the migration job to complete
           echo "Waiting for migration job to complete..."
-          kubectl wait --for=condition=complete job/database-migration -n globepay-prod --timeout=300s || {
+          # Use a loop to check if the job exists and is complete
+          for i in {1..60}; do
+            if kubectl get job database-migration -n globepay-prod >/dev/null 2>&1; then
+              if kubectl wait --for=condition=complete job/database-migration -n globepay-prod --timeout=60s; then
+                echo "Migration job completed successfully"
+                break
+              fi
+            else
+              echo "Waiting for job to be created... ($i/60)"
+              sleep 5
+            fi
+          done
+          
+          # Check if job completed successfully
+          if ! kubectl get job database-migration -n globepay-prod >/dev/null 2>&1 || ! kubectl get job database-migration -n globepay-prod -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep -q "True"; then
             echo "Migration job failed or timed out"
-            kubectl logs job/database-migration -n globepay-prod --previous || true
+            kubectl logs job/database-migration -n globepay-prod --previous 2>/dev/null || kubectl logs job/database-migration -n globepay-prod 2>/dev/null || true
             # Clean up the job
             kubectl delete job database-migration -n globepay-prod --ignore-not-found
             # Restore the original .env.secret file
             mv .env.secret .env.secret.tmp
             mv .env.secret.bak .env.secret
             exit 1
-          }
+          fi
           
           # Clean up the job after completion
           echo "Cleaning up migration job..."
@@ -160,38 +174,6 @@ jobs:
           kubectl annotate application globepay-backend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
           sleep 5
           
-          # Install argocd CLI
-          if ! command -v argocd &> /dev/null; then
-            echo "Installing argocd CLI..."
-            curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-            sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-            rm argocd-linux-amd64
-          fi
-          
-          # Login to ArgoCD
-          echo "Logging into ArgoCD..."
-          argocd login --core
-          
-          if ! argocd app sync globepay-backend-prod --timeout 600; then
-            echo "ArgoCD sync failed, trying refresh and sync again..."
-            kubectl annotate application globepay-backend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
-            sleep 10
-            argocd app sync globepay-backend-prod --timeout 600 || {
-              echo "ArgoCD sync failed again"
-              kubectl describe application globepay-backend-prod -n argocd
-              # Restore the original .env.secret file
-              cd k8s/overlays/prod
-              mv .env.secret .env.secret.tmp
-              mv .env.secret.bak .env.secret
-              exit 1
-            }
-          fi
-          
-          # Restore the original .env.secret file
-          cd k8s/overlays/prod
-          mv .env.secret .env.secret.tmp
-          mv .env.secret.bak .env.secret
-          
           # Wait for the application to be ready
           echo "Waiting for application to be ready..."
           sleep 15
@@ -205,8 +187,17 @@ jobs:
           else
             echo "Application failed to become healthy within timeout"
             kubectl describe application globepay-backend-prod -n argocd
+            # Restore the original .env.secret file
+            cd k8s/overlays/prod
+            mv .env.secret .env.secret.tmp
+            mv .env.secret.bak .env.secret
             exit 1
           fi
+          
+          # Restore the original .env.secret file
+          cd k8s/overlays/prod
+          mv .env.secret .env.secret.tmp
+          mv .env.secret.bak .env.secret
       
       - name: Monitor canary deployment
         run: |
@@ -331,29 +322,6 @@ jobs:
           kubectl patch application globepay-frontend-prod -n argocd -p='{"spec":{"source":{"targetRevision":"main"}}}' --type=merge || true
           kubectl annotate application globepay-frontend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
           sleep 5
-          
-          # Install argocd CLI
-          if ! command -v argocd &> /dev/null; then
-            echo "Installing argocd CLI..."
-            curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-            sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-            rm argocd-linux-amd64
-          fi
-          
-          # Login to ArgoCD
-          echo "Logging into ArgoCD..."
-          argocd login --core
-          
-          if ! argocd app sync globepay-frontend-prod --timeout 600; then
-            echo "ArgoCD sync failed, trying refresh and sync again..."
-            kubectl annotate application globepay-frontend-prod -n argocd argocd.argoproj.io/refresh=hard --overwrite || true
-            sleep 10
-            argocd app sync globepay-frontend-prod --timeout 600 || {
-              echo "ArgoCD sync failed again"
-              kubectl describe application globepay-frontend-prod -n argocd
-              exit 1
-            }
-          fi
           
           # Wait for the application to be ready
           echo "Waiting for frontend application to be ready..."
