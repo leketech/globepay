@@ -97,8 +97,13 @@ jobs:
           echo "Deleting existing migration job if it exists..."
           kubectl delete job database-migration -n globepay-prod --ignore-not-found
           
-          # Wait a moment for deletion to complete
-          sleep 10
+          # Wait for the job to be completely deleted
+          echo "Waiting for job deletion to complete..."
+          while kubectl get job database-migration -n globepay-prod >/dev/null 2>&1; do
+            echo "Waiting for job to be deleted..."
+            sleep 5
+          done
+          echo "Job deletion confirmed."
           
           # Apply all resources including the migration job
           echo "Applying all resources..."

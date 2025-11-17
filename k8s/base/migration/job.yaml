@@ -23,11 +23,11 @@ spec:
         command: ["/app/migrate"]
         args: ["up"]
         env:
-        - name: DATABASE_URL
-          value: "postgresql://globepay:$(DB_PASSWORD)@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable"
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: backend-secrets
               key: DB_PASSWORD
+        - name: DATABASE_URL
+          value: "postgresql://globepay:$(DB_PASSWORD)@postgresql.globepay-prod.svc.cluster.local:5432/globepay_prod?sslmode=disable"
       restartPolicy: Never
