@@ -93,9 +93,12 @@ jobs:
           echo "Deleting existing migration job if it exists..."
           kubectl delete job database-migration -n globepay-prod --ignore-not-found
           
+          # Wait a moment for deletion to complete
+          sleep 5
+          
           # Apply the migration job
           echo "Applying migration job..."
-          kubectl apply -k ./
+          kubectl apply -k ./ --force-conflicts --server-side
           
           # Wait for the migration job to complete
           echo "Waiting for migration job to complete..."
@@ -297,10 +300,11 @@ jobs:
           sleep 10
            
           echo "Waiting for frontend application to become healthy..."
+          # Increase timeout to 30 minutes to account for longer sync times
           if kubectl wait --for=condition=Healthy \
             application/globepay-frontend-prod \
             -n argocd \
-            --timeout=20m; then
+            --timeout=30m; then
             echo "Frontend application is healthy"
           else
             echo "Frontend application failed to become healthy within timeout"
