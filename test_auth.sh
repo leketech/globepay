@@ -1,14 +1,24 @@
 #!/bin/bash
 
-# Test the auth endpoints from within the cluster
-echo "Testing registration..."
-/usr/local/bin/kubectl exec -n globepay-prod frontend-7b69d6d96-l2mkf -- curl -v -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"email": "testuser@example.com", "password": "securepassword123", "firstName": "Test", "lastName": "User"}' \
-  http://backend/api/v1/auth/register
+# Test script for login and signup functionality
+API_URL="https://api.globepay.space"
 
-echo -e "\nTesting login..."
-/usr/local/bin/kubectl exec -n globepay-prod frontend-7b69d6d96-l2mkf -- curl -v -X POST \
+echo "Testing signup endpoint..."
+curl -k -X POST ${API_URL}/api/v1/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email": "testuser@example.com", "password": "securepassword123"}' \
-  http://backend/api/v1/auth/login
+  -d '{
+    "email": "test@example.com",
+    "password": "password123",
+    "firstName": "Test",
+    "lastName": "User"
+  }'
+
+echo -e "\n\nTesting login endpoint..."
+curl -k -X POST ${API_URL}/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+
+echo -e "\n"
