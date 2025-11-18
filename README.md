@@ -757,4 +757,4 @@ Made with ❤️ by the Globepay Team
 <a href="https://globepay.com">Website</a> • 
 <a href="https://docs.globepay.com">Documentation</a> • 
 <a href="https://blog.globepay.com">Blog</a>
-</div>
+</div># Trigger new deployment
