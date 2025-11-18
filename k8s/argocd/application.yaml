@@ -10,12 +10,10 @@ spec:
   source:
     repoURL: https://github.com/leketech/globepay.git
     targetRevision: main
-    path: k8s/overlays/prod
-    kustomize:
-      images:
-        - name: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
-          newName: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
-          newTag: latest
+    path: helm/globepay
+    helm:
+      valueFiles:
+        - values-prod.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: globepay-prod
