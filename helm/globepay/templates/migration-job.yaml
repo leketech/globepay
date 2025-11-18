@@ -29,5 +29,5 @@ spec:
               name: {{ .Values.secrets.name }}
               key: DB_PASSWORD
         - name: DATABASE_URL
-          value: "postgresql://globepay:$(DB_PASSWORD)@{{ include "globepay.fullname" . }}-{{ .Values.database.name }}.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.database.service.port }}/globepay_{{ .Values.global.environment }}?sslmode=disable"
+          value: "postgresql://globepay:{{ .Values.secrets.dbPassword }}@{{ include "globepay.fullname" . }}-{{ .Values.database.name }}.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.database.service.port }}/globepay_{{ .Values.global.environment }}?sslmode=disable"
       restartPolicy: Never

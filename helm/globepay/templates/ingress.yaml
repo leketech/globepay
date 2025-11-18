@@ -14,18 +14,18 @@ spec:
   ingressClassName: {{ .Values.ingress.className }}
   {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-  - host: {{ .host | quote }}
+  {{- range $host := .Values.ingress.hosts }}
+  - host: {{ $host.host | quote }}
     http:
       paths:
-      {{- range .paths }}
+      {{- range $host.paths }}
       - path: {{ .path }}
         pathType: {{ .pathType }}
         backend:
           service:
-            name: {{ include "globepay.fullname" $ }}-{{ if contains "api" .host }}backend{{ else }}frontend{{ end }}
+            name: {{ include "globepay.fullname" $ }}-{{ if contains "api" $host.host }}backend{{ else }}frontend{{ end }}
             port:
-              number: {{ if contains "api" .host }}{{ $.Values.backend.service.port }}{{ else }}{{ $.Values.frontend.service.port }}{{ end }}
+              number: {{ if contains "api" $host.host }}{{ $.Values.backend.service.port }}{{ else }}{{ $.Values.frontend.service.port }}{{ end }}
       {{- end }}
   {{- end }}
   {{- if .Values.ingress.tls }}
