@@ -1,0 +1,149 @@
+# Default values for globepay.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global values
+global:
+  environment: production
+  namespace: globepay-prod
+
+# Backend service configuration
+backend:
+  image:
+    repository: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 3
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  livenessProbe:
+    path: /health
+    initialDelaySeconds: 120
+    periodSeconds: 15
+    timeoutSeconds: 5
+  readinessProbe:
+    path: /health/ready
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+
+# Frontend service configuration
+frontend:
+  image:
+    repository: 907849381252.dkr.ecr.us-east-1.amazonaws.com/globepay-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 3
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+  livenessProbe:
+    path: /
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+  readinessProbe:
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+
+# Database configuration
+database:
+  enabled: true
+  name: postgresql
+  image:
+    repository: postgres
+    tag: 13
+    pullPolicy: IfNotPresent
+  service:
+    port: 5432
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Redis configuration
+redis:
+  enabled: true
+  name: redis
+  image:
+    repository: redis
+    tag: 6.2
+    pullPolicy: IfNotPresent
+  service:
+    port: 6379
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:907849381252:certificate/ebe427bd-7106-43b3-9a82-9d46d84f83bf
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-2-2017-01
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/success-codes: '200'
+    alb.ingress.kubernetes.io/group.name: globepay-ingress-group
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=120
+    alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=3600
+  hosts:
+    - host: globepay.space
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: www.globepay.space
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: api.globepay.space
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Secrets configuration
+secrets:
+  enabled: true
+  name: backend-secrets
+  # These values will be base64 encoded in the secret
+  dbPassword: ""
+  jwtSecret: ""
+
+# ConfigMap configuration
+configmap:
+  enabled: true
+  name: backend-config

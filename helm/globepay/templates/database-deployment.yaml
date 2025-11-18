@@ -1,0 +1,45 @@
+{{- if .Values.database.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "globepay.fullname" . }}-{{ .Values.database.name }}
+  labels:
+    {{- include "globepay.labels" . | nindent 4 }}
+    app: {{ .Values.database.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "globepay.selectorLabels" . | nindent 6 }}
+      app: {{ .Values.database.name }}
+  template:
+    metadata:
+      labels:
+        {{- include "globepay.selectorLabels" . | nindent 8 }}
+        app: {{ .Values.database.name }}
+    spec:
+      containers:
+      - name: {{ .Values.database.name }}
+        image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
+        imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.database.service.port }}
+        env:
+        - name: POSTGRES_DB
+          value: "globepay_{{ .Values.global.environment }}"
+        - name: POSTGRES_USER
+          value: "globepay"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.name }}
+              key: DB_PASSWORD
+        resources:
+          {{- toYaml .Values.database.resources | nindent 10 }}
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        emptyDir: {}
+{{- end }}

@@ -1,4 +1,4 @@
-name: Deploy to Production
+name: Deploy to Production with Helm
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
 
 jobs:
   deploy-backend:
-    name: Deploy Backend to Production
+    name: Deploy Backend to Production with Helm
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     environment: production
@@ -135,7 +135,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   deploy-frontend:
-    name: Deploy Frontend to Production
+    name: Deploy Frontend to Production with Helm
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     environment: production

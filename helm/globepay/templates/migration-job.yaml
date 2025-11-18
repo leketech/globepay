@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "globepay.fullname" . }}-database-migration
+  labels:
+    {{- include "globepay.labels" . | nindent 4 }}
+    app: database-migration
+  annotations:
+    # This annotation forces recreation of the job on each sync
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 4
+  template:
+    metadata:
+      labels:
+        {{- include "globepay.selectorLabels" . | nindent 8 }}
+        app: database-migration
+    spec:
+      containers:
+      - name: migrate
+        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+        command: ["/app/migrate"]
+        args: ["up"]
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.name }}
+              key: DB_PASSWORD
+        - name: DATABASE_URL
+          value: "postgresql://globepay:$(DB_PASSWORD)@{{ include "globepay.fullname" . }}-{{ .Values.database.name }}.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.database.service.port }}/globepay_{{ .Values.global.environment }}?sslmode=disable"
+      restartPolicy: Never

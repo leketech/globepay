@@ -1,0 +1,37 @@
+{{- if .Values.configmap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configmap.name }}
+  labels:
+    {{- include "globepay.labels" . | nindent 4 }}
+data:
+  config.prod.yaml: |
+    # Production configuration
+    server:
+      port: 8080
+      read_timeout: 5s
+      write_timeout: 10s
+      idle_timeout: 60s
+    
+    database:
+      host: {{ include "globepay.fullname" . }}-{{ .Values.database.name }}.{{ .Values.global.namespace }}.svc.cluster.local
+      port: {{ .Values.database.service.port }}
+      name: globepay_{{ .Values.global.environment }}
+      user: globepay
+      sslmode: disable
+      max_open_conns: 25
+      max_idle_conns: 25
+      conn_max_lifetime: 5m
+    
+    redis:
+      addr: {{ include "globepay.fullname" . }}-{{ .Values.redis.name }}.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.redis.service.port }}
+      password: ""
+      db: 0
+    
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration_hours: 72
+    
+    environment: ${ENVIRONMENT}
+{{- end }}

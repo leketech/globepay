@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: globepay-frontend-prod-helm
+  namespace: argocd
+spec:
+  project: globepay-project
+  source:
+    repoURL: https://github.com/leketech/globepay.git
+    targetRevision: main
+    path: helm/globepay
+    helm:
+      valueFiles:
+        - values-prod.yaml
+      parameters:
+        - name: backend.image.tag
+          value: latest
+        - name: frontend.image.tag
+          value: latest
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: globepay-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - ApplyOutOfSyncOnly=true
+  ignoreDifferences:
+  - group: apps
+    kind: Deployment
+    jsonPointers:
+    - /spec/replicas
