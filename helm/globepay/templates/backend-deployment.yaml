@@ -18,58 +18,47 @@ spec:
         app: backend
     spec:
       containers:
-      - name: backend
-        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
-        imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: 8080
+        - containerPort: {{ .Values.backend.service.port }}
           name: http
-        - containerPort: 9090
-          name: metrics
         env:
-        - name: ENVIRONMENT
-          value: {{ .Values.global.environment | quote }}
-        - name: CONFIG_FILE
-          value: "/app/config.prod.yaml"
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.secrets.name }}
+              name: backend-secrets
               key: DB_PASSWORD
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: database-url
+        - name: REDIS_URL
+          value: "redis://{{ include "globepay.fullname" . }}-redis.{{ .Values.global.namespace }}.svc.cluster.local:6379"
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.secrets.name }}
+              name: backend-secrets
               key: JWT_SECRET
-        - name: REDIS_URL
-          value: "redis://{{ .Values.redis.name }}.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.redis.service.port }}"
-        command:
-        - sh
-        - -c
-        - |
-          cp /app/config.prod.yaml /app/config.yaml
-          ./api --config=/app/config.yaml
-        volumeMounts:
-        - name: config-volume
-          mountPath: /app/config.prod.yaml
-          subPath: config.prod.yaml
+        - name: PORT
+          value: "{{ .Values.backend.service.port }}"
+        - name: ENVIRONMENT
+          value: "{{ .Values.global.environment }}"
         resources:
-          {{- toYaml .Values.backend.resources | nindent 10 }}
+          {{- toYaml .Values.backend.resources | nindent 12 }}
         livenessProbe:
           httpGet:
-            path: {{ .Values.backend.livenessProbe.path }}
+            path: /health
             port: http
           initialDelaySeconds: {{ .Values.backend.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.backend.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.backend.livenessProbe.timeoutSeconds }}
         readinessProbe:
           httpGet:
-            path: {{ .Values.backend.readinessProbe.path }}
+            path: /health
             port: http
           initialDelaySeconds: {{ .Values.backend.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.backend.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.backend.readinessProbe.timeoutSeconds }}
-      volumes:
-      - name: config-volume
-        configMap:
-          name: {{ .Values.configmap.name }}

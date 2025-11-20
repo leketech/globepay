@@ -14,20 +14,23 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "globepay.selectorLabels" . | nindent 8 }}
+        {{- include "globepay.labels" . | nindent 8 }}
         app: database-migration
     spec:
       containers:
       - name: migrate
-        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         command: ["/app/migrate"]
         args: ["up"]
         env:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.secrets.name }}
+              name: backend-secrets
               key: DB_PASSWORD
         - name: DATABASE_URL
-          value: "postgresql://globepay:{{ .Values.secrets.dbPassword }}@{{ include "globepay.fullname" . }}-{{ .Values.database.name }}.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.database.service.port }}/globepay_{{ .Values.global.environment }}?sslmode=disable"
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: database-url
       restartPolicy: Never
