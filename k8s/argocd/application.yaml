@@ -10,10 +10,7 @@ spec:
   source:
     repoURL: https://github.com/leketech/globepay.git
     targetRevision: main
-    path: helm/globepay
-    helm:
-      valueFiles:
-        - values-prod.yaml
+    path: k8s/overlays/prod
   destination:
     server: https://kubernetes.default.svc
     namespace: globepay-prod
