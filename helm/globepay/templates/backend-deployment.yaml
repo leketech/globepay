@@ -28,19 +28,19 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: backend-secrets
+              name: {{ .Values.secrets.name }}
               key: DB_PASSWORD
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: backend-secrets
+              name: {{ .Values.secrets.name }}
               key: database-url
         - name: REDIS_URL
           value: "redis://{{ include "globepay.fullname" . }}-redis.{{ .Values.global.namespace }}.svc.cluster.local:6379"
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: backend-secrets
+              name: {{ .Values.secrets.name }}
               key: JWT_SECRET
         - name: PORT
           value: "{{ .Values.backend.service.port }}"
