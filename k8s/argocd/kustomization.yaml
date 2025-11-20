@@ -4,6 +4,4 @@ kind: Kustomization
 resources:
 - application.yaml
 - application-frontend.yaml
-- application-backend-helm.yaml
-- application-frontend-helm.yaml
 - project.yaml

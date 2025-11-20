@@ -38,6 +38,10 @@ docker push $FRONTEND_IMAGE
 echo "Updating Kubernetes manifests..."
 ./scripts/update-image-tags.sh $ENVIRONMENT $TAG $TAG
 
+# Update secret patch with actual values
+echo "Updating secret patch..."
+./scripts/update-secret-patch.sh $ENVIRONMENT
+
 # Deploy to Kubernetes
 echo "Deploying to Kubernetes..."
 case $ENVIRONMENT in

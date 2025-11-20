@@ -62,39 +62,26 @@ jobs:
             echo "Backup creation failed, continuing with deployment..."
           fi
       
-      - name: Install Helm
+      - name: Prepare for Kustomize deployment
         run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-          helm version
-      
-      - name: Prepare for Helm deployment
-        run: |
-          # Delete existing resources that might conflict with Helm
-          echo "Deleting existing secrets that might conflict with Helm..."
-          kubectl delete secret backend-secrets -n globepay-prod --ignore-not-found
-          kubectl delete secret postgresql-secrets -n globepay-prod --ignore-not-found
-          
           # Set the image tag to the commit SHA with 'sha-' prefix
           BACKEND_TAG="sha-${GITHUB_SHA:0:7}"
           FRONTEND_TAG="sha-${GITHUB_SHA:0:7}"
           
-          echo "Deploying with Helm using backend tag: $BACKEND_TAG and frontend tag: $FRONTEND_TAG"
+          echo "Deploying with Kustomize using backend tag: $BACKEND_TAG and frontend tag: $FRONTEND_TAG"
           
-          # Update the production values file with the new image tags
-          sed -i "s/tag: latest/tag: $BACKEND_TAG/g" helm/globepay/values-prod.yaml
-          sed -i "s/tag: latest/tag: $FRONTEND_TAG/g" helm/globepay/values-prod.yaml
+          # Update the production overlay with the new image tags
+          sed -i "s|leketech/globepay-backend:latest|leketech/globepay-backend:$BACKEND_TAG|g" k8s/overlays/prod/backend-deployment.yaml
+          sed -i "s|leketech/globepay-frontend:latest|leketech/globepay-frontend:$FRONTEND_TAG|g" k8s/overlays/frontend-prod/frontend-deployment.yaml
       
-      - name: Deploy with Helm
+      - name: Deploy with Kustomize
         run: |
-          # Deploy using Helm
-          helm upgrade --install globepay-prod ./helm/globepay \
-            -f ./helm/globepay/values-prod.yaml \
-            --namespace globepay-prod \
-            --create-namespace \
-            --set secrets.dbPassword="${{ secrets.DB_PASSWORD }}" \
-            --set secrets.jwtSecret="${{ secrets.JWT_SECRET }}" \
-            --timeout 10m \
-            --wait
+          # Deploy using Kustomize
+          echo "Applying backend production configuration..."
+          kubectl apply -k k8s/overlays/prod/
+          
+          echo "Applying frontend production configuration..."
+          kubectl apply -k k8s/overlays/frontend-prod/
       
       - name: Verify deployment
         run: |
@@ -132,7 +119,7 @@ jobs:
         with:
           status: ${{ job.status }}
           text: |
-            Production Backend Deployment (Helm): ${{ job.status }}
+            Production Backend Deployment (Kustomize): ${{ job.status }}
             Environment: Production
             Commit: ${{ github.sha }}
             Author: ${{ github.actor }}
@@ -235,7 +222,7 @@ jobs:
         with:
           status: ${{ job.status }}
           text: |
-            Production Frontend Deployment (Helm): ${{ job.status }}
+            Production Frontend Deployment (Kustomize): ${{ job.status }}
             Environment: Production
             Commit: ${{ github.sha }}
             Author: ${{ github.actor }}
